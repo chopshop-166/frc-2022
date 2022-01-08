@@ -1,7 +1,11 @@
 {
   "java.configuration.updateBuildConfiguration": "automatic",
   "java.server.launchMode": "Standard",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
   "files.exclude": {
+    "**/build/": true,
+    "**/.gradle/": true,
     "**/.git": true,
     "**/.svn": true,
     "**/.hg": true,
