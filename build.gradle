@@ -2,7 +2,7 @@ import edu.wpi.first.gradlerio.deploy.roborio.RoboRIO
 
 plugins {
     id "java"
-    id "com.github.spotbugs" version "4.7.1"
+    id "com.github.spotbugs" version "5.0.4"
     id "pmd"
     id "edu.wpi.first.GradleRIO" version "2022.1.1"
     id "com.chopshop166.plugin" version "0.8"
@@ -57,7 +57,7 @@ repositories {
 }
 
 chopshop {
-    version = "2022.1.1"
+    version = "2022.1.2"
 }
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
@@ -121,7 +121,7 @@ spotbugs {
 }
 
 pmd {
-    toolVersion = "6.37.0"
+    toolVersion = "6.41.0"
     ignoreFailures = true
     ruleSets = []
     ruleSetFiles = files("$rootProject.projectDir/config/pmd-ruleset.xml")
