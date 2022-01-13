@@ -1,16 +1,56 @@
 package com.chopshop166.chopshoplib.drive;
 
+import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
 /** Swerve Drive Specialties Mk3. */
 public class SDSSwerveModule implements SwerveModule {
+
+    public static class Configuration {
+
+        /** Overall gear ratio for the swerve module drive motor. */
+        public final double gearRatio;
+        /** Wheel diameter. */
+        public final double wheelDiameter;
+
+        public Configuration(double gearRatio, double wheelDiameter) {
+            this.gearRatio = gearRatio;
+            this.wheelDiameter = wheelDiameter;
+        }
+
+        public double getConversion() {
+            return gearRatio * Math.PI * wheelDiameter;
+        }
+    }
+
+    public static final Configuration MK3_STANDARD = new Configuration(
+            (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 60.0), Units.inchesToMeters(4));
+
+    public static final Configuration MK3_FAST = new Configuration(
+            (16.0 / 48.0) * (28.0 / 16.0) * (15.0 / 60.0), Units.inchesToMeters(4));
+
+    public static final Configuration MK4_V1 = new Configuration(
+            (14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0), Units.inchesToMeters(3.95));
+
+    public static final Configuration MK4_V2 = new Configuration(
+            (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0), Units.inchesToMeters(3.95));
+
+    public static final Configuration MK4_V3 = new Configuration(
+            (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0), Units.inchesToMeters(3.95));
+
+    public static final Configuration MK4_V4 = new Configuration(
+            (16.0 / 48.0) * (28.0 / 16.0) * (15.0 / 45.0), Units.inchesToMeters(3.95));
 
     /** The physical location of the module. */
     private final Translation2d location;
@@ -41,9 +81,10 @@ public class SDSSwerveModule implements SwerveModule {
      * @param steeringController The steering motor controller.
      * @param driveController    The drive motor controller.
      */
-    public SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
-            final PIDSparkMax steeringController, final PIDSparkMax driveController) {
-        this(moduleLocation, steeringEncoder, steeringController, driveController, new PIDController(K_P, K_I, K_D));
+    protected SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
+            final PIDSparkMax steeringController, final PIDSparkMax driveController, final Configuration conf) {
+        this(moduleLocation, steeringEncoder, steeringController, driveController, conf,
+                new PIDController(K_P, K_I, K_D));
     }
 
     /**
@@ -54,12 +95,13 @@ public class SDSSwerveModule implements SwerveModule {
      * @param steeringController The steering motor controller.
      * @param driveController    The drive motor controller.
      */
-    public SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
-            final PIDSparkMax steeringController, final PIDSparkMax driveController, final PIDController pid) {
+    protected SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
+            final PIDSparkMax steeringController, final PIDSparkMax driveController,
+            final Configuration conf, final PIDController pid) {
         this.location = moduleLocation;
         this.steeringEncoder = steeringEncoder;
         this.steeringController = steeringController;
-        this.driveController = driveController;
+        this.driveController = configureDriveMotor(driveController, conf);
         this.steeringPID = pid;
         this.steeringPID.enableContinuousInput(-180, 180);
     }
@@ -116,6 +158,37 @@ public class SDSSwerveModule implements SwerveModule {
      */
     private SwerveModuleState calculateSteeringAngle(final SwerveModuleState desiredState) {
         return SwerveModuleState.optimize(desiredState, getAngle());
+    }
+
+    /**
+     * Configures a PIDSparkMax for use as the drive motor on a MK3 swerve module.
+     *
+     * @param motor Drive motor controller to configure.
+     * @return Drive motor controller for chaining.
+     */
+    private static PIDSparkMax configureDriveMotor(final PIDSparkMax motor, final Configuration conf) {
+        // Get raw objects from the PIDSparkMax
+        final CANSparkMax sparkMax = motor.getMotorController();
+        final RelativeEncoder encoder = motor.getEncoder().getRaw();
+        final SparkMaxPIDController pid = motor.getPidController();
+
+        // Set Motor controller configuration
+        motor.setControlType(PIDControlType.Velocity);
+        sparkMax.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        // Set velocity conversion to convert RPM to M/s
+        encoder.setVelocityConversionFactor(conf.getConversion() / 60.0);
+        // Set Position conversion to convert from Rotations to M
+        encoder.setPositionConversionFactor(conf.getConversion());
+
+        // Configure PID
+        // https://docs.revrobotics.com/sparkmax/operating-modes/closed-loop-control
+        pid.setP(0.0);
+        pid.setI(0.00015);
+        pid.setD(0.0);
+        pid.setFF(0.219);
+
+        // Return the original object so this can be chained
+        return motor;
     }
 
     @Override
