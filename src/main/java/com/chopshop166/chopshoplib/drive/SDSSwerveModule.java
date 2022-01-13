@@ -136,7 +136,9 @@ public class SDSSwerveModule implements SwerveModule {
             driveController.getPidController().setIAccum(0);
         }
         this.speedError = state.speedMetersPerSecond - driveController.getEncoder().getRate();
-        driveController.setSetpoint(state.speedMetersPerSecond);
+        if (state.speedMetersPerSecond == 0) {
+            driveController.setSetpoint(state.speedMetersPerSecond);
+        }
     }
 
     /**
