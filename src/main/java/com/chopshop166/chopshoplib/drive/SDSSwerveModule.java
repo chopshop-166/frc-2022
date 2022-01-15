@@ -107,6 +107,24 @@ public class SDSSwerveModule implements SwerveModule {
     }
 
     /**
+     * Get the steering motor controller.
+     * 
+     * @return The controller object.
+     */
+    public PIDSparkMax getSteeringController() {
+        return steeringController;
+    }
+
+    /**
+     * Get the Disney motor controller.
+     * 
+     * @return The controller object.
+     */
+    public PIDSparkMax getDriveController() {
+        return driveController;
+    }
+
+    /**
      * Get the module's location in relation to the center of mass of the robot.
      *
      * @return Location2d object representing the offset.
