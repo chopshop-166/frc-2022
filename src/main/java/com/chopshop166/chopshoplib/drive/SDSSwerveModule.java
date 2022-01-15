@@ -2,6 +2,7 @@ package com.chopshop166.chopshoplib.drive;
 
 import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
+import com.chopshop166.chopshoplib.states.PIDValues;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -17,22 +18,19 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 /** Swerve Drive Specialties Mk3. */
 public class SDSSwerveModule implements SwerveModule {
 
-    public static class Configuration {
+    /** The physical location of the module. */
+    private final Translation2d location;
+    /** The encoder used for steering. */
+    private final CANCoder steeringEncoder;
+    /** The motor controller for steering. */
+    private final PIDSparkMax steeringController;
+    /** The PID controller for steering. */
+    private final PIDController steeringPID;
+    /** The motor controller used for driving. */
+    private final PIDSparkMax driveController;
 
-        /** Overall gear ratio for the swerve module drive motor. */
-        public final double gearRatio;
-        /** Wheel diameter. */
-        public final double wheelDiameter;
-
-        public Configuration(double gearRatio, double wheelDiameter) {
-            this.gearRatio = gearRatio;
-            this.wheelDiameter = wheelDiameter;
-        }
-
-        public double getConversion() {
-            return gearRatio * Math.PI * wheelDiameter;
-        }
-    }
+    /** The last calculated speed error. */
+    private double speedError;
 
     public static final Configuration MK3_STANDARD = new Configuration(
             (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 60.0), Units.inchesToMeters(4));
@@ -52,26 +50,25 @@ public class SDSSwerveModule implements SwerveModule {
     public static final Configuration MK4_V4 = new Configuration(
             (16.0 / 48.0) * (28.0 / 16.0) * (15.0 / 45.0), Units.inchesToMeters(3.95));
 
-    /** The physical location of the module. */
-    private final Translation2d location;
-    /** The encoder used for steering. */
-    private final CANCoder steeringEncoder;
-    /** The motor controller for steering. */
-    private final PIDSparkMax steeringController;
-    /** The PID controller for steering. */
-    private final PIDController steeringPID;
-    /** The motor controller used for driving. */
-    private final PIDSparkMax driveController;
-
-    /** The last calculated speed error. */
-    private double speedError;
-
     /** PID P value. */
-    private static final double K_P = 0.0043;
-    /** PID I value. */
-    private static final double K_I = 0.00;
-    /** PID D value. */
-    private static final double K_D = 0.0001;
+    private static final PIDValues PID_VALUES = new PIDValues(0.0043, 0.00, 0.0001);
+
+    public static class Configuration {
+
+        /** Overall gear ratio for the swerve module drive motor. */
+        public final double gearRatio;
+        /** Wheel diameter. */
+        public final double wheelDiameter;
+
+        public Configuration(final double gearRatio, final double wheelDiameter) {
+            this.gearRatio = gearRatio;
+            this.wheelDiameter = wheelDiameter;
+        }
+
+        public double getConversion() {
+            return gearRatio * Math.PI * wheelDiameter;
+        }
+    }
 
     /**
      * The constructor.
@@ -84,7 +81,7 @@ public class SDSSwerveModule implements SwerveModule {
     protected SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
             final PIDSparkMax steeringController, final PIDSparkMax driveController, final Configuration conf) {
         this(moduleLocation, steeringEncoder, steeringController, driveController, conf,
-                new PIDController(K_P, K_I, K_D));
+                new PIDController(PID_VALUES.p, PID_VALUES.i, PID_VALUES.d));
     }
 
     /**
