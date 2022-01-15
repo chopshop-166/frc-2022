@@ -147,16 +147,16 @@ public class SDSSwerveModule implements SwerveModule {
         // Run Steering angle PID to calculate output since the Spark Max can't take
         // advantage of the Cancoder
         final double angleOutput = steeringPID.calculate(getAngle().getDegrees(), state.angle.getDegrees());
-        steeringController.set(angleOutput);
+        if (state.speedMetersPerSecond == 0) {
+            steeringController.set(angleOutput);
+        }
 
         // Set the drive motor output speed
         if (state.speedMetersPerSecond == 0) {
             driveController.getPidController().setIAccum(0);
         }
         this.speedError = state.speedMetersPerSecond - driveController.getEncoder().getRate();
-        if (state.speedMetersPerSecond == 0) {
-            driveController.setSetpoint(state.speedMetersPerSecond);
-        }
+        driveController.setSetpoint(state.speedMetersPerSecond);
     }
 
     /**
