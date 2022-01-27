@@ -161,7 +161,8 @@ public class SDSSwerveModule implements SwerveModule {
      *
      * @return The current angle of the module.
      */
-    private Rotation2d getAngle() {
+    @Override
+    public Rotation2d getAngle() {
         return Rotation2d.fromDegrees(steeringEncoder.getAbsolutePosition());
     }
 
@@ -206,6 +207,16 @@ public class SDSSwerveModule implements SwerveModule {
 
         // Return the original object so this can be chained
         return motor;
+    }
+
+    @Override
+    public double getDistance() {
+        return driveController.getEncoder().getDistance();
+    }
+
+    @Override
+    public void resetDistance() {
+        driveController.getEncoder().reset();
     }
 
     @Override

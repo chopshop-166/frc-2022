@@ -1,5 +1,6 @@
 package com.chopshop166.chopshoplib.drive;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -40,6 +41,20 @@ public class MockSwerveModule implements SwerveModule {
     @Override
     public void initSendable(SendableBuilder builder) {
         // TODO Auto-generated method stub
+    }
 
+    @Override
+    public double getDistance() {
+        return 0;
+    }
+
+    @Override
+    public void resetDistance() {
+
+    }
+
+    @Override
+    public Rotation2d getAngle() {
+        return desiredState.angle;
     }
 }
