@@ -4,11 +4,18 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
+import com.chopshop166.chopshoplib.motors.Modifier;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.DriveMap;
 
 public class Drive extends SmartSubsystemBase {
@@ -37,6 +44,50 @@ public class Drive extends SmartSubsystemBase {
     maxRotationRadiansPerSecond = map.getMaxRotationRadianPerSecond();
   }
 
+  public CommandBase fieldCentricDrive(final DoubleSupplier translateX, final DoubleSupplier translateY,
+      final DoubleSupplier rotation) {
+    return running("Field Centric Drive", () -> handleSwerve(translateX, translateY, rotation));
+  }
+
+  private void handleSwerve(final DoubleSupplier translateX, final DoubleSupplier translateY,
+      final DoubleSupplier rotation) {
+    // Need to convert inputs from -1..1 scale to m/s
+    final Modifier deadband = Modifier.deadband(0.12);
+    final double translateXSpeed = deadband.applyAsDouble(translateX.getAsDouble()) * maxDriveSpeedMetersPerSecond;
+    final double translateYSpeed = deadband.applyAsDouble(translateY.getAsDouble()) * maxDriveSpeedMetersPerSecond;
+    final double rotationSpeed = deadband.applyAsDouble(rotation.getAsDouble()) * maxRotationRadiansPerSecond;
+
+    final ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(translateYSpeed, translateXSpeed,
+        rotationSpeed, Rotation2d.fromDegrees(-gyro.getAngle()));
+
+    // Now use this in our kinematics
+    final SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
+
+    // Front left module state
+    frontLeft.setDesiredState(moduleStates[0]);
+
+    // Front right module state
+    frontRight.setDesiredState(moduleStates[1]);
+
+    // Back left module state
+    rearLeft.setDesiredState(moduleStates[2]);
+
+    // Back right module state
+    rearRight.setDesiredState(moduleStates[3]);
+  }
+
+  public CommandBase driveDistanceY(final double distance) {
+    return functional("Drive Distance Y", () -> {
+      frontLeft.resetDistance();
+    }, () -> {
+      handleSwerve(() -> 0, () -> Math.signum(distance) * 0.2, () -> 0);
+    }, (interrupted) -> {
+      handleSwerve(() -> 0, () -> 0, () -> 0);
+    }, () -> {
+      return Math.abs(frontLeft.getDistance()) >= Math.abs(distance);
+    });
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -44,7 +95,8 @@ public class Drive extends SmartSubsystemBase {
 
   @Override
   public void reset() {
-    // This method will be called once per scheduler run
+
+    // TODO Reset Gyro position, Default wheels to start position
   }
 
   @Override
