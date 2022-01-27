@@ -4,10 +4,13 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.maps.RobotMap.ShooterMap;
 
@@ -24,6 +27,12 @@ public class Shooter extends SmartSubsystemBase {
     longitudinalMotor = shooterMap.getLongitudinalMotor();
     shooterMotor = shooterMap.getShooterMotor();
     intakeMotor = shooterMap.getIntakeMotor();
+  }
+
+  public CommandBase setSpeed(DoubleSupplier speed) {
+    return running("setSpeed", () -> {
+      shooterMotor.set(speed.getAsDouble() * speed.getAsDouble());
+    });
   }
 
   @Override
