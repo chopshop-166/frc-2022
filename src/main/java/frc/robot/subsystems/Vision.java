@@ -5,8 +5,11 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.photonvision.PhotonCamera;
 
-public class ExampleSubsystem extends SubsystemBase {
+public class Vision extends SubsystemBase {
+
+  private final PhotonCamera camera = new PhotonCamera("swerveCam");
 
   @Override
   public void periodic() {
