@@ -78,7 +78,7 @@ public class SDSSwerveModule implements SwerveModule {
      * @param steeringController The steering motor controller.
      * @param driveController    The drive motor controller.
      */
-    protected SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
+    public SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
             final PIDSparkMax steeringController, final PIDSparkMax driveController, final Configuration conf) {
         this(moduleLocation, steeringEncoder, steeringController, driveController, conf,
                 new PIDController(PID_VALUES.p, PID_VALUES.i, PID_VALUES.d));
@@ -92,7 +92,7 @@ public class SDSSwerveModule implements SwerveModule {
      * @param steeringController The steering motor controller.
      * @param driveController    The drive motor controller.
      */
-    protected SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
+    public SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
             final PIDSparkMax steeringController, final PIDSparkMax driveController,
             final Configuration conf, final PIDController pid) {
         this.location = moduleLocation;
