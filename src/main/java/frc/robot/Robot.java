@@ -1,11 +1,15 @@
 package frc.robot;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
+import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.Drive;
 
 public class Robot extends CommandRobot {
+
+  final private ButtonXboxController driveController = new ButtonXboxController(0);
+  final private ButtonXboxController copilotController = new ButtonXboxController(1);
 
   final private RobotMap map = getRobotMap(RobotMap.class, "frc.robot.maps", new RobotMap());
 
@@ -18,8 +22,7 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    // TODO Auto-generated method stub
-
+    driveController.start().whenPressed(drive.resetCmd());
   }
 
   @Override
@@ -30,7 +33,10 @@ public class Robot extends CommandRobot {
 
   @Override
   public void setDefaultCommands() {
-    // TODO Auto-generated method stub
+    // drive.setDefaultCommand(drive.fieldCentricDrive(() ->
+    // driveController.getX(Hand.kLeft),
+    // () -> driveController.getY(Hand.kLeft), () ->
+    // driveController.getX(Hand.kRight)));
 
   }
 }
