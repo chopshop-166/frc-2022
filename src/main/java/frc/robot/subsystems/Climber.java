@@ -5,77 +5,36 @@
 package frc.robot.subsystems;
 
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
-import com.chopshop166.chopshoplib.motors.SmartMotorController;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.maps.RobotMap.ArmMap;
 import frc.robot.maps.RobotMap.ClimberMap;
 
 public class Climber extends SmartSubsystemBase {
 
-  private class Arm {
-    private final SmartMotorController motor;
-    private final DigitalInput limitUpper;
-    private final DigitalInput limitLower;
+  private final double SPEED = 1.0;
 
-    public Arm(SmartMotorController motor, DigitalInput limitUpper, DigitalInput limitLower) {
-      this.motor = motor;
-      this.limitUpper = limitUpper;
-      this.limitLower = limitLower;
-    }
-
-    public boolean getUpper() {
-      return limitUpper.get();
-    }
-
-    public boolean getLower() {
-      return limitLower.get();
-    }
-
-    public void set(double speed) {
-      motor.set(speed);
-    }
-  }
-
-  Arm leftArm;
-  Arm rightArm;
+  private final ArmMap arms;
 
   public Climber(ClimberMap map) {
-    leftArm = new Arm(map.getLeftMotor(), map.getLeftLowerLimit(), map.getLeftUpperLimit());
-    rightArm = new Arm(map.getRightMotor(), map.getRightLowerLimit(), map.getRightUpperLimit());
-
+    arms = map.getArms();
   }
 
   public CommandBase extend() {
     return running("Extend", () -> {
-      if (leftArm.getUpper()) {
-        leftArm.set(0.0);
-      } else {
-        leftArm.set(1.0);
-      }
-
-      if (rightArm.getUpper()) {
-        rightArm.set(0.0);
-      } else {
-        leftArm.set(1.0);
-      }
-
+      arms.extend(SPEED);
     });
   }
 
   public CommandBase retract() {
     return running("Retract", () -> {
-      if (leftArm.getLower()) {
-        leftArm.set(0.0);
-      } else {
-        leftArm.set(-1.0);
-      }
+      arms.retract(SPEED);
+    });
+  }
 
-      if (rightArm.getLower()) {
-        rightArm.set(0.0);
-      } else {
-        leftArm.set(-1.0);
-      }
+  public CommandBase stop() {
+    return running("Stop", () -> {
+      arms.stop();
     });
   }
 
@@ -86,7 +45,7 @@ public class Climber extends SmartSubsystemBase {
 
   @Override
   public void safeState() {
-    // TODO Auto-generated method stub
+    arms.stop();
 
   }
 }
