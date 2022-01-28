@@ -41,12 +41,7 @@ public class RobotMap {
         private ArmMap arms[];
 
         public ArmGroup(ArmMap... arms) {
-            super(new SmartMotorController(), new DigitalInput(0), new DigitalInput(0)); // This gets rid of "implicit
-                                                                                         // super constructor is
-                                                                                         // undefined" error. I don't
-                                                                                         // know of a
-                                                                                         // better solution to this
-
+            super(new SmartMotorController(), new DigitalInput(0), new DigitalInput(0));
             this.arms = arms;
         }
 
@@ -86,7 +81,7 @@ public class RobotMap {
                     new DigitalInput(0), new DigitalInput(0));
         }
 
-        public ArmMap getArms() {
+        public ArmMap getArm() {
             return arms;
         }
     }

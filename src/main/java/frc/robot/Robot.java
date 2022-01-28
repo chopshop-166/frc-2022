@@ -3,7 +3,6 @@ package frc.robot;
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 
-import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.maps.RobotMap;
@@ -26,7 +25,8 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-
+    controller.a().whileHeld(climber.extend()).whenReleased(climber.stop());
+    controller.b().whileHeld(climber.retract()).whenReleased(climber.stop());
   }
 
   @Override

@@ -14,27 +14,27 @@ public class Climber extends SmartSubsystemBase {
 
   private final double SPEED = 1.0;
 
-  private final ArmMap arms;
+  private final ArmMap arm;
 
   public Climber(ClimberMap map) {
-    arms = map.getArms();
+    arm = map.getArm();
   }
 
   public CommandBase extend() {
     return running("Extend", () -> {
-      arms.extend(SPEED);
+      arm.extend(SPEED);
     });
   }
 
   public CommandBase retract() {
     return running("Retract", () -> {
-      arms.retract(SPEED);
+      arm.retract(SPEED);
     });
   }
 
   public CommandBase stop() {
-    return running("Stop", () -> {
-      arms.stop();
+    return instant("Stop", () -> {
+      arm.stop();
     });
   }
 
@@ -45,7 +45,7 @@ public class Climber extends SmartSubsystemBase {
 
   @Override
   public void safeState() {
-    arms.stop();
+    arm.stop();
 
   }
 }
