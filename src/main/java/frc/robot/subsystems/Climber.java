@@ -42,6 +42,22 @@ public class Climber extends SmartSubsystemBase {
     });
   }
 
+  public CommandBase extendIgnoreLimit() {
+    return cmd("Extend Ignore Limit").onInitialize(() -> {
+      motor.set(EXTEND_SPEED);
+    }).onEnd((interrupted) -> {
+      motor.set(0.0);
+    });
+  }
+
+  public CommandBase retractIgnoreLimit() {
+    return cmd("Retract Ignore Limit").onInitialize(() -> {
+      motor.set(-RETRACT_SPEED);
+    }).onEnd((interrupted) -> {
+      motor.set(0.0);
+    });
+  }
+
   public CommandBase stop() {
     return instant("Stop", () -> {
       motor.set(0.0);

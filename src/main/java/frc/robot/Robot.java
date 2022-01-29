@@ -30,6 +30,13 @@ public class Robot extends CommandRobot {
   public void configureButtonBindings() {
     controller.a().whenPressed(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
     controller.b().whenPressed(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
+    controller.x().whenPressed(
+        parallel("Extend Ignore Limit", leftClimber.extendIgnoreLimit(), rightClimber.extendIgnoreLimit()));
+    controller.y().whenPressed(
+        parallel("Retract Ignore Limit", leftClimber.retractIgnoreLimit(), rightClimber.retractIgnoreLimit()));
+
+    controller.start().whenPressed(parallel("Stop", leftClimber.stop(), rightClimber.stop()));
+
   }
 
   @Override
