@@ -26,22 +26,18 @@ public class Climber extends SmartSubsystemBase {
   }
 
   public CommandBase extend() {
-    return running("Extend", () -> {
-      if (upperLimit.getAsBoolean()) {
-        motor.set(0.0);
-      } else {
-        motor.set(SPEED);
-      }
+    return cmd("Extend").onInitialize(() -> {
+      motor.set(SPEED);
+    }).finishedWhen(upperLimit).onEnd((interrupted) -> {
+      motor.set(0.0);
     });
   }
 
   public CommandBase retract() {
-    return running("Retract", () -> {
-      if (lowerLimit.getAsBoolean()) {
-        motor.set(0.0);
-      } else {
-        motor.set(-SPEED);
-      }
+    return cmd("Retract").onInitialize(() -> {
+      motor.set(-SPEED);
+    }).finishedWhen(lowerLimit).onEnd((interrupted) -> {
+      motor.set(0.0);
     });
   }
 
@@ -59,6 +55,5 @@ public class Climber extends SmartSubsystemBase {
   @Override
   public void safeState() {
     motor.set(0.0);
-
   }
 }

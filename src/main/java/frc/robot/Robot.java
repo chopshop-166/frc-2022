@@ -27,6 +27,7 @@ public class Robot extends CommandRobot {
   @Override
   public void configureButtonBindings() {
     controller.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
+    controller.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
   }
 
   @Override
@@ -37,7 +38,6 @@ public class Robot extends CommandRobot {
 
   @Override
   public void setDefaultCommands() {
-    leftClimber.setDefaultCommand(leftClimber.retract());
-    rightClimber.setDefaultCommand(rightClimber.retract());
+
   }
 }
