@@ -5,36 +5,49 @@
 package frc.robot.subsystems;
 
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
+import com.chopshop166.chopshoplib.motors.SmartMotorController;
 
+import java.util.function.BooleanSupplier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.maps.RobotMap.ArmMap;
-import frc.robot.maps.RobotMap.ClimberMap;
+import frc.robot.maps.RobotMap.TelescopeMap;
 
 public class Climber extends SmartSubsystemBase {
 
   private final double SPEED = 1.0;
 
-  private final ArmMap arm;
+  private final SmartMotorController motor;
+  private final BooleanSupplier upperLimit;
+  private final BooleanSupplier lowerLimit;
 
-  public Climber(ClimberMap map) {
-    arm = map.getArm();
+  public Climber(TelescopeMap map) {
+    motor = map.getMotor();
+    upperLimit = map.getUpperLimit();
+    lowerLimit = map.getLowerLimit();
   }
 
   public CommandBase extend() {
     return running("Extend", () -> {
-      arm.extend(SPEED);
+      if (upperLimit.getAsBoolean()) {
+        motor.set(0.0);
+      } else {
+        motor.set(SPEED);
+      }
     });
   }
 
   public CommandBase retract() {
     return running("Retract", () -> {
-      arm.retract(SPEED);
+      if (lowerLimit.getAsBoolean()) {
+        motor.set(0.0);
+      } else {
+        motor.set(-SPEED);
+      }
     });
   }
 
   public CommandBase stop() {
     return instant("Stop", () -> {
-      arm.stop();
+      motor.set(0.0);
     });
   }
 
@@ -45,7 +58,7 @@ public class Climber extends SmartSubsystemBase {
 
   @Override
   public void safeState() {
-    arm.stop();
+    motor.set(0.0);
 
   }
 }

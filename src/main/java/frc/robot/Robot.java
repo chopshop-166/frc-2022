@@ -16,17 +16,17 @@ public class Robot extends CommandRobot {
 
   private final ButtonXboxController controller = new ButtonXboxController(0);
 
-  private final Climber climber = new Climber(RobotMap.ClimberMap());
+  private final Climber leftClimber = new Climber(RobotMap.getLeftTelescope());
+  private final Climber rightClimber = new Climber(RobotMap.getRightTelescope());
 
   @Override
   public void robotInit() {
-    // Nothing to initialize
+
   }
 
   @Override
   public void configureButtonBindings() {
-    controller.a().whileHeld(climber.extend()).whenReleased(climber.stop());
-    controller.b().whileHeld(climber.retract()).whenReleased(climber.stop());
+    controller.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
   }
 
   @Override
@@ -37,7 +37,7 @@ public class Robot extends CommandRobot {
 
   @Override
   public void setDefaultCommands() {
-    // TODO Auto-generated method stub
-
+    leftClimber.setDefaultCommand(leftClimber.retract());
+    rightClimber.setDefaultCommand(rightClimber.retract());
   }
 }
