@@ -13,6 +13,7 @@ import frc.robot.maps.RobotMap.TelescopeMap;
 
 public class Climber extends SmartSubsystemBase {
 
+  // Constants:
   private final double EXTEND_SPEED = 1.0;
   private final double RETRACT_SPEED = 1.0;
 
@@ -27,7 +28,7 @@ public class Climber extends SmartSubsystemBase {
   }
 
   public CommandBase extend() {
-    return cmd("Extend").onInitialize(() -> {
+    return cmd("Extend").onInitialize(() -> { // Extend and stop when limit is hit
       motor.set(EXTEND_SPEED);
     }).finishedWhen(upperLimit).onEnd((interrupted) -> {
       motor.set(0.0);
@@ -37,13 +38,13 @@ public class Climber extends SmartSubsystemBase {
   public CommandBase retract() {
     return cmd("Retract").onInitialize(() -> {
       motor.set(-RETRACT_SPEED);
-    }).finishedWhen(lowerLimit).onEnd((interrupted) -> {
+    }).finishedWhen(lowerLimit).onEnd((interrupted) -> { // Retract and stop when limit is hit
       motor.set(0.0);
     });
   }
 
   public CommandBase extendIgnoreLimit() {
-    return startEnd("Extend Ignore Limit", () -> {
+    return startEnd("Extend Ignore Limit", () -> { // Extend and ignore limits (only use if limits are not working)
       motor.set(EXTEND_SPEED);
     }, () -> {
       motor.set(0.0);

@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 @RobotMapFor("Gaston")
 public class GastonMap extends RobotMap {
+    // These are outsied the methods to prevent resource leaks
     private final DigitalInput leftUpperLimit = new DigitalInput(0);
     private final DigitalInput leftLowerLimit = new DigitalInput(1);
     private final DigitalInput rightUpperLimit = new DigitalInput(2);
