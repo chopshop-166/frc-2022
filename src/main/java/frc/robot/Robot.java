@@ -30,8 +30,8 @@ public class Robot extends CommandRobot {
   public void configureButtonBindings() {
 
     // Button bindings for regular climbing
-    controller.a().whenPressed(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
-    controller.b().whenPressed(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
+    controller.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
+    controller.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
 
     // Button bindings for ignoring limit switches
     controller.x()
