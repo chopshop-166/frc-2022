@@ -35,11 +35,11 @@ public class RobotMap {
 
     }
 
-    public static TelescopeMap getLeftTelescope() {
+    public TelescopeMap getLeftTelescopeMap() {
         return new TelescopeMap();
     }
 
-    public static TelescopeMap getRightTelescope() {
+    public TelescopeMap getRightTelescopeMap() {
         return new TelescopeMap();
     }
 }

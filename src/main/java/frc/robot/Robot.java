@@ -16,8 +16,10 @@ public class Robot extends CommandRobot {
 
   private final ButtonXboxController controller = new ButtonXboxController(0);
 
-  private final Climber leftClimber = new Climber(RobotMap.getLeftTelescope());
-  private final Climber rightClimber = new Climber(RobotMap.getRightTelescope());
+  private final RobotMap map = getMapForName("Gaston", RobotMap.class, "frc.robot.maps");
+
+  private final Climber leftClimber = new Climber(map.getLeftTelescopeMap());
+  private final Climber rightClimber = new Climber(map.getRightTelescopeMap());
 
   @Override
   public void robotInit() {
