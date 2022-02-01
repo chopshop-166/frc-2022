@@ -95,8 +95,10 @@ public class Drive extends SmartSubsystemBase {
 
   @Override
   public void reset() {
+    gyro.reset();
 
-    // TODO Reset Gyro position, Default wheels to start position
+    // TODO Default wheels to start position?
+
   }
 
   @Override
