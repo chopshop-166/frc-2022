@@ -4,16 +4,18 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 
-import java.util.function.BooleanSupplier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.TelescopeMap;
 
 public class Climber extends SmartSubsystemBase {
 
   // Constants:
+  private final double UP = 1.0;
   private final double EXTEND_SPEED = 1.0;
   private final double RETRACT_SPEED = 1.0;
 
@@ -29,7 +31,7 @@ public class Climber extends SmartSubsystemBase {
 
   public CommandBase extend() {
     return cmd("Extend").onInitialize(() -> { // Extend and stop when limit is hit
-      motor.set(EXTEND_SPEED);
+      motor.set(UP * EXTEND_SPEED);
     }).finishedWhen(upperLimit).onEnd((interrupted) -> {
       motor.set(0.0);
     });
@@ -37,7 +39,7 @@ public class Climber extends SmartSubsystemBase {
 
   public CommandBase retract() {
     return cmd("Retract").onInitialize(() -> {
-      motor.set(-RETRACT_SPEED);
+      motor.set(-UP * RETRACT_SPEED);
     }).finishedWhen(lowerLimit).onEnd((interrupted) -> { // Retract and stop when limit is hit
       motor.set(0.0);
     });
@@ -45,7 +47,7 @@ public class Climber extends SmartSubsystemBase {
 
   public CommandBase extendIgnoreLimit() {
     return startEnd("Extend Ignore Limit", () -> { // Extend and ignore limits (only use if limits are not working)
-      motor.set(EXTEND_SPEED);
+      motor.set(UP * EXTEND_SPEED);
     }, () -> {
       motor.set(0.0);
     });
@@ -53,7 +55,7 @@ public class Climber extends SmartSubsystemBase {
 
   public CommandBase retractIgnoreLimit() {
     return startEnd("Retract Ignore Limit", () -> {
-      motor.set(RETRACT_SPEED);
+      motor.set(-UP * RETRACT_SPEED);
     }, () -> {
       motor.set(0.0);
     });
@@ -63,11 +65,6 @@ public class Climber extends SmartSubsystemBase {
     return instant("Stop", () -> {
       motor.set(0.0);
     });
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
   }
 
   @Override
