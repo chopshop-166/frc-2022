@@ -30,10 +30,6 @@ public class GastonMap extends RobotMap {
                 new PIDSparkMax(2, MotorType.kBrushless), new PIDSparkMax(1, MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2); // TODO Change controller ids
 
-        // final Translation2d moduleLocation, final CANCoder steeringEncoder,
-        // final PIDSparkMax steeringController, final PIDSparkMax driveController,
-        // final Configuration conf
-
         // Front Right Module
         final CANCoder encoderFR = new CANCoder(2); // TODO Get cancoder id
         encoderFR.configMagnetOffset(0); // TODO Get Magnet Offset

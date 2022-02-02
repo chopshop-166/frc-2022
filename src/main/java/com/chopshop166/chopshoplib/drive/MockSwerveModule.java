@@ -7,7 +7,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 
 public class MockSwerveModule implements SwerveModule {
 
-    private Translation2d location = new Translation2d();
+    private final Translation2d location;
     private SwerveModuleState desiredState = new SwerveModuleState();
 
     /**

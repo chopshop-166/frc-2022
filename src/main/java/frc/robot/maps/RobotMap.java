@@ -22,15 +22,17 @@ public class RobotMap {
         private final double maxRotationRadianPerSecond;
         private final Gyro gyro;
 
+        private final double distanceFromCenter = 0.381;
+
         public DriveMap() {
 
-            this.frontLeft = new MockSwerveModule(new Translation2d(0.381, 0.381));
+            this.frontLeft = new MockSwerveModule(new Translation2d(distanceFromCenter, distanceFromCenter));
 
-            this.frontRight = new MockSwerveModule(new Translation2d(0.381, -0.381));
+            this.frontRight = new MockSwerveModule(new Translation2d(distanceFromCenter, -distanceFromCenter));
 
-            this.rearLeft = new MockSwerveModule(new Translation2d(-0.381, 0.381));
+            this.rearLeft = new MockSwerveModule(new Translation2d(-distanceFromCenter, distanceFromCenter));
 
-            this.rearRight = new MockSwerveModule(new Translation2d(-0.381, -0.381));
+            this.rearRight = new MockSwerveModule(new Translation2d(-distanceFromCenter, -distanceFromCenter));
 
             this.maxDriveSpeedMetersPerSecond = 2;
 
