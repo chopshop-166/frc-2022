@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
@@ -15,9 +11,8 @@ import frc.robot.maps.RobotMap.TelescopeMap;
 public class Climber extends SmartSubsystemBase {
 
   // Constants:
-  private final double UP = 1.0;
   private final double EXTEND_SPEED = 1.0;
-  private final double RETRACT_SPEED = 1.0;
+  private final double RETRACT_SPEED = -1.0;
 
   private final SmartMotorController motor;
   private final BooleanSupplier upperLimit;
@@ -31,7 +26,7 @@ public class Climber extends SmartSubsystemBase {
 
   public CommandBase extend() {
     return cmd("Extend").onInitialize(() -> { // Extend and stop when limit is hit
-      motor.set(UP * EXTEND_SPEED);
+      motor.set(EXTEND_SPEED);
     }).finishedWhen(upperLimit).onEnd((interrupted) -> {
       motor.set(0.0);
     });
@@ -39,7 +34,7 @@ public class Climber extends SmartSubsystemBase {
 
   public CommandBase retract() {
     return cmd("Retract").onInitialize(() -> {
-      motor.set(-UP * RETRACT_SPEED);
+      motor.set(RETRACT_SPEED);
     }).finishedWhen(lowerLimit).onEnd((interrupted) -> { // Retract and stop when limit is hit
       motor.set(0.0);
     });
@@ -47,7 +42,7 @@ public class Climber extends SmartSubsystemBase {
 
   public CommandBase extendIgnoreLimit() {
     return startEnd("Extend Ignore Limit", () -> { // Extend and ignore limits (only use if limits are not working)
-      motor.set(UP * EXTEND_SPEED);
+      motor.set(EXTEND_SPEED);
     }, () -> {
       motor.set(0.0);
     });
@@ -55,7 +50,7 @@ public class Climber extends SmartSubsystemBase {
 
   public CommandBase retractIgnoreLimit() {
     return startEnd("Retract Ignore Limit", () -> {
-      motor.set(-UP * RETRACT_SPEED);
+      motor.set(RETRACT_SPEED);
     }, () -> {
       motor.set(0.0);
     });
