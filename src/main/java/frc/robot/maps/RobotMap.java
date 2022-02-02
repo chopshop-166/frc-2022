@@ -1,31 +1,38 @@
 package frc.robot.maps;
 
+import java.util.function.BooleanSupplier;
+
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.MockDigitalInput;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-
-// Need to get MAC address for roborio
 @RobotMapFor("Default")
 public class RobotMap {
     public static class IntakeMap {
         private final SmartMotorController deploymentMotor;
         private final SmartMotorController rollerMotor;
-        private final DigitalInput insideLimit;
-        private final DigitalInput outsideLimit;
+        private final BooleanSupplier insideLimit;
+        private final BooleanSupplier outsideLimit;
 
         public IntakeMap() {
-            this(new SmartMotorController(), new SmartMotorController(), new MockDigitalInput(),
-                    new MockDigitalInput());
             this.deploymentMotor = new SmartMotorController();
+
+            this.rollerMotor = new SmartMotorController();
+
+            this.insideLimit = new MockDigitalInput();
+
+            this.outsideLimit = new MockDigitalInput();
         }
 
         public IntakeMap(final SmartMotorController deploymentMotor, final SmartMotorController rollerMotor,
-                final DigitalInput outsideLimit, final DigitalInput insideLimit) {
+                final BooleanSupplier outsideLimit, final BooleanSupplier insideLimit) {
+
             this.rollerMotor = rollerMotor;
+
             this.deploymentMotor = deploymentMotor;
+
             this.outsideLimit = outsideLimit;
+
             this.insideLimit = insideLimit;
         }
 
@@ -37,11 +44,11 @@ public class RobotMap {
             return deploymentMotor;
         }
 
-        public DigitalInput getInsideLimit() {
+        public BooleanSupplier getInsideLimit() {
             return insideLimit;
         }
 
-        public DigitalInput getOutsideLimit() {
+        public BooleanSupplier getOutsideLimit() {
             return outsideLimit;
         }
     }
