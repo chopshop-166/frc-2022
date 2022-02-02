@@ -22,40 +22,44 @@ public class GastonMap extends RobotMap {
 
         // All Distances are in Meters
         // Front Left Module
-        final CANCoder encoderFL = new CANCoder(1); // TODO Get cancoder id
+        final CANCoder encoderFL = new CANCoder(1);
         encoderFL.configMagnetOffset(0); // TODO Get Magnet Offset
         encoderFL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-        final SDSSwerveModule frontLeft = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
+        final SDSSwerveModule frontLeft = new SDSSwerveModule(
+                new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
                 encoderFL,
                 new PIDSparkMax(2, MotorType.kBrushless), new PIDSparkMax(1, MotorType.kBrushless),
-                SDSSwerveModule.MK4_V2); // TODO Change controller ids
+                SDSSwerveModule.MK4_V2);
 
         // Front Right Module
-        final CANCoder encoderFR = new CANCoder(2); // TODO Get cancoder id
+        final CANCoder encoderFR = new CANCoder(2);
         encoderFR.configMagnetOffset(0); // TODO Get Magnet Offset
         encoderFR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-        final SDSSwerveModule frontRight = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
+        final SDSSwerveModule frontRight = new SDSSwerveModule(
+                new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
                 encoderFR,
                 new PIDSparkMax(4, MotorType.kBrushless), new PIDSparkMax(3, MotorType.kBrushless),
-                SDSSwerveModule.MK4_V2); // TODO Change controller ids
+                SDSSwerveModule.MK4_V2);
 
         // Rear Left Module
-        final CANCoder encoderRL = new CANCoder(3); // TODO Get cancoder id
+        final CANCoder encoderRL = new CANCoder(3);
         encoderRL.configMagnetOffset(0); // TODO Get Magnet Offset
         encoderRL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-        final SDSSwerveModule rearLeft = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
+        final SDSSwerveModule rearLeft = new SDSSwerveModule(
+                new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
                 encoderRL,
                 new PIDSparkMax(6, MotorType.kBrushless), new PIDSparkMax(5, MotorType.kBrushless),
-                SDSSwerveModule.MK4_V2); // TODO Change controller ids
+                SDSSwerveModule.MK4_V2);
 
         // Rear Right Module
-        final CANCoder encoderRR = new CANCoder(4); // TODO Get cancoder id
+        final CANCoder encoderRR = new CANCoder(4);
         encoderRR.configMagnetOffset(0); // TODO Get Magnet Offset
         encoderRR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-        final SDSSwerveModule rearRight = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
+        final SDSSwerveModule rearRight = new SDSSwerveModule(
+                new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
                 encoderRR,
                 new PIDSparkMax(8, MotorType.kBrushless), new PIDSparkMax(7, MotorType.kBrushless),
-                SDSSwerveModule.MK4_V2); // TODO Change controller ids
+                SDSSwerveModule.MK4_V2);
 
         final double maxDriveSpeedMetersPerSecond = Units.feetToMeters(10);
 

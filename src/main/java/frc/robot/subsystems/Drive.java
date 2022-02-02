@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
@@ -46,10 +42,10 @@ public class Drive extends SmartSubsystemBase {
 
   public CommandBase fieldCentricDrive(final DoubleSupplier translateX, final DoubleSupplier translateY,
       final DoubleSupplier rotation) {
-    return running("Field Centric Drive", () -> handleSwerve(translateX, translateY, rotation));
+    return running("Field Centric Drive", () -> updateSwerveSpeedAngle(translateX, translateY, rotation));
   }
 
-  private void handleSwerve(final DoubleSupplier translateX, final DoubleSupplier translateY,
+  private void updateSwerveSpeedAngle(final DoubleSupplier translateX, final DoubleSupplier translateY,
       final DoubleSupplier rotation) {
     // Need to convert inputs from -1..1 scale to m/s
     final Modifier deadband = Modifier.deadband(0.12);
@@ -80,9 +76,9 @@ public class Drive extends SmartSubsystemBase {
     return functional("Drive Distance Y", () -> {
       frontLeft.resetDistance();
     }, () -> {
-      handleSwerve(() -> 0, () -> Math.signum(distance) * 0.2, () -> 0);
+      updateSwerveSpeedAngle(() -> 0, () -> Math.signum(distance) * 0.2, () -> 0);
     }, (interrupted) -> {
-      handleSwerve(() -> 0, () -> 0, () -> 0);
+      updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
     }, () -> {
       return Math.abs(frontLeft.getDistance()) >= Math.abs(distance);
     });
@@ -103,7 +99,11 @@ public class Drive extends SmartSubsystemBase {
 
   @Override
   public void safeState() {
-    // TODO Stop all movement
+    final SwerveModuleState stop = new SwerveModuleState(0.0, new Rotation2d(0, 0));
 
+    frontLeft.setDesiredState(stop);
+    frontRight.setDesiredState(stop);
+    rearLeft.setDesiredState(stop);
+    rearRight.setDesiredState(stop);
   }
 }
