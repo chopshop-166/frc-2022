@@ -7,11 +7,11 @@ package frc.robot.subsystems;
 import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
-import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
+import com.chopshop166.chopshoplib.sensors.IEncoder;
 
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.maps.RobotMap.ShooterMap;
 
 public class Shooter extends SmartSubsystemBase {
@@ -19,6 +19,9 @@ public class Shooter extends SmartSubsystemBase {
   private SmartMotorController longitudinalMotor;
   private SmartMotorController shooterMotor;
   private SmartMotorController intakeMotor;
+  private double speedBuffer = .01;
+  private double PIDconst = .01;
+  private double RPMmul = 10000;
 
   // ! constructiong motorControllers
   public Shooter(ShooterMap shooterMap) {
@@ -35,6 +38,36 @@ public class Shooter extends SmartSubsystemBase {
     });
   }
 
+  // ? checks if speed the speed we want is the speed we have, with some wiggle
+  // room. and only
+  // ? finishes when the actuall speed gets to wanted speed. no clue if the
+  // encoder gives off RMP
+  // ? or power level. i assmed RPM
+  public class CheckShootSpeed extends CommandBase {
+    double power;
+    double speed;
+    double error;
+    IEncoder encoder = shooterMotor.getEncoder();
+
+    public CheckShootSpeed(double powerC) {
+      power = powerC; // *takes value from 0-1
+    }
+
+    @Override
+    public void execute() {
+      speed = power * RPMmul; // * sets tatget RPM
+      error = speed - encoder.getRate(); // * the amount off we ar from target RPM
+      if (error >= speed + speedBuffer || error <= speed - speedBuffer) {
+        power -= error * PIDconst; // * if we are outside of reasonable speed, we change speed base error
+      }
+    }
+
+    @Override
+    public boolean isFinished() {
+      return Math.abs(error) <= speedBuffer; // * ends command when error is low enough;
+    }
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -44,5 +77,13 @@ public class Shooter extends SmartSubsystemBase {
   public void safeState() {
     // TODO Auto-generated method stub
 
+  }
+
+  public class SetSpeed extends CommandBase {
+    private double wantedSpeed;
+
+    public SetSpeed(double wantedSpeedC) {
+      wantedSpeed = wantedSpeedC;
+    }
   }
 }
