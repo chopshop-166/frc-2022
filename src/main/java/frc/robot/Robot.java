@@ -1,7 +1,10 @@
 package frc.robot;
 
+import java.util.function.DoubleSupplier;
+
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
+import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.Climber;
@@ -22,15 +25,19 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
+    DoubleSupplier trigger = controller::getTriggers;
+
+    // Move with variable speed from triggers
+    controller.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
 
     // Button bindings for regular climbing
     controller.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
     controller.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
 
     // Button bindings for ignoring limit switches
-    controller.x()
+    controller.getPovButton(POVDirection.UP)
         .whileHeld(parallel("Extend Ignore Limit", leftClimber.extendIgnoreLimit(), rightClimber.extendIgnoreLimit()));
-    controller.y().whileHeld(
+    controller.getPovButton(POVDirection.DOWN).whileHeld(
         parallel("Retract Ignore Limit", leftClimber.retractIgnoreLimit(), rightClimber.retractIgnoreLimit()));
 
     controller.start().whenPressed(parallel("Stop", leftClimber.stop(), rightClimber.stop()));
@@ -40,7 +47,6 @@ public class Robot extends CommandRobot {
   @Override
   public void populateDashboard() {
     // TODO Auto-generated method stub
-
   }
 
   @Override
