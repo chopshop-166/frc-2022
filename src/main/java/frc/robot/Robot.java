@@ -2,6 +2,7 @@ package frc.robot;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
+import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.Intake;
@@ -21,7 +22,8 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    controller.getAButton();
+    controller.a().whileHeld(parallel("Deploy and Start Roller", intake.setRollerSpeed(SpinDirection.COUNTERCLOCKWISE),
+        intake.deployIntake())).whenReleased(intake.retractIntake());
   }
 
   @Override
