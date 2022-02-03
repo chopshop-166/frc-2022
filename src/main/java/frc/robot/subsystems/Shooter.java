@@ -71,16 +71,20 @@ public class Shooter extends SmartSubsystemBase {
     double speed;
     double error;
     IEncoder encoder = shooterMotor.getEncoder();
+
     // public CheckShootSpeed(double powerC) {
     // power = powerC; // *takes value from 0-1
     // }
+    @Override
+    public void initialize() {
+      speed = getSpeed() * RPMmul;
+    }
 
     @Override
     public void execute() {
-      power = this.speed;
-      speed = power * RPMmul; // * sets tatget RPM
       error = speed - encoder.getRate(); // * the amount off we ar from target RPM
-      if (error >= speed + speedBuffer || error <= speed - speedBuffer) {
+      if (Math.abs(error) >= speedBuffer) {
+        power = getSpeed();
         power -= error * PIDconst; // * if we are outside of reasonable speed, we change speed base error
       }
       setSpeedF(power); // * changes speed to speed calculated
