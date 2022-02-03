@@ -5,12 +5,8 @@ import java.util.function.DoubleSupplier;
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.PS4Controller.Button;
 import frc.robot.maps.RobotMap;
-import frc.robot.maps.RobotMap.ShooterMap;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Shooter.CheckShootSpeed;
 
 public class Robot extends CommandRobot {
 
@@ -27,8 +23,8 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    controller.b().whenPressed(sequence("shoot", shooter.new CheckShootSpeed(), shooter.new shoot())); // * get ready,
-                                                                                                       // * aim, FIRE
+    controller.rbumper().whenPressed(sequence("shoot", shooter.new CheckShootSpeed(), shooter.new shoot()));
+    // * get ready, aim, FIRE!!
   }
 
   @Override

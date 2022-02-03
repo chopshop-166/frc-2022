@@ -10,7 +10,6 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IEncoder;
 
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.ShooterMap;
 
@@ -19,12 +18,16 @@ public class Shooter extends SmartSubsystemBase {
   // private SmartMotorController longitudinalMotor;
   private SmartMotorController shooterMotor;
   private SmartMotorController intakeMotor;
+  private double shootSpeed;
+
   private double speedBuffer = .01;
   private double PIDconst = .01;
   private double RPMmul = 10000;
-  private double shootSpeed;
 
+  private double SHOOTTIME = 2;
+  private double INTAKESPEED = .5; // ! must be between 0 and 1
   // ! constructiong motorControllers
+
   public Shooter(ShooterMap shooterMap) {
     // ** assign motorcontrollers from shootermap
     // lateralMotor = shooterMap.getLateralMotor();
@@ -74,7 +77,29 @@ public class Shooter extends SmartSubsystemBase {
   }
 
   public class shoot extends CommandBase {
-    // TODO command that shoots
+    int b = 0;
+
+    @Override
+    public void initialize() {
+      intakeMotor.set(INTAKESPEED); // * i dont think that the intakespeed needs to be as accurate as
+      // * the shoot motor. If i am wrong about this, can always add a PID controller
+      // *to make it accurate.
+    }
+
+    @Override
+    public void execute() {
+      b++;
+    }
+
+    @Override
+    public boolean isFinished() {
+      return b >= SHOOTTIME * 50;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+      intakeMotor.set(0.0);
+    }
   }
 
   public double getSpeed() {
