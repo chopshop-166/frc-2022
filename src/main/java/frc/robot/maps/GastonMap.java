@@ -18,12 +18,10 @@ public class GastonMap extends RobotMap {
     private final PIDSparkMax rightMotor = new PIDSparkMax(1, MotorType.kBrushless);
 
     public TelescopeMap getLeftTelescopeMap() {
-        TelescopeMap map = new TelescopeMap(leftMotor, leftUpperLimit::get, leftLowerLimit::get);
-        return map;
+        return new TelescopeMap(leftMotor, leftUpperLimit::get, leftLowerLimit::get);
     }
 
     public TelescopeMap getRightTelescopeMap() {
-        TelescopeMap map = new TelescopeMap(rightMotor, rightUpperLimit::get, rightLowerLimit::get);
-        return map;
+        return new TelescopeMap(rightMotor, rightUpperLimit::get, rightLowerLimit::get);
     }
 }

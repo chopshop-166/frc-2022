@@ -22,17 +22,23 @@ public class Climber extends SmartSubsystemBase {
   private final BooleanSupplier upperLimit;
   private final BooleanSupplier lowerLimit;
 
+  private final Modifier upperModifier;
+  private final Modifier lowerModifier;
+  private final ModifierGroup modifiers;
+
   public Climber(TelescopeMap map) {
     motor = map.getMotor();
     upperLimit = map.getUpperLimit();
     lowerLimit = map.getLowerLimit();
+    upperModifier = Modifier.upperLimit(upperLimit);
+    lowerModifier = Modifier.lowerLimit(lowerLimit);
+    modifiers = new ModifierGroup();
+    modifiers.add(upperModifier, lowerModifier);
   }
 
   public CommandBase move(DoubleSupplier speed) { // Move motor with variable speed that is affected by limit switches
-    ModifierGroup limits = new ModifierGroup();
-    limits.add(Modifier.upperLimit(upperLimit), Modifier.lowerLimit(lowerLimit));
     return cmd("Move").onInitialize(() -> {
-      motor.set(limits.run(speed.getAsDouble()));
+      motor.set(modifiers.run(speed.getAsDouble()));
     }).onExecute(() -> {
       SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
     }).onEnd((interrupted) -> {
@@ -41,18 +47,16 @@ public class Climber extends SmartSubsystemBase {
   }
 
   public CommandBase extend() {
-    Modifier limit = Modifier.upperLimit(upperLimit);
     return startEnd("Extend", () -> {
-      motor.set(limit.applyAsDouble(EXTEND_SPEED));
+      motor.set(upperModifier.applyAsDouble(EXTEND_SPEED));
     }, () -> {
       motor.set(0.0);
     });
   }
 
   public CommandBase retract() {
-    Modifier limit = Modifier.upperLimit(lowerLimit);
     return startEnd("Retract", () -> {
-      motor.set(limit.applyAsDouble(RETRACT_SPEED));
+      motor.set(lowerModifier.applyAsDouble(RETRACT_SPEED));
     }, () -> {
       motor.set(0.0);
     });
