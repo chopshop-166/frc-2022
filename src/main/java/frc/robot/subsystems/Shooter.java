@@ -26,8 +26,8 @@ public class Shooter extends SmartSubsystemBase {
 
   private double SHOOTTIME = 2;
   private double INTAKESPEED = .5; // ! must be between 0 and 1
-  // ! constructiong motorControllers
 
+  // ! constructiong motorControllers
   public Shooter(ShooterMap shooterMap) {
     // ** assign motorcontrollers from shootermap
     // lateralMotor = shooterMap.getLateralMotor();
@@ -36,11 +36,28 @@ public class Shooter extends SmartSubsystemBase {
     intakeMotor = shooterMap.getIntakeMotor();
   }
 
+  @Override
+  public void periodic() {
+    shooterMotor.set(shootSpeed);
+  }
+
+  @Override
+  public void safeState() {
+    // TODO Auto-generated method stub
+
+  }
+
+  public double getSpeed() {
+    return this.shootSpeed;
+  }
+
+  public void setSpeedF(double speedC) {
+    this.shootSpeed = speedC;
+  }
+
   public CommandBase setSpeed(DoubleSupplier speed) {
     return running("setSpeed", () -> {
-      setSpeedF(speed.getAsDouble());
-      double speedD = getSpeed();
-      shooterMotor.set(speedD * speedD);
+      setSpeedF(speed.getAsDouble() * speed.getAsDouble());
     });
   }
 
@@ -67,7 +84,6 @@ public class Shooter extends SmartSubsystemBase {
         power -= error * PIDconst; // * if we are outside of reasonable speed, we change speed base error
       }
       setSpeedF(power); // * changes speed to speed calculated
-      shooterMotor.set(getSpeed()); // * sets motor speed to speed calculated
     }
 
     @Override
@@ -102,30 +118,4 @@ public class Shooter extends SmartSubsystemBase {
     }
   }
 
-  public double getSpeed() {
-    return this.shootSpeed;
-  }
-
-  public void setSpeedF(double speedC) {
-    this.shootSpeed = speedC;
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
-
-  @Override
-  public void safeState() {
-    // TODO Auto-generated method stub
-
-  }
-
-  public class SetSpeed extends CommandBase {
-    private double wantedSpeed;
-
-    public SetSpeed(double wantedSpeedC) {
-      wantedSpeed = wantedSpeedC;
-    }
-  }
 }
