@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
+import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
@@ -24,39 +25,42 @@ public class Intake extends SmartSubsystemBase {
     private final double rollerSpeed = 1;
     private final double deploySpeed = 1;
 
+    private final Modifier insideModifier;
+    private final Modifier outsideModifier;
+
     public Intake(final IntakeMap map) {
         this.deploymentMotor = map.getDeploy();
         this.rollerMotor = map.getRoller();
         this.insideLimit = map.getInsideLimit();
         this.outsideLimit = map.getOutsideLimit();
+        outsideModifier = Modifier.upperLimit(outsideLimit);
+        insideModifier = Modifier.lowerLimit(insideLimit);
+        // :) we don't appreciate
+        // deploymentMotor.setControlType(CANSparkMax.ControlType.kSmartMotion);
     }
 
-    // Counterclockwise go in, clockwise go out
-    public CommandBase setRollerSpeed(SpinDirection s) {
+    // Counterclockwise ball go in, clockwise ball go out
+    public CommandBase setRollerSpeed(SpinDirection rDirection) {
         return startEnd("Activate Roller",
                 () -> {
-                    rollerMotor.set(s.get(rollerSpeed));
+                    rollerMotor.set(rDirection.get(rollerSpeed));
                 }, () -> {
                     rollerMotor.set(0);
                 });
     }
 
     public CommandBase retractIntake() {
-        return cmd("Retract Intake").onExecute(() -> {
-            if (!insideLimit.getAsBoolean()) {
-                deploymentMotor.set(-deploySpeed);
-            }
-        }).finishedWhen(insideLimit).onEnd((interupted) -> {
+        return startEnd("Retract Intake", () -> {
+            deploymentMotor.set(insideModifier.applyAsDouble(-deploySpeed));
+        }, () -> {
             deploymentMotor.set(0);
         });
     }
 
     public CommandBase deployIntake() {
-        return cmd("Deploy Intake").onExecute(() -> {
-            if (!outsideLimit.getAsBoolean()) {
-                deploymentMotor.set(deploySpeed);
-            }
-        }).finishedWhen(outsideLimit).onEnd((interupted) -> {
+        return startEnd("Deploy Intake", () -> {
+            deploymentMotor.set(outsideModifier.applyAsDouble(deploySpeed));
+        }, () -> {
             deploymentMotor.set(0);
         });
     }
@@ -65,10 +69,12 @@ public class Intake extends SmartSubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         SmartDashboard.putBoolean("Intake Deployed", !insideLimit.getAsBoolean());
+        SmartDashboard.putNumber("Roller Speed", rollerMotor.get());
     }
 
     @Override
     public void safeState() {
-
+        rollerMotor.set(0);
+        deploymentMotor.set(0);
     }
 }

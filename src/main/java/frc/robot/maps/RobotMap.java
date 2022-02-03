@@ -8,6 +8,7 @@ import com.chopshop166.chopshoplib.sensors.MockDigitalInput;
 
 @RobotMapFor("Default")
 public class RobotMap {
+
     public static class IntakeMap {
         private final SmartMotorController deploymentMotor;
         private final SmartMotorController rollerMotor;
@@ -54,7 +55,6 @@ public class RobotMap {
     }
 
     public IntakeMap getIntakeMap() {
-        return new IntakeMap(new SmartMotorController(), new SmartMotorController(), new MockDigitalInput(),
-                new MockDigitalInput());
+        return new IntakeMap();
     }
 }

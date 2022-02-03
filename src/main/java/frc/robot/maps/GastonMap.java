@@ -2,7 +2,6 @@ package frc.robot.maps;
 
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -38,7 +37,7 @@ public class GastonMap extends RobotMap {
         double smartMotionOutputVel = 0;
         double smartMotionMaxAccel = 600;
 
-        // TODO pid/smart motion cooefficients for intake
+        // TODO pid/smart motion coefficients for intake
 
         deploymentPidController.setP(P);
         deploymentPidController.setI(I);
@@ -51,8 +50,10 @@ public class GastonMap extends RobotMap {
         deploymentPidController.setSmartMotionMinOutputVelocity(smartMotionOutputVel, 0);
         deploymentPidController.setSmartMotionMaxAccel(smartMotionMaxAccel, 0);
 
+        // we dont do this here
         // the value here is in rotations
-        deploymentPidController.setReference(0.25, CANSparkMax.ControlType.kSmartMotion);
+        // deploymentPidController.setReference(0.25,
+        // CANSparkMax.ControlType.kSmartMotion);
 
         IntakeMap map = new IntakeMap(new PIDSparkMax(3, MotorType.kBrushless),
                 deploymentMotor, outsideLimit::get, insideLimit::get);
