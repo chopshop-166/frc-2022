@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 // Need to get MAC address for roborio
 @RobotMapFor("Default")
 public class RobotMap {
-    public static class DriveMap {
+    public static class SwerveDriveMap {
         // All Distances are in Meters
 
         private final SwerveModule frontLeft;
@@ -24,7 +24,7 @@ public class RobotMap {
 
         private final double distanceFromCenter = 0.381;
 
-        public DriveMap() {
+        public SwerveDriveMap() {
 
             this.frontLeft = new MockSwerveModule(new Translation2d(distanceFromCenter, distanceFromCenter));
 
@@ -41,7 +41,7 @@ public class RobotMap {
             this.gyro = new MockGyro();
         }
 
-        public DriveMap(final SwerveModule frontLeft, final SwerveModule frontRight, final SwerveModule rearLeft,
+        public SwerveDriveMap(final SwerveModule frontLeft, final SwerveModule frontRight, final SwerveModule rearLeft,
                 final SwerveModule rearRight, final double maxDriveSpeedMetersPerSecond,
                 final double maxRotationRadianPerSecond, final Gyro gyro) {
 
@@ -89,7 +89,7 @@ public class RobotMap {
         }
     }
 
-    public DriveMap getDriveMap() {
-        return new DriveMap();
+    public SwerveDriveMap getSwerveDriveMap() {
+        return new SwerveDriveMap();
     }
 }

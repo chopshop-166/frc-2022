@@ -13,7 +13,7 @@ public class Robot extends CommandRobot {
 
   final private RobotMap map = getRobotMap(RobotMap.class, "frc.robot.maps", new RobotMap());
 
-  private final Drive drive = new Drive(map.getDriveMap());
+  private final Drive drive = new Drive(map.getSwerveDriveMap());
 
   @Override
   public void robotInit() {
@@ -33,7 +33,7 @@ public class Robot extends CommandRobot {
 
   @Override
   public void setDefaultCommands() {
-    drive.setDefaultCommand(drive.fieldCentricDrive(() -> driveController.getLeftX(),
-        () -> driveController.getLeftY(), () -> driveController.getRightX()));
+    drive.setDefaultCommand(drive.fieldCentricDrive(driveController::getLeftX,
+        driveController::getLeftY, driveController::getRightX));
   }
 }

@@ -72,8 +72,8 @@ public class SDSSwerveModule implements SwerveModule {
 
     /**
      * The constructor.
-     * 
-     * @param moduleLocation     The physical location.
+     *
+     * @param moduleLocation     The physical location in meters.
      * @param steeringEncoder    The steering encoder.
      * @param steeringController The steering motor controller.
      * @param driveController    The drive motor controller.
@@ -86,7 +86,7 @@ public class SDSSwerveModule implements SwerveModule {
 
     /**
      * The constructor.
-     * 
+     *
      * @param moduleLocation     The physical location.
      * @param steeringEncoder    The steering encoder.
      * @param steeringController The steering motor controller.
@@ -105,7 +105,7 @@ public class SDSSwerveModule implements SwerveModule {
 
     /**
      * Get the steering motor controller.
-     * 
+     *
      * @return The controller object.
      */
     public PIDSparkMax getSteeringController() {
@@ -114,7 +114,7 @@ public class SDSSwerveModule implements SwerveModule {
 
     /**
      * Get the Disney motor controller.
-     * 
+     *
      * @return The controller object.
      */
     public PIDSparkMax getDriveController() {
@@ -134,7 +134,7 @@ public class SDSSwerveModule implements SwerveModule {
     /**
      * Process the desired state and set the output values for the motor
      * controllers.
-     * 
+     *
      * @param desiredState The direction and speed.
      */
     @Override
