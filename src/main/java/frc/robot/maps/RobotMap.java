@@ -49,7 +49,44 @@ public class RobotMap {
         }
     }
 
+    public static class TelescopeMap {
+        private final SmartMotorController motor;
+        private final BooleanSupplier upperLimit;
+        private final BooleanSupplier lowerLimit;
+
+        public TelescopeMap(SmartMotorController motor, BooleanSupplier upperLimit, BooleanSupplier lowerLimit) {
+            this.motor = motor;
+            this.upperLimit = upperLimit;
+            this.lowerLimit = lowerLimit;
+        }
+
+        public TelescopeMap() {
+            this(new SmartMotorController(), new MockDigitalInput(), new MockDigitalInput());
+        }
+
+        public SmartMotorController getMotor() {
+            return motor;
+        }
+
+        public BooleanSupplier getUpperLimit() {
+            return upperLimit;
+        }
+
+        public BooleanSupplier getLowerLimit() {
+            return lowerLimit;
+        }
+
+    }
+
     public IntakeMap getIntakeMap() {
         return new IntakeMap();
+    }
+
+    public TelescopeMap getLeftTelescopeMap() {
+        return new TelescopeMap();
+    }
+
+    public TelescopeMap getRightTelescopeMap() {
+        return new TelescopeMap();
     }
 }
