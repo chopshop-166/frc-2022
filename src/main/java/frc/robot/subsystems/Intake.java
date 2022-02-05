@@ -12,6 +12,7 @@ import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.maps.RobotMap.IntakeMap;
 
 public class Intake extends SmartSubsystemBase {
@@ -36,7 +37,7 @@ public class Intake extends SmartSubsystemBase {
         this.outsideModifier = Modifier.upperLimit(outsideLimit);
         this.insideModifier = Modifier.lowerLimit(insideLimit);
 
-        deploymentMotor.setControlType(PIDControlType.SmartMotion);
+        deploymentMotor.setControlType(PIDControlType.Velocity);
     }
 
     // Counterclockwise ball go in, clockwise ball go out
