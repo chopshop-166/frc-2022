@@ -3,10 +3,8 @@ package frc.robot.maps;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.robot.maps.RobotMap;
 
 @RobotMapFor("Gaston")
 public class GastonMap extends RobotMap {
