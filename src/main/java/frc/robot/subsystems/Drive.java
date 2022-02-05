@@ -12,7 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.maps.RobotMap.DriveMap;
+import frc.robot.maps.RobotMap.SwerveDriveMap;
 
 public class Drive extends SmartSubsystemBase {
 
@@ -26,7 +26,7 @@ public class Drive extends SmartSubsystemBase {
   private final double maxRotationRadiansPerSecond;
   private final Gyro gyro;
 
-  public Drive(final DriveMap map) {
+  public Drive(final SwerveDriveMap map) {
     super();
 
     frontLeft = map.getFrontLeft();
