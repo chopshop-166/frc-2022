@@ -22,8 +22,7 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    controller.a().whileHeld(parallel("Deploy and Start Roller", intake.setRollerSpeed(SpinDirection.COUNTERCLOCKWISE),
-        intake.deployIntake())).whenReleased(intake.retractIntake());
+    controller.a().whileHeld(intake.startIntakeMechanism(SpinDirection.COUNTERCLOCKWISE));
   }
 
   @Override

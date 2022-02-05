@@ -9,7 +9,6 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.IntakeMap;
@@ -22,8 +21,8 @@ public class Intake extends SmartSubsystemBase {
     private final BooleanSupplier insideLimit;
     private final BooleanSupplier outsideLimit;
 
-    private final double rollerSpeed = 1;
-    private final double deploySpeed = 1;
+    private static final double ROLLER_SPEED = 1;
+    private static final double DEPLOY_SPEED = 1;
 
     private final Modifier insideModifier;
     private final Modifier outsideModifier;
@@ -33,35 +32,20 @@ public class Intake extends SmartSubsystemBase {
         this.rollerMotor = map.getRoller();
         this.insideLimit = map.getInsideLimit();
         this.outsideLimit = map.getOutsideLimit();
-        outsideModifier = Modifier.upperLimit(outsideLimit);
-        insideModifier = Modifier.lowerLimit(insideLimit);
-        // :) we don't appreciate
+        this.outsideModifier = Modifier.upperLimit(outsideLimit);
+        this.insideModifier = Modifier.lowerLimit(insideLimit);
         // deploymentMotor.setControlType(CANSparkMax.ControlType.kSmartMotion);
     }
 
     // Counterclockwise ball go in, clockwise ball go out
-    public CommandBase setRollerSpeed(SpinDirection rDirection) {
-        return startEnd("Activate Roller",
-                () -> {
-                    rollerMotor.set(rDirection.get(rollerSpeed));
-                }, () -> {
-                    rollerMotor.set(0);
-                });
-    }
 
-    public CommandBase retractIntake() {
-        return startEnd("Retract Intake", () -> {
-            deploymentMotor.set(insideModifier.applyAsDouble(-deploySpeed));
+    public CommandBase startIntakeMechanism(SpinDirection rollerDirection) {
+        return startEnd("Start Intake Mechanism", () -> {
+            rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
+            deploymentMotor.set(outsideModifier.applyAsDouble(DEPLOY_SPEED));
         }, () -> {
-            deploymentMotor.set(0);
-        });
-    }
-
-    public CommandBase deployIntake() {
-        return startEnd("Deploy Intake", () -> {
-            deploymentMotor.set(outsideModifier.applyAsDouble(deploySpeed));
-        }, () -> {
-            deploymentMotor.set(0);
+            rollerMotor.set(0);
+            deploymentMotor.set(insideModifier.applyAsDouble(-DEPLOY_SPEED));
         });
     }
 
@@ -74,7 +58,8 @@ public class Intake extends SmartSubsystemBase {
 
     @Override
     public void safeState() {
-        rollerMotor.set(0);
-        deploymentMotor.set(0);
+        rollerMotor.stopMotor();
+        deploymentMotor.stopMotor();
+
     }
 }
