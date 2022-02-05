@@ -28,7 +28,6 @@ public class GastonMap extends RobotMap {
 
     public IntakeMap getIntakeMap() {
         // PID coefficients
-
         // initializes relative encoder and pid controller, we don't need the encoder rn
 
         // private RelativeEncoder deploymentEncoder =
