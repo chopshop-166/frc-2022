@@ -16,13 +16,8 @@ public class RobotMap {
         private final BooleanSupplier outsideLimit;
 
         public IntakeMap() {
-            this.deploymentMotor = new SmartMotorController();
-
-            this.rollerMotor = new SmartMotorController();
-
-            this.insideLimit = new MockDigitalInput();
-
-            this.outsideLimit = new MockDigitalInput();
+            this(new SmartMotorController(), new SmartMotorController(), new MockDigitalInput(),
+                    new MockDigitalInput());
         }
 
         public IntakeMap(final SmartMotorController deploymentMotor, final SmartMotorController rollerMotor,

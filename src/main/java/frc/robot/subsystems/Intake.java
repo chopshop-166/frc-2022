@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import java.util.function.BooleanSupplier;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
+import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -34,7 +35,9 @@ public class Intake extends SmartSubsystemBase {
         this.outsideLimit = map.getOutsideLimit();
         this.outsideModifier = Modifier.upperLimit(outsideLimit);
         this.insideModifier = Modifier.lowerLimit(insideLimit);
-        // deploymentMotor.setControlType(CANSparkMax.ControlType.kSmartMotion);
+
+        deploymentMotor.setControlType(PIDControlType.SmartMotion);
+        deploymentMotor.setSetpoint(0.25);
     }
 
     // Counterclockwise ball go in, clockwise ball go out

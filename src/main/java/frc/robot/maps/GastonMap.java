@@ -51,9 +51,6 @@ public class GastonMap extends RobotMap {
         deploymentPidController.setSmartMotionMinOutputVelocity(smartMotionOutputVel, 0);
         deploymentPidController.setSmartMotionMaxAccel(smartMotionMaxAccel, 0);
 
-        // the value here is in rotations
-        deploymentPidController.setReference(0.25, ControlType.kSmartMotion);
-
         IntakeMap map = new IntakeMap(rollerMotor, deploymentMotor, outsideLimit::get, insideLimit::get);
         return map;
 
