@@ -1,16 +1,15 @@
 package frc.robot.maps;
 
+import java.util.function.BooleanSupplier;
+
 import com.chopshop166.chopshoplib.drive.MockSwerveModule;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
-import com.chopshop166.chopshoplib.maps.RobotMapFor;
-import com.chopshop166.chopshoplib.sensors.MockGyro;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.MockDigitalInput;
+import com.chopshop166.chopshoplib.sensors.MockGyro;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
-
-import java.util.function.BooleanSupplier;
 
 public class RobotMap {
     public static class SwerveDriveMap {
@@ -93,7 +92,8 @@ public class RobotMap {
 
     public SwerveDriveMap getSwerveDriveMap() {
         return new SwerveDriveMap();
-      
+    }
+
     public static class TelescopeMap {
         private final SmartMotorController motor;
         private final BooleanSupplier upperLimit;

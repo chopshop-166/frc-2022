@@ -7,8 +7,8 @@ import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 
 import frc.robot.maps.RobotMap;
-import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Drive;
 
 public class Robot extends CommandRobot {
 
@@ -22,7 +22,6 @@ public class Robot extends CommandRobot {
   private final Climber leftClimber = new Climber(map.getLeftTelescopeMap());
   private final Climber rightClimber = new Climber(map.getRightTelescopeMap());
 
-
   @Override
   public void robotInit() {
     super.robotInit();
@@ -32,7 +31,7 @@ public class Robot extends CommandRobot {
   public void configureButtonBindings() {
     driveController.start().whenPressed(drive.resetCmd());
 
-    DoubleSupplier trigger = controller::getTriggers;
+    DoubleSupplier trigger = driveController::getTriggers;
 
     // Move with variable speed from triggers
     driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
