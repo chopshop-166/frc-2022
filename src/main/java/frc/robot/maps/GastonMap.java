@@ -52,8 +52,7 @@ public class GastonMap extends RobotMap {
         deploymentPidController.setSmartMotionMinOutputVelocity(0, 0);
         deploymentPidController.setSmartMotionMaxAccel(600, 0);
 
-        IntakeMap map = new IntakeMap(rollerMotor, deploymentMotor, outsideLimit::get, insideLimit::get);
-        return map;
+        return new IntakeMap(rollerMotor, deploymentMotor, outsideLimit::get, insideLimit::get);
 
     }
 
