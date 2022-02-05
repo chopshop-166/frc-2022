@@ -4,12 +4,14 @@ import com.chopshop166.chopshoplib.drive.MockSwerveModule;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.sensors.MockGyro;
+import com.chopshop166.chopshoplib.motors.SmartMotorController;
+import com.chopshop166.chopshoplib.sensors.MockDigitalInput;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
-// Need to get MAC address for roborio
-@RobotMapFor("Default")
+import java.util.function.BooleanSupplier;
+
 public class RobotMap {
     public static class SwerveDriveMap {
         // All Distances are in Meters
@@ -91,5 +93,41 @@ public class RobotMap {
 
     public SwerveDriveMap getSwerveDriveMap() {
         return new SwerveDriveMap();
+      
+    public static class TelescopeMap {
+        private final SmartMotorController motor;
+        private final BooleanSupplier upperLimit;
+        private final BooleanSupplier lowerLimit;
+
+        public TelescopeMap(SmartMotorController motor, BooleanSupplier upperLimit, BooleanSupplier lowerLimit) {
+            this.motor = motor;
+            this.upperLimit = upperLimit;
+            this.lowerLimit = lowerLimit;
+        }
+
+        public TelescopeMap() {
+            this(new SmartMotorController(), new MockDigitalInput(), new MockDigitalInput());
+        }
+
+        public SmartMotorController getMotor() {
+            return motor;
+        }
+
+        public BooleanSupplier getUpperLimit() {
+            return upperLimit;
+        }
+
+        public BooleanSupplier getLowerLimit() {
+            return lowerLimit;
+        }
+
+    }
+
+    public TelescopeMap getLeftTelescopeMap() {
+        return new TelescopeMap();
+    }
+
+    public TelescopeMap getRightTelescopeMap() {
+        return new TelescopeMap();
     }
 }
