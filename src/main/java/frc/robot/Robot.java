@@ -29,7 +29,7 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    controller.a().whileHeld(intake.startIntakeMechanism(SpinDirection.COUNTERCLOCKWISE));
+    controller.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
     DoubleSupplier trigger = controller::getTriggers;
 
     // Move with variable speed from triggers

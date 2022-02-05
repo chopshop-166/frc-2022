@@ -40,13 +40,6 @@ public class GastonMap extends RobotMap {
         double maxOutput = 1;
         double minOutput = -1;
 
-        // Smart motion coefficients
-        // max velocity is in rpm!!
-
-        double smartMotionMaxVel = 30;
-        double smartMotionOutputVel = 0;
-        double smartMotionMaxAccel = 600;
-
         // TODO pid/smart motion coefficients for intake
 
         deploymentPidController.setP(P);
@@ -55,9 +48,9 @@ public class GastonMap extends RobotMap {
         deploymentPidController.setIZone(IZone);
         deploymentPidController.setOutputRange(minOutput, maxOutput);
 
-        deploymentPidController.setSmartMotionMaxVelocity(smartMotionMaxVel, 0);
-        deploymentPidController.setSmartMotionMinOutputVelocity(smartMotionOutputVel, 0);
-        deploymentPidController.setSmartMotionMaxAccel(smartMotionMaxAccel, 0);
+        deploymentPidController.setSmartMotionMaxVelocity(30, 0);
+        deploymentPidController.setSmartMotionMinOutputVelocity(0, 0);
+        deploymentPidController.setSmartMotionMaxAccel(600, 0);
 
         IntakeMap map = new IntakeMap(rollerMotor, deploymentMotor, outsideLimit::get, insideLimit::get);
         return map;

@@ -37,18 +37,17 @@ public class Intake extends SmartSubsystemBase {
         this.insideModifier = Modifier.lowerLimit(insideLimit);
 
         deploymentMotor.setControlType(PIDControlType.SmartMotion);
-        deploymentMotor.setSetpoint(0.25);
     }
 
     // Counterclockwise ball go in, clockwise ball go out
 
-    public CommandBase startIntakeMechanism(SpinDirection rollerDirection) {
-        return startEnd("Start Intake Mechanism", () -> {
+    public CommandBase runMechanism(SpinDirection rollerDirection) {
+        return startEnd("Run Intake Mechanism", () -> {
             rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
-            deploymentMotor.set(outsideModifier.applyAsDouble(DEPLOY_SPEED));
+            deploymentMotor.setSetpoint(outsideModifier.applyAsDouble(DEPLOY_SPEED));
         }, () -> {
             rollerMotor.set(0);
-            deploymentMotor.set(insideModifier.applyAsDouble(-DEPLOY_SPEED));
+            deploymentMotor.setSetpoint(insideModifier.applyAsDouble(-DEPLOY_SPEED));
         });
     }
 
