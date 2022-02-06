@@ -4,11 +4,13 @@ import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
+import com.chopshop166.chopshoplib.states.SpinDirection;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Intake;
 
 public class Robot extends CommandRobot {
 
@@ -18,6 +20,8 @@ public class Robot extends CommandRobot {
   private final RobotMap map = getRobotMap(RobotMap.class, "frc.robot.maps", new RobotMap());
 
   private final Drive drive = new Drive(map.getSwerveDriveMap());
+
+  private final Intake intake = new Intake(map.getIntakeMap());
 
   private final Climber leftClimber = new Climber(map.getLeftTelescopeMap());
   private final Climber rightClimber = new Climber(map.getRightTelescopeMap());
@@ -32,6 +36,8 @@ public class Robot extends CommandRobot {
     driveController.start().whenPressed(drive.resetCmd());
 
     DoubleSupplier trigger = driveController::getTriggers;
+    
+    copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
 
     // Move with variable speed from triggers
     driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
@@ -51,6 +57,7 @@ public class Robot extends CommandRobot {
 
   @Override
   public void populateDashboard() {
+
     // TODO Auto-generated method stub
   }
 
