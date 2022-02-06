@@ -94,6 +94,7 @@ public class RobotMap {
 
     public SwerveDriveMap getSwerveDriveMap() {
         return new SwerveDriveMap();
+    }
 
     public static class IntakeMap {
         private final SmartMotorController deploymentMotor;

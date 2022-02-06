@@ -4,8 +4,8 @@ import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
-import com.chopshop166.chopshoplib.states.SpinDirection;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
+import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.Climber;
@@ -33,10 +33,10 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    driveController.start().whenPressed(drive.resetCmd());
+    driveController.back().whenPressed(drive.resetCmd());
 
     DoubleSupplier trigger = driveController::getTriggers;
-    
+
     copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
 
     // Move with variable speed from triggers
