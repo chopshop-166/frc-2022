@@ -21,7 +21,6 @@ public class Shooter extends SmartSubsystemBase {
   private double shootSpeed;
   private double shootPower;
 
-  private double speedBuffer = .01;
   private double PIDconst = .01;
   private double RPMmul = 10000;
 
@@ -42,9 +41,7 @@ public class Shooter extends SmartSubsystemBase {
   @Override
   public void periodic() {
     double error = (shootSpeed * RPMmul) - shooterMotor.getEncoder().getRate(); // ? gets error for PID
-    if (Math.abs(error) > speedBuffer) { // * if we are not close enought to the set speed then...
-      shootPower += error * PIDconst / RPMmul; // * we change the power based on error.
-    }
+    shootPower += error * PIDconst / RPMmul; // * we change the power based on error.
     waitTime = (error / RPMmul) * waitTimeMul; // * changes the time you have to wait based on how close
     // * you are to target speed;
     intakeMotor.set(shootPower); // * sets speed

@@ -1,7 +1,5 @@
 package frc.robot;
 
-import java.util.function.DoubleSupplier;
-
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 
@@ -24,6 +22,8 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
+    controller.lbumper().whileHeld(shooter.setSpeed(controller::getLeftTriggerAxis));
+    // * when left bumper is pressed lets pilot set speed :)
     controller.rbumper().whenPressed(sequence("shoot",
         new WaitCommand(shooter.getWaitTime()), // * gives the PID controll time to do its thing
         shooter.new shoot()));
@@ -39,7 +39,5 @@ public class Robot extends CommandRobot {
   @Override
   public void setDefaultCommands() {
 
-    DoubleSupplier shooterSpeed = () -> controller.getLeftTriggerAxis();
-    shooter.setDefaultCommand(shooter.setSpeed(shooterSpeed));
   }
 }
