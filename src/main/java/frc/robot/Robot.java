@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.Shooter;
 
@@ -23,7 +24,9 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    controller.rbumper().whenPressed(sequence("shoot", shooter.new CheckShootSpeed(), shooter.new shoot()));
+    controller.rbumper().whenPressed(sequence("shoot",
+        new WaitCommand(shooter.getWaitTime()), // * gives the PID controll time to do its thing
+        shooter.new shoot()));
     // * get ready, aim, FIRE!!
   }
 

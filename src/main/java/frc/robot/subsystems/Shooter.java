@@ -8,7 +8,6 @@ import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
-import com.chopshop166.chopshoplib.sensors.IEncoder;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.ShooterMap;
@@ -18,12 +17,15 @@ public class Shooter extends SmartSubsystemBase {
   // private SmartMotorController longitudinalMotor;
   private SmartMotorController shooterMotor;
   private SmartMotorController intakeMotor;
+
   private double shootSpeed;
+  private double shootPower;
 
   private double speedBuffer = .01;
   private double PIDconst = .01;
   private double RPMmul = 10000;
 
+  private double waitTime = 1.0;
   private double SHOOTTIME = 2;
   private double INTAKESPEED = .5; // ! must be between 0 and 1
 
@@ -38,7 +40,11 @@ public class Shooter extends SmartSubsystemBase {
 
   @Override
   public void periodic() {
-    shooterMotor.set(shootSpeed);
+    double error = (shootSpeed * RPMmul) - shooterMotor.getEncoder().getRate(); // ? gets error for PID
+    if (Math.abs(error) > speedBuffer) { // * if we are not close enought to the set speed then...
+      shootPower += error * PIDconst / RPMmul; // * we changee the power based on error.
+    }
+    intakeMotor.set(shootPower);
   }
 
   @Override
@@ -55,45 +61,14 @@ public class Shooter extends SmartSubsystemBase {
     this.shootSpeed = speedC;
   }
 
+  public double getWaitTime() {
+    return this.waitTime;
+  }
+
   public CommandBase setSpeed(DoubleSupplier speed) {
     return running("setSpeed", () -> {
       setSpeedF(speed.getAsDouble() * speed.getAsDouble());
     });
-  }
-
-  // ? checks if speed the speed we want is the speed we have, with some wiggle
-  // ?room. and only
-  // ? finishes when the actuall speed gets to wanted speed. no clue if the
-  // ?encoder gives off RMP
-  // ? or power level. i assmed RPM
-  public class CheckShootSpeed extends CommandBase {
-    double power;
-    double speed;
-    double error;
-    IEncoder encoder = shooterMotor.getEncoder();
-
-    // public CheckShootSpeed(double powerC) {
-    // power = powerC; // *takes value from 0-1
-    // }
-    @Override
-    public void initialize() {
-      speed = getSpeed() * RPMmul;
-    }
-
-    @Override
-    public void execute() {
-      error = speed - encoder.getRate(); // * the amount off we ar from target RPM
-      if (Math.abs(error) >= speedBuffer) {
-        power = getSpeed();
-        power -= error * PIDconst; // * if we are outside of reasonable speed, we change speed base error
-      }
-      setSpeedF(power); // * changes speed to speed calculated
-    }
-
-    @Override
-    public boolean isFinished() {
-      return Math.abs(error) <= speedBuffer; // * ends command when error is low enough;
-    }
   }
 
   public class shoot extends CommandBase {
@@ -101,9 +76,9 @@ public class Shooter extends SmartSubsystemBase {
 
     @Override
     public void initialize() {
-      intakeMotor.set(INTAKESPEED); // * i dont think that the intakespeed needs to be as accurate as
-      // * the shoot motor. If i am wrong about this, can always add a PID controller
-      // *to make it accurate.
+      intakeMotor.set(INTAKESPEED); // ? i dont think that the intakespeed needs to be as accurate as
+      // ? the shoot motor. If i am wrong about this, can always add a PID controller
+      // ?to make it accurate.
     }
 
     @Override
@@ -121,5 +96,4 @@ public class Shooter extends SmartSubsystemBase {
       intakeMotor.set(0.0);
     }
   }
-
 }
