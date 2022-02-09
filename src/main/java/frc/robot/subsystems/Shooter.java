@@ -17,6 +17,7 @@ public class Shooter extends SmartSubsystemBase {
   private SmartMotorController shooterMotor;
   private SmartMotorController intakeMotor;
 
+  private double defaultSpeedNums[] = { 0.0, 0.5, 1.0 };
   private double shootSpeed;
   private double shootPower;
   private double velocity;
@@ -68,6 +69,12 @@ public class Shooter extends SmartSubsystemBase {
     return this.waitTime;
   }
 
+  public CommandBase setDefaultSpeed(int index) {
+    return instant("Set default speed", () -> {
+      setSpeedF(defaultSpeedNums[index]);
+    });
+  }
+
   public CommandBase setSpeed(DoubleSupplier speed) {
     return running("setSpeed", () -> {
       setSpeedF(speed.getAsDouble() * speed.getAsDouble());
@@ -99,4 +106,5 @@ public class Shooter extends SmartSubsystemBase {
       intakeMotor.set(0.0);
     }
   }
+
 }

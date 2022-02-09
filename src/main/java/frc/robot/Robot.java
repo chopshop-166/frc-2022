@@ -16,6 +16,7 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.shoot;
 
 public class Robot extends CommandRobot {
 
@@ -40,7 +41,22 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    driveController.back().whenPressed(drive.resetCmd());
+
+    // ? list of buttons used by driver... back, x, a, b, UP, DOWN, START
+
+    // ? avalable buttons for driver controller... y, right bumper, left bumper,
+    // ? left stick, right stick
+
+    // ? list of button used by copilot... a, x, left bumper, right bumper
+
+    // ? avalable button for copilot controller... UP, DOWN, LEFT, RIGHT, y, b,
+    // ? start, back, left stick, right stick
+
+    // ! shooter bindings
+
+    copilotController.getPovButton(POVDirection.UP).whenPressed(shooter.setDefaultSpeed(2)); // * sets upper goal speed
+    copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setDefaultSpeed(1)); // * sets lower goal
+                                                                                               // speed
 
     copilotController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
     // * when left bumper is pressed lets pilot set speed :)
@@ -49,9 +65,15 @@ public class Robot extends CommandRobot {
         shooter.new shoot()));
     // * get ready, aim, FIRE!!
 
-    DoubleSupplier trigger = driveController::getTriggers;
+    // ! intake bindings
 
     copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
+
+    // ! drive bindings
+
+    driveController.back().whenPressed(drive.resetCmd());
+
+    DoubleSupplier trigger = driveController::getTriggers;
 
     // Move with variable speed from triggers
     driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
@@ -72,7 +94,6 @@ public class Robot extends CommandRobot {
   @Override
   public void populateDashboard() {
 
-    // TODO Auto-generated method stub
   }
 
   @Override
