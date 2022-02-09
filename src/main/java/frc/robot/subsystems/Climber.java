@@ -37,16 +37,32 @@ public class Climber extends SmartSubsystemBase {
     modifiers = new ModifierGroup(upperModifier, lowerModifier);
   }
 
-  public CommandBase move(DoubleSupplier speed) { // Move motor with variable speed that is affected by limit switches
+  // Move the motor based on a variable speed and stop when motor current exceeds
+  // CURRENT_LIMIT
+  public CommandBase moveCurrent(DoubleSupplier speed) {
     return cmd("Move").onInitialize(() -> {
-      motor.set(modifiers.run(speed.getAsDouble()));
     }).onExecute(() -> {
+      motor.set(speed.getAsDouble());
+      SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
+    }).finishedWhen(() -> ((PIDSparkMax) motor).getMotorController().getOutputCurrent() >= CURRENT_LIMIT)
+        .onEnd((interrupted) -> {
+          motor.set(0.0);
+        });
+  }
+
+  // Move the motor based on a variable speed and stop when limit switches are hit
+  public CommandBase move(DoubleSupplier speed) {
+    return cmd("Move").onInitialize(() -> {
+    }).onExecute(() -> {
+      motor.set(modifiers.run(speed.getAsDouble()));
       SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
     }).onEnd((interrupted) -> {
       motor.set(0.0);
     });
   }
 
+  // Extend the climber then stop the climber once the motor's current reaches a
+  // certain threshold, specified by CURRENT_LIMIT
   public CommandBase extendCurrent() {
     return cmd("Extend With Current Limits").onInitialize(() -> {
       motor.set(EXTEND_SPEED);
@@ -63,6 +79,7 @@ public class Climber extends SmartSubsystemBase {
         });
   }
 
+  // Extend the climber and use the limit switches to stop the motors
   public CommandBase extend() {
     return startEnd("Extend", () -> {
       motor.set(upperModifier.applyAsDouble(EXTEND_SPEED));
@@ -79,8 +96,9 @@ public class Climber extends SmartSubsystemBase {
     });
   }
 
+  // Extend and ignore limits (only use if limits are not working)
   public CommandBase extendIgnoreLimit() {
-    return startEnd("Extend Ignore Limit", () -> { // Extend and ignore limits (only use if limits are not working)
+    return startEnd("Extend Ignore Limit", () -> {
       motor.set(EXTEND_SPEED);
     }, () -> {
       motor.set(0.0);
