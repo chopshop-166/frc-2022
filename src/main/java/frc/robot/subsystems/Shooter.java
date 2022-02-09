@@ -13,8 +13,6 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.ShooterMap;
 
 public class Shooter extends SmartSubsystemBase {
-  // private SmartMotorController lateralMotor;
-  // private SmartMotorController longitudinalMotor;
   private SmartMotorController shooterMotor;
   private SmartMotorController intakeMotor;
 
@@ -32,8 +30,6 @@ public class Shooter extends SmartSubsystemBase {
   // ! constructiong motorControllers
   public Shooter(ShooterMap shooterMap) {
     // ** assign motorcontrollers from shootermap
-    // lateralMotor = shooterMap.getLateralMotor();
-    // longitudinalMotor = shooterMap.getLongitudinalMotor();
     shooterMotor = shooterMap.getShooterMotor();
     intakeMotor = shooterMap.getIntakeMotor();
   }
