@@ -52,8 +52,8 @@ public class Shooter extends SmartSubsystemBase {
 
   @Override
   public void safeState() {
-    // TODO Auto-generated method stub
-
+    shooterMotor.set(0.0);
+    intakeMotor.set(0.0);
   }
 
   public double getSpeed() {
