@@ -72,13 +72,13 @@ public class SDSSwerveModule implements SwerveModule {
 
     /**
      * The constructor.
-     * 
-     * @param moduleLocation     The physical location.
+     *
+     * @param moduleLocation     The physical location in meters.
      * @param steeringEncoder    The steering encoder.
      * @param steeringController The steering motor controller.
      * @param driveController    The drive motor controller.
      */
-    protected SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
+    public SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
             final PIDSparkMax steeringController, final PIDSparkMax driveController, final Configuration conf) {
         this(moduleLocation, steeringEncoder, steeringController, driveController, conf,
                 new PIDController(PID_VALUES.p, PID_VALUES.i, PID_VALUES.d));
@@ -86,13 +86,13 @@ public class SDSSwerveModule implements SwerveModule {
 
     /**
      * The constructor.
-     * 
+     *
      * @param moduleLocation     The physical location.
      * @param steeringEncoder    The steering encoder.
      * @param steeringController The steering motor controller.
      * @param driveController    The drive motor controller.
      */
-    protected SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
+    public SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
             final PIDSparkMax steeringController, final PIDSparkMax driveController,
             final Configuration conf, final PIDController pid) {
         this.location = moduleLocation;
@@ -105,7 +105,7 @@ public class SDSSwerveModule implements SwerveModule {
 
     /**
      * Get the steering motor controller.
-     * 
+     *
      * @return The controller object.
      */
     public PIDSparkMax getSteeringController() {
@@ -114,7 +114,7 @@ public class SDSSwerveModule implements SwerveModule {
 
     /**
      * Get the Disney motor controller.
-     * 
+     *
      * @return The controller object.
      */
     public PIDSparkMax getDriveController() {
@@ -134,7 +134,7 @@ public class SDSSwerveModule implements SwerveModule {
     /**
      * Process the desired state and set the output values for the motor
      * controllers.
-     * 
+     *
      * @param desiredState The direction and speed.
      */
     @Override
@@ -161,7 +161,8 @@ public class SDSSwerveModule implements SwerveModule {
      *
      * @return The current angle of the module.
      */
-    private Rotation2d getAngle() {
+    @Override
+    public Rotation2d getAngle() {
         return Rotation2d.fromDegrees(steeringEncoder.getAbsolutePosition());
     }
 
@@ -206,6 +207,16 @@ public class SDSSwerveModule implements SwerveModule {
 
         // Return the original object so this can be chained
         return motor;
+    }
+
+    @Override
+    public double getDistance() {
+        return driveController.getEncoder().getDistance();
+    }
+
+    @Override
+    public void resetDistance() {
+        driveController.getEncoder().reset();
     }
 
     @Override

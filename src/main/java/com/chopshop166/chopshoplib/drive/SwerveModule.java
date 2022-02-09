@@ -1,5 +1,6 @@
 package com.chopshop166.chopshoplib.drive;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.Sendable;
@@ -10,6 +11,12 @@ import edu.wpi.first.util.sendable.Sendable;
  * Contains information about rotation and velocity.
  */
 public interface SwerveModule extends Sendable {
+
+    Rotation2d getAngle();
+
+    double getDistance();
+
+    void resetDistance();
 
     /**
      * Get the modules location in relation to the CoM of the robot.
@@ -25,4 +32,5 @@ public interface SwerveModule extends Sendable {
      * @param desiredState The direction and speed.
      */
     void setDesiredState(final SwerveModuleState desiredState);
+
 }

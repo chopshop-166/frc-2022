@@ -4,7 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
-
+import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -13,12 +13,18 @@ import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
 public class Robot extends CommandRobot {
-  private RobotMap map = getMapForName("Gaston", RobotMap.class, "frc.robot.maps"); // ?gets map from Gaston.java
-  private final ButtonXboxController controller = new ButtonXboxController(0);
+
+  private final ButtonXboxController driveController = new ButtonXboxController(0);
+  private final ButtonXboxController copilotController = new ButtonXboxController(1);
+
+  private final RobotMap map = getRobotMap(RobotMap.class, "frc.robot.maps", new RobotMap());
+
+  private final Drive drive = new Drive(map.getSwerveDriveMap());
 
   private final Intake intake = new Intake(map.getIntakeMap());
 
@@ -34,30 +40,33 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    controller.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
-    DoubleSupplier trigger = controller::getTriggers;
+    driveController.back().whenPressed(drive.resetCmd());
 
-    controller.lbumper().whileHeld(shooter.setSpeed(controller::getLeftTriggerAxis));
+    copilotController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
     // * when left bumper is pressed lets pilot set speed :)
-    controller.rbumper().whenPressed(sequence("Shoot",
+    copilotController.rbumper().whenPressed(sequence("Shoot",
         new WaitCommand(shooter.getWaitTime()), // * gives the PID controll time to do its thing
         shooter.new shoot()));
     // * get ready, aim, FIRE!!
 
+    DoubleSupplier trigger = driveController::getTriggers;
+
+    copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
+
     // Move with variable speed from triggers
-    controller.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
+    driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
 
     // Button bindings for regular climbing
-    controller.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
-    controller.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
+    driveController.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
+    driveController.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
 
     // Button bindings for ignoring limit switches
-    controller.getPovButton(POVDirection.UP)
+    driveController.getPovButton(POVDirection.UP)
         .whileHeld(parallel("Extend Ignore Limit", leftClimber.extendIgnoreLimit(), rightClimber.extendIgnoreLimit()));
-    controller.getPovButton(POVDirection.DOWN).whileHeld(
+    driveController.getPovButton(POVDirection.DOWN).whileHeld(
         parallel("Retract Ignore Limit", leftClimber.retractIgnoreLimit(), rightClimber.retractIgnoreLimit()));
 
-    controller.start().whenPressed(parallel("Stop", leftClimber.stop(), rightClimber.stop()));
+    driveController.start().whenPressed(parallel("Stop", leftClimber.stop(), rightClimber.stop()));
   }
 
   @Override
@@ -68,6 +77,7 @@ public class Robot extends CommandRobot {
 
   @Override
   public void setDefaultCommands() {
-
+    drive.setDefaultCommand(drive.fieldCentricDrive(driveController::getLeftX,
+        driveController::getLeftY, driveController::getRightX));
   }
 }
