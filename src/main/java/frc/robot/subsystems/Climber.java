@@ -6,6 +6,7 @@ import java.util.function.DoubleSupplier;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.motors.ModifierGroup;
+import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,6 +18,7 @@ public class Climber extends SmartSubsystemBase {
   // Constants:
   private final double EXTEND_SPEED = 1.0;
   private final double RETRACT_SPEED = -1.0;
+  private final double CURRENT_LIMIT = 1.0; // Current limit in amps, motor stops when this is reached
 
   private final SmartMotorController motor;
   private final BooleanSupplier upperLimit;
@@ -43,6 +45,22 @@ public class Climber extends SmartSubsystemBase {
     }).onEnd((interrupted) -> {
       motor.set(0.0);
     });
+  }
+
+  public CommandBase extendCurrent() {
+    return cmd("Extend With Current Limits").onInitialize(() -> {
+      motor.set(EXTEND_SPEED);
+    }).finishedWhen(() -> ((PIDSparkMax) motor).getMotorController().getOutputCurrent() >= CURRENT_LIMIT)
+        .onEnd((interrupted) -> {
+        });
+  }
+
+  public CommandBase retractCurrent() {
+    return cmd("Retract With Current Limits").onInitialize(() -> {
+      motor.set(RETRACT_SPEED);
+    }).finishedWhen(() -> ((PIDSparkMax) motor).getMotorController().getOutputCurrent() >= CURRENT_LIMIT)
+        .onEnd((interrupted) -> {
+        });
   }
 
   public CommandBase extend() {
