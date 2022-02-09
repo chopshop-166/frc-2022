@@ -5,7 +5,6 @@ import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
-import com.chopshop166.chopshoplib.motors.SmartMotorController;
 
 @RobotMapFor("Gaston")
 public class GastonMap extends RobotMap {
@@ -27,8 +26,12 @@ public class GastonMap extends RobotMap {
     private final PIDSparkMax rollerMotor = new PIDSparkMax(3, MotorType.kBrushless);
     private final SparkMaxPIDController deploymentPidController = deploymentMotor.getPidController();
 
+    // shooter stuff
+    private final PIDSparkMax shooterMoter = new PIDSparkMax(5, MotorType.kBrushless);
+    private final PIDSparkMax shooterIntakeMoter = new PIDSparkMax(6, MotorType.kBrushless);
+
     public ShooterMap getShooterMap() {
-        ShooterMap map = new ShooterMap(new SmartMotorController(), new SmartMotorController());
+        ShooterMap map = new ShooterMap(shooterMoter, shooterIntakeMoter);
         return map;
     }
 

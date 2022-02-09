@@ -39,7 +39,7 @@ public class Robot extends CommandRobot {
 
     controller.lbumper().whileHeld(shooter.setSpeed(controller::getLeftTriggerAxis));
     // * when left bumper is pressed lets pilot set speed :)
-    controller.rbumper().whenPressed(sequence("shoot",
+    controller.rbumper().whenPressed(sequence("Shoot",
         new WaitCommand(shooter.getWaitTime()), // * gives the PID controll time to do its thing
         shooter.new shoot()));
     // * get ready, aim, FIRE!!

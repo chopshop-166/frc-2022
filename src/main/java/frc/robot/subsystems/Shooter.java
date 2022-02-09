@@ -9,6 +9,7 @@ import java.util.function.DoubleSupplier;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.ShooterMap;
 
@@ -18,10 +19,12 @@ public class Shooter extends SmartSubsystemBase {
 
   private double shootSpeed;
   private double shootPower;
+  private double velocity;
 
-  private double PIDconst = .01;
+  private double PIDconst = 0.1;
   private double RPMmul = 10000;
 
+  private double shootWheelWidth = 2;
   private double waitTimeMul = 0.5;
   private double waitTime = 1.0;
   private double SHOOTTIME = 2;
@@ -41,6 +44,10 @@ public class Shooter extends SmartSubsystemBase {
     waitTime = (error / RPMmul) * waitTimeMul; // * changes the time you have to wait based on how close
     // * you are to target speed;
     intakeMotor.set(shootPower); // * sets speed
+    velocity = shootWheelWidth * Math.PI * shootSpeed * RPMmul / (60 * 12);
+    // ? diamiter*pi(curcumfrence)* rmp (inches per min) / 60 (inches per second)
+    // ? / 12 (feet per second)
+    SmartDashboard.putNumber("Speed", velocity);
   }
 
   @Override
