@@ -211,8 +211,10 @@ public class SDSSwerveModule implements SwerveModule {
     @Override
     public void initSendable(final SendableBuilder builder) {
         builder.setActuator(true);
+        builder.setSmartDashboardType("Swerve Module");
         builder.addDoubleProperty("Angle Error", steeringPID::getPositionError, null);
         builder.addDoubleProperty("Speed Error", () -> speedError, null);
+        builder.addDoubleProperty("Angle", () -> getAngle().getDegrees(), null);
         builder.addDoubleProperty("Speed", () -> driveController.getEncoder().getRate(), null);
     }
 }
