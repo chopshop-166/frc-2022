@@ -16,7 +16,6 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Shooter.shoot;
 
 public class Robot extends CommandRobot {
 
@@ -52,7 +51,7 @@ public class Robot extends CommandRobot {
     // avalable button for copilot controller... UP, DOWN, LEFT, RIGHT, y, b,
     // start, back, left stick, right stick
 
-    // ! shooter bindings
+    // shooter bindings
 
     copilotController.getPovButton(POVDirection.UP).whenPressed(shooter.setDefaultSpeed(2)); // sets upper goal speed
     copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setDefaultSpeed(1)); // sets lower goal
@@ -62,7 +61,7 @@ public class Robot extends CommandRobot {
     // when left bumper is pressed lets pilot set speed :)
     copilotController.rbumper().whenPressed(sequence("Shoot",
         new WaitCommand(shooter.getWaitTime()), // gives the PID controll time to do its thing
-        shooter.new shoot()));
+        shooter.shoot()));
     // get ready, aim, FIRE!!
 
     // intake bindings

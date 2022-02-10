@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IEncoder;
@@ -32,7 +33,7 @@ public class Shooter extends SmartSubsystemBase {
   private double SHOOTTIME = 2;
   private double INTAKESPEED = .5; // must be between 0 and 1
 
-  // ! constructiong motorControllers
+  // constructiong motorControllers
   public Shooter(ShooterMap shooterMap) {
     // assign motorcontrollers from shootermap
     shooterMotor = shooterMap.getShooterMotor();
@@ -48,7 +49,7 @@ public class Shooter extends SmartSubsystemBase {
     // you are to target speed;
     intakeMotor.set(shootPower); // * sets speed
     velocity = shootWheelWidth * Math.PI * shootSpeed * RPMmul / (60 * 12);
-    // diamiter*pi(curcumfrence)* rmp (inches per min) / 60 (inches per second)
+    // diameter*pi(curcumfrence)* rmp (inches per min) / 60 (inches per second)
     // / 12 (feet per second)
     SmartDashboard.putNumber("Speed", velocity);
   }
@@ -83,30 +84,13 @@ public class Shooter extends SmartSubsystemBase {
     });
   }
 
-  public class shoot extends CommandBase {
-    int b = 0;
-
-    @Override
-    public void initialize() {
-      intakeMotor.set(INTAKESPEED); // i dont think that the intakespeed needs to be as accurate as
-      // the shoot motor. If i am wrong about this, can always add a PID controller
-      // to make it accurate.
-    }
-
-    @Override
-    public void execute() {
-      b++;
-    }
-
-    @Override
-    public boolean isFinished() {
-      return b >= SHOOTTIME * 50;
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-      intakeMotor.set(0.0);
-    }
+  public CommandBase shoot() {
+    return sequence("Shoot", setIntakeSpeed(INTAKESPEED), new WaitCommand(SHOOTTIME), setIntakeSpeed(0.0));
   }
 
+  public CommandBase setIntakeSpeed(double speed) {
+    return instant("Set intake speed", () -> {
+      intakeMotor.set(speed);
+    });
+  }
 }
