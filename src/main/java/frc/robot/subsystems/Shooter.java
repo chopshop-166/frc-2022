@@ -30,11 +30,11 @@ public class Shooter extends SmartSubsystemBase {
   private double waitTimeMul = 0.5;
   private double waitTime = 1.0;
   private double SHOOTTIME = 2;
-  private double INTAKESPEED = .5; // ! must be between 0 and 1
+  private double INTAKESPEED = .5; // must be between 0 and 1
 
   // ! constructiong motorControllers
   public Shooter(ShooterMap shooterMap) {
-    // ** assign motorcontrollers from shootermap
+    // assign motorcontrollers from shootermap
     shooterMotor = shooterMap.getShooterMotor();
     intakeMotor = shooterMap.getIntakeMotor();
   }
@@ -43,13 +43,13 @@ public class Shooter extends SmartSubsystemBase {
   public void periodic() {
     IEncoder shooterEncoder = shooterMotor.getEncoder();
     double error = (shootSpeed * RPMmul) - shooterEncoder.getRate(); // ? gets error for PID
-    shootPower += error * PIDconst / RPMmul; // * we change the power based on error.
-    waitTime = (error / RPMmul) * waitTimeMul; // * changes the time you have to wait based on how close
-    // * you are to target speed;
+    shootPower += error * PIDconst / RPMmul; // we change the power based on error.
+    waitTime = (error / RPMmul) * waitTimeMul; // changes the time you have to wait based on how close
+    // you are to target speed;
     intakeMotor.set(shootPower); // * sets speed
     velocity = shootWheelWidth * Math.PI * shootSpeed * RPMmul / (60 * 12);
-    // ? diamiter*pi(curcumfrence)* rmp (inches per min) / 60 (inches per second)
-    // ? / 12 (feet per second)
+    // diamiter*pi(curcumfrence)* rmp (inches per min) / 60 (inches per second)
+    // / 12 (feet per second)
     SmartDashboard.putNumber("Speed", velocity);
   }
 
@@ -88,9 +88,9 @@ public class Shooter extends SmartSubsystemBase {
 
     @Override
     public void initialize() {
-      intakeMotor.set(INTAKESPEED); // ? i dont think that the intakespeed needs to be as accurate as
-      // ? the shoot motor. If i am wrong about this, can always add a PID controller
-      // ?to make it accurate.
+      intakeMotor.set(INTAKESPEED); // i dont think that the intakespeed needs to be as accurate as
+      // the shoot motor. If i am wrong about this, can always add a PID controller
+      // to make it accurate.
     }
 
     @Override

@@ -29,7 +29,7 @@ public class Robot extends CommandRobot {
 
   private final Intake intake = new Intake(map.getIntakeMap());
 
-  private Shooter shooter = new Shooter(map.getShooterMap()); // ? gets shootermap and makes a shooter subsystem
+  private Shooter shooter = new Shooter(map.getShooterMap()); // gets shootermap and makes a shooter subsystem
 
   private final Climber leftClimber = new Climber(map.getLeftTelescopeMap());
   private final Climber rightClimber = new Climber(map.getRightTelescopeMap());
@@ -42,34 +42,34 @@ public class Robot extends CommandRobot {
   @Override
   public void configureButtonBindings() {
 
-    // ? list of buttons used by driver... back, x, a, b, UP, DOWN, START
+    // list of buttons used by driver... back, x, a, b, UP, DOWN, START
 
-    // ? avalable buttons for driver controller... y, right bumper, left bumper,
-    // ? left stick, right stick
+    // avalable buttons for driver controller... y, right bumper, left bumper,
+    // left stick, right stick
 
-    // ? list of button used by copilot... a, x, left bumper, right bumper
+    // list of button used by copilot... a, x, left bumper, right bumper
 
-    // ? avalable button for copilot controller... UP, DOWN, LEFT, RIGHT, y, b,
-    // ? start, back, left stick, right stick
+    // avalable button for copilot controller... UP, DOWN, LEFT, RIGHT, y, b,
+    // start, back, left stick, right stick
 
     // ! shooter bindings
 
-    copilotController.getPovButton(POVDirection.UP).whenPressed(shooter.setDefaultSpeed(2)); // * sets upper goal speed
-    copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setDefaultSpeed(1)); // * sets lower goal
+    copilotController.getPovButton(POVDirection.UP).whenPressed(shooter.setDefaultSpeed(2)); // sets upper goal speed
+    copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setDefaultSpeed(1)); // sets lower goal
                                                                                                // speed
 
     copilotController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
-    // * when left bumper is pressed lets pilot set speed :)
+    // when left bumper is pressed lets pilot set speed :)
     copilotController.rbumper().whenPressed(sequence("Shoot",
-        new WaitCommand(shooter.getWaitTime()), // * gives the PID controll time to do its thing
+        new WaitCommand(shooter.getWaitTime()), // gives the PID controll time to do its thing
         shooter.new shoot()));
-    // * get ready, aim, FIRE!!
+    // get ready, aim, FIRE!!
 
-    // ! intake bindings
+    // intake bindings
 
     copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
 
-    // ! drive bindings
+    // drive bindings
 
     driveController.back().whenPressed(drive.resetCmd());
 
