@@ -1,6 +1,7 @@
 package frc.robot.maps;
 
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
+import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
@@ -96,6 +97,7 @@ public class GastonMap extends RobotMap {
     private final PIDSparkMax shooterIntakeMoter = new PIDSparkMax(6, MotorType.kBrushless);
 
     public ShooterMap getShooterMap() {
+        shooterMoter.setControlType(PIDControlType.Velocity);
         ShooterMap map = new ShooterMap(shooterMoter, shooterIntakeMoter);
         return map;
     }

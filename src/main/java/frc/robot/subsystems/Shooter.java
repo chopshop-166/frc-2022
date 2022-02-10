@@ -16,19 +16,15 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.ShooterMap;
 
 public class Shooter extends SmartSubsystemBase {
+
   private SmartMotorController shooterMotor;
   private SmartMotorController intakeMotor;
+  private IEncoder shootEncoder = shooterMotor.getEncoder();
 
   private double defaultSpeedNums[] = { 0.0, 0.5, 1.0 };
   private double shootSpeed;
-  private double shootPower;
-  private double velocity;
-
-  private double PIDconst = 0.1;
-  private double RPMmul = 10000;
 
   private double shootWheelWidth = 2;
-  private double waitTimeMul = 0.5;
   private double waitTime = 1.0;
   private double SHOOTTIME = 2;
   private double INTAKESPEED = .5; // must be between 0 and 1
@@ -42,16 +38,11 @@ public class Shooter extends SmartSubsystemBase {
 
   @Override
   public void periodic() {
-    IEncoder shooterEncoder = shooterMotor.getEncoder();
-    double error = (shootSpeed * RPMmul) - shooterEncoder.getRate(); // ? gets error for PID
-    shootPower += error * PIDconst / RPMmul; // we change the power based on error.
-    waitTime = (error / RPMmul) * waitTimeMul; // changes the time you have to wait based on how close
-    // you are to target speed;
-    intakeMotor.set(shootPower); // * sets speed
-    velocity = shootWheelWidth * Math.PI * shootSpeed * RPMmul / (60 * 12);
+    double velocity = shootWheelWidth * Math.PI * shootEncoder.getRate() / (60 * 12);
     // diameter*pi(curcumfrence)* rmp (inches per min) / 60 (inches per second)
     // / 12 (feet per second)
-    SmartDashboard.putNumber("Speed", velocity);
+    shooterMotor.setSetpoint(shootSpeed);
+    SmartDashboard.putNumber("Speed (feet per second)", velocity);
   }
 
   @Override
