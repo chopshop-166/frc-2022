@@ -194,9 +194,11 @@ public class RobotMap {
     public TelescopeMap getLeftTelescopeMap() {
         return new TelescopeMap();
     }
-    public ShooterMap getShooterMap(){
+
+    public ShooterMap getShooterMap() {
         return new ShooterMap();
     }
+
     public TelescopeMap getRightTelescopeMap() {
         return new TelescopeMap();
     }

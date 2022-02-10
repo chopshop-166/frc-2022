@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
+import com.chopshop166.chopshoplib.sensors.IEncoder;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -40,7 +41,8 @@ public class Shooter extends SmartSubsystemBase {
 
   @Override
   public void periodic() {
-    double error = (shootSpeed * RPMmul) - shooterMotor.getEncoder().getRate(); // ? gets error for PID
+    IEncoder shooterEncoder = shooterMotor.getEncoder();
+    double error = (shootSpeed * RPMmul) - shooterEncoder.getRate(); // ? gets error for PID
     shootPower += error * PIDconst / RPMmul; // * we change the power based on error.
     waitTime = (error / RPMmul) * waitTimeMul; // * changes the time you have to wait based on how close
     // * you are to target speed;
