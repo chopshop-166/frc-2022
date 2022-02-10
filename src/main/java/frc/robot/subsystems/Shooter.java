@@ -19,7 +19,7 @@ public class Shooter extends SmartSubsystemBase {
 
   private SmartMotorController shooterMotor;
   private SmartMotorController intakeMotor;
-  private IEncoder shootEncoder = shooterMotor.getEncoder();
+  private IEncoder shootEncoder;
 
   private double defaultSpeedNums[] = { 0.0, 0.5, 1.0 };
   private double shootSpeed;
@@ -34,6 +34,7 @@ public class Shooter extends SmartSubsystemBase {
     // assign motorcontrollers from shootermap
     shooterMotor = shooterMap.getShooterMotor();
     intakeMotor = shooterMap.getIntakeMotor();
+    shootEncoder = shooterMotor.getEncoder();
   }
 
   @Override
