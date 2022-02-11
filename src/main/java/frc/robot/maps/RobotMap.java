@@ -4,10 +4,50 @@ import java.util.function.BooleanSupplier;
 
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
+import com.chopshop166.chopshoplib.sensors.IColorSensor;
+import com.chopshop166.chopshoplib.sensors.MockColorSensor;
 import com.chopshop166.chopshoplib.sensors.MockDigitalInput;
 
 @RobotMapFor("Default")
 public class RobotMap {
+    public static class BallTransportMap {
+        private final SmartMotorController bottomMotor;
+        private final SmartMotorController topMotor;
+        private final IColorSensor colorSensor;
+        private final BooleanSupplier laserSwitch;
+
+        public BallTransportMap() {
+            this(new SmartMotorController(), new SmartMotorController(), new MockColorSensor(), new MockDigitalInput());
+        }
+
+        public BallTransportMap(final SmartMotorController bottomMotor, final SmartMotorController topMotor,
+                final IColorSensor colorSensor, final BooleanSupplier laserSwitch) {
+
+            this.bottomMotor = bottomMotor;
+
+            this.topMotor = topMotor;
+
+            this.colorSensor = colorSensor;
+
+            this.laserSwitch = laserSwitch;
+        }
+
+        public SmartMotorController getBottomMotor() {
+            return bottomMotor;
+        }
+
+        public SmartMotorController getTopMotor() {
+            return topMotor;
+        }
+
+        public IColorSensor getColorSensor() {
+            return colorSensor;
+        }
+
+        public BooleanSupplier getLaserSwitch() {
+            return laserSwitch;
+        }
+    }
 
     public static class IntakeMap {
         private final SmartMotorController deploymentMotor;
@@ -80,6 +120,10 @@ public class RobotMap {
 
     public IntakeMap getIntakeMap() {
         return new IntakeMap();
+    }
+
+    public BallTransportMap getBallTransportMap() {
+        return new BallTransportMap();
     }
 
     public TelescopeMap getLeftTelescopeMap() {
