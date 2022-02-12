@@ -4,19 +4,23 @@ import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
-import com.chopshop166.chopshoplib.states.SpinDirection;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
+import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 
 public class Robot extends CommandRobot {
 
-  private final ButtonXboxController controller = new ButtonXboxController(0);
+  private final ButtonXboxController driveController = new ButtonXboxController(0);
+  private final ButtonXboxController copilotController = new ButtonXboxController(1);
 
-  private final RobotMap map = getMapForName("Gaston", RobotMap.class, "frc.robot.maps");
+  private final RobotMap map = getRobotMap(RobotMap.class, "frc.robot.maps", new RobotMap());
+
+  private final Drive drive = new Drive(map.getSwerveDriveMap());
 
   private final Intake intake = new Intake(map.getIntakeMap());
   private final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
@@ -30,25 +34,32 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
+<<<<<<< HEAD
     controller.a().whileHeld(parallel("Run intake and conveyors", intake.runMechanism(SpinDirection.COUNTERCLOCKWISE),
         ballTransport.setMotors(SpinDirection.CLOCKWISE)));
     DoubleSupplier trigger = controller::getTriggers;
+=======
+    driveController.back().whenPressed(drive.resetCmd());
+
+    DoubleSupplier trigger = driveController::getTriggers;
+
+    copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
+>>>>>>> main
 
     // Move with variable speed from triggers
-    controller.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
+    driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
 
     // Button bindings for regular climbing
-    controller.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
-    controller.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
+    driveController.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
+    driveController.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
 
     // Button bindings for ignoring limit switches
-    controller.getPovButton(POVDirection.UP)
+    driveController.getPovButton(POVDirection.UP)
         .whileHeld(parallel("Extend Ignore Limit", leftClimber.extendIgnoreLimit(), rightClimber.extendIgnoreLimit()));
-    controller.getPovButton(POVDirection.DOWN).whileHeld(
+    driveController.getPovButton(POVDirection.DOWN).whileHeld(
         parallel("Retract Ignore Limit", leftClimber.retractIgnoreLimit(), rightClimber.retractIgnoreLimit()));
 
-    controller.start().whenPressed(parallel("Stop", leftClimber.stop(), rightClimber.stop()));
-
+    driveController.start().whenPressed(parallel("Stop", leftClimber.stop(), rightClimber.stop()));
   }
 
   @Override
@@ -59,6 +70,7 @@ public class Robot extends CommandRobot {
 
   @Override
   public void setDefaultCommands() {
-
+    drive.setDefaultCommand(drive.fieldCentricDrive(driveController::getLeftX,
+        driveController::getLeftY, driveController::getRightX));
   }
 }
