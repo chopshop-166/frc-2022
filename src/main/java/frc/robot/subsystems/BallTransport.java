@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.LinkedList;
 import java.util.function.BooleanSupplier;
 
 import com.chopshop166.chopshoplib.SampleBuffer;
@@ -26,9 +27,47 @@ public class BallTransport extends SmartSubsystemBase {
     private final IColorSensor colorSensor;
     private final BooleanSupplier laserSwitch;
 
+    // this is sample buffer for now, it will be until new sample buffer is merged
+    // in the meantime you may cry about it
+    private class SampleBuffer<E> extends LinkedList<E> {
+        /** The index of the next sample to add. */
+        private int sampleCap;
+
+        /**
+         * Create a Sample Buffer with a default length of 25.
+         */
+        public SampleBuffer() {
+            this.sampleCap = 25;
+        }
+
+        /**
+         * Create a Sample Buffer.
+         * 
+         * @param numSamples The number of samples to use.
+         */
+        public SampleBuffer(final int numSamples) {
+            this.sampleCap = numSamples;
+        }
+
+        /**
+         * Add a new sample to the buffer.
+         * 
+         * @param sample The value to add.
+         */
+        @Override
+        public boolean add(E sample) {
+            if (size() >= this.sampleCap) {
+                removeFirst();
+            }
+            return super.add(sample);
+        }
+
+    }
+
     private final Alliance allianceColor;
 
-    private SampleBuffer colorBuffer;
+    // creates a color sample buffer with a limit of 10 values.
+    private SampleBuffer<Color> colorBuffer = new SampleBuffer<Color>(10);
 
     private final double SHUNT_SPEED = 1.0;
     private final double TRANSPORT_SPEED = 1.0;
@@ -52,7 +91,7 @@ public class BallTransport extends SmartSubsystemBase {
     }
 
     private void updateColorBuffer() {
-        // colorBuffer.addSample(colorSensor.getColor());
+        colorBuffer.add(colorSensor.getColor());
     }
 
     @Override
