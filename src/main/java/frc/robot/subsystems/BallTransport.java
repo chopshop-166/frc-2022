@@ -52,7 +52,7 @@ public class BallTransport extends SmartSubsystemBase {
     }
 
     private void updateColorBuffer() {
-        colorBuffer.addSample(colorSensor.getColor());
+        // colorBuffer.addSample(colorSensor.getColor());
     }
 
     @Override
