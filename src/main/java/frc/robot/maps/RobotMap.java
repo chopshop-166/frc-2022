@@ -18,11 +18,6 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 public class RobotMap {
     public static class SwerveDriveMap {
         // All Distances are in Meters
-    public static class BallTransportMap {
-        private final SmartMotorController bottomMotor;
-        private final SmartMotorController topMotor;
-        private final IColorSensor colorSensor;
-        private final BooleanSupplier laserSwitch;
 
         private final SwerveModule frontLeft;
         private final SwerveModule frontRight;
@@ -102,6 +97,12 @@ public class RobotMap {
     public SwerveDriveMap getSwerveDriveMap() {
         return new SwerveDriveMap();
     }
+
+    public static class BallTransportMap {
+        private final SmartMotorController bottomMotor;
+        private final SmartMotorController topMotor;
+        private final IColorSensor colorSensor;
+        private final BooleanSupplier laserSwitch;
 
         public BallTransportMap() {
             this(new SmartMotorController(), new SmartMotorController(), new MockColorSensor(), new MockDigitalInput());

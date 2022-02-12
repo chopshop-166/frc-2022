@@ -34,17 +34,11 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-<<<<<<< HEAD
-    controller.a().whileHeld(parallel("Run intake and conveyors", intake.runMechanism(SpinDirection.COUNTERCLOCKWISE),
-        ballTransport.setMotors(SpinDirection.CLOCKWISE)));
-    DoubleSupplier trigger = controller::getTriggers;
-=======
     driveController.back().whenPressed(drive.resetCmd());
 
     DoubleSupplier trigger = driveController::getTriggers;
 
     copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
->>>>>>> main
 
     // Move with variable speed from triggers
     driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
