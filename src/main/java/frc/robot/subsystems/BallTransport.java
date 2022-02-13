@@ -5,7 +5,6 @@ import com.chopshop166.chopshoplib.SampleBuffer;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IColorSensor;
-import com.chopshop166.chopshoplib.states.SpinDirection;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -93,7 +92,7 @@ public class BallTransport extends SmartSubsystemBase {
 
     private void updateColorBuffer() {
         final Color colorSensed = colorSensor.getColor();
-        if (colorSensed == colorBuffer.peekLast()) {
+        if (colorSensed != colorBuffer.peekFirst()) {
             if (colorSensed == Color.kFirstRed || colorSensed == Color.kFirstBlue) {
                 colorBuffer.add(colorSensed);
                 cargoInColorSensor = true;
