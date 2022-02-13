@@ -83,7 +83,7 @@ public class BallTransport extends SmartSubsystemBase {
                     break;
             }
         }).finishedWhen(() -> {
-            return !(cargoInColorSensor || laserSwitch.getAsBoolean());
+            return !cargoInColorSensor || !laserSwitch.getAsBoolean();
         }).onEnd(() -> {
             topMotor.set(0);
             bottomMotor.set(0);
