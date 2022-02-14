@@ -20,8 +20,6 @@ public class Climber extends SmartSubsystemBase {
   private final double RETRACT_SPEED = -1.0;
 
   private final SmartMotorController motor;
-  private final BooleanSupplier upperLimit;
-  private final BooleanSupplier lowerLimit;
 
   private final Modifier limit;
 
@@ -30,8 +28,6 @@ public class Climber extends SmartSubsystemBase {
 
     limit = Modifier.unless(motor::errored);
   }
-
-  /
 
   // Move the motor based on a variable speed and stop when limit switches are hit
   public CommandBase move(DoubleSupplier speed) {
