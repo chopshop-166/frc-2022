@@ -31,8 +31,7 @@ public class Climber extends SmartSubsystemBase {
 
   // Move the motor based on a variable speed and stop when limit switches are hit
   public CommandBase move(DoubleSupplier speed) {
-    return cmd("Move").onInitialize(() -> {
-    }).onExecute(() -> {
+    return cmd("Move").onExecute(() -> {
       motor.set(limit.applyAsDouble(speed.getAsDouble()));
       SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
     }).finishedWhen(motor::errored).onEnd((interrupted) -> {
@@ -42,8 +41,7 @@ public class Climber extends SmartSubsystemBase {
 
   // Extend the climber and use validators stop the motors
   public CommandBase extend() {
-    return cmd("Extend").onInitialize(() -> {
-    }).onExecute(() -> {
+    return cmd("Extend").onExecute(() -> {
       motor.set(limit.applyAsDouble(EXTEND_SPEED));
     }).finishedWhen(motor::errored).onEnd((interrupted) -> {
       motor.set(0.0);
@@ -51,8 +49,7 @@ public class Climber extends SmartSubsystemBase {
   }
 
   public CommandBase retract() {
-    return cmd("Extend").onInitialize(() -> {
-    }).onExecute(() -> {
+    return cmd("Extend").onExecute(() -> {
       motor.set(limit.applyAsDouble(RETRACT_SPEED));
     }).finishedWhen(motor::errored).onEnd((interrupted) -> {
       motor.set(0.0);
