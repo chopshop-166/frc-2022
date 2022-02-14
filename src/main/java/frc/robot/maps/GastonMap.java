@@ -116,17 +116,13 @@ public class GastonMap extends RobotMap {
 
     public TelescopeMap getLeftTelescopeMap() {
         leftMotor.validateCurrent(CLIMBER_CURRENT_LIMIT);
-        // Uncomment if limit switches are used
-        // leftMotor.addValidator(() -> !leftUpperLimit.getAsBoolean());
-        // leftMotor.addValidator(() -> !leftLowerLimit.getAsBoolean());
-        return new TelescopeMap(leftMotor);
+
+        return new TelescopeMap(leftMotor, leftUpperLimit::get, leftLowerLimit::get);
     }
 
     public TelescopeMap getRightTelescopeMap() {
         rightMotor.validateCurrent(CLIMBER_CURRENT_LIMIT);
-        // Uncomment if limit switches are used
-        // leftMotor.addValidator(() -> !rightUpperLimit.getAsBoolean());
-        // leftMotor.addValidator(() -> !rightLowerLimit.getAsBoolean());
-        return new TelescopeMap(rightMotor);
+
+        return new TelescopeMap(rightMotor, rightUpperLimit::get, rightLowerLimit::get);
     }
 }
