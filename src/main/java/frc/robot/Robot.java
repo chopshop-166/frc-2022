@@ -40,11 +40,14 @@ public class Robot extends CommandRobot {
     copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
 
     // Move with variable speed from triggers
-    driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
+    driveController.x().whileHeld(parallel("Move", leftClimber.moveCurrent(trigger), rightClimber.moveCurrent(trigger),
+        leftClimber.moveLimit(trigger), rightClimber.moveLimit(trigger)));
 
     // Button bindings for regular climbing
-    driveController.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
-    driveController.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
+    driveController.a().whileHeld(parallel("Extend", leftClimber.extendCurrent(), rightClimber.extendCurrent(),
+        leftClimber.extendLimit(), rightClimber.extendLimit()));
+    driveController.b().whileHeld(parallel("Retract", leftClimber.retractCurrent(), rightClimber.retractCurrent(),
+        leftClimber.retractLimit(), rightClimber.retractLimit()));
 
     // Button bindings for ignoring limit switches
     driveController.getPovButton(POVDirection.UP)

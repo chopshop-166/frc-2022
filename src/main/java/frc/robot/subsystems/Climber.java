@@ -30,8 +30,8 @@ public class Climber extends SmartSubsystemBase {
   }
 
   // Move the motor based on a variable speed and stop when validator fails
-  public CommandBase move(DoubleSupplier speed) {
-    return cmd("Move").onExecute(() -> {
+  public CommandBase moveCurrent(DoubleSupplier speed) {
+    return cmd("Move With Current Limit").onExecute(() -> {
       motor.set(validatorLimit.applyAsDouble(speed.getAsDouble()));
       SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
     }).finishedWhen(motor::errored).onEnd((interrupted) -> {
@@ -49,8 +49,8 @@ public class Climber extends SmartSubsystemBase {
   }
 
   // Extend the climber and use validators stop the motors
-  public CommandBase extend() {
-    return cmd("Extend").onExecute(() -> {
+  public CommandBase extendCurrent() {
+    return cmd("Extend With Current Limit").onExecute(() -> {
       motor.set(validatorLimit.applyAsDouble(EXTEND_SPEED));
     }).finishedWhen(motor::errored).onEnd((interrupted) -> {
       motor.set(0.0);
@@ -66,8 +66,8 @@ public class Climber extends SmartSubsystemBase {
     });
   }
 
-  public CommandBase retract() {
-    return cmd("Extend").onExecute(() -> {
+  public CommandBase retractCurrent() {
+    return cmd("Retract With Current Limit").onExecute(() -> {
       motor.set(validatorLimit.applyAsDouble(RETRACT_SPEED));
     }).finishedWhen(motor::errored).onEnd((interrupted) -> {
       motor.set(0.0);
