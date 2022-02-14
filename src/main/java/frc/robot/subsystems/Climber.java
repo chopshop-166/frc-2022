@@ -18,85 +18,52 @@ public class Climber extends SmartSubsystemBase {
   // Constants:
   private final double EXTEND_SPEED = 1.0;
   private final double RETRACT_SPEED = -1.0;
-  private final double CURRENT_LIMIT = 1.0; // Current limit in amps, motor stops when this is reached
 
   private final SmartMotorController motor;
   private final BooleanSupplier upperLimit;
   private final BooleanSupplier lowerLimit;
 
-  private final Modifier upperModifier;
-  private final Modifier lowerModifier;
-  private final ModifierGroup modifiers;
+  private final Modifier limit;
 
   public Climber(TelescopeMap map) {
     motor = map.getMotor();
-    upperLimit = map.getUpperLimit();
-    lowerLimit = map.getLowerLimit();
-    upperModifier = Modifier.upperLimit(upperLimit);
-    lowerModifier = Modifier.lowerLimit(lowerLimit);
-    modifiers = new ModifierGroup(upperModifier, lowerModifier);
+
+    limit = Modifier.unless(motor::errored);
   }
 
-  // Move the motor based on a variable speed and stop when motor current exceeds
-  // CURRENT_LIMIT
-  public CommandBase moveCurrent(DoubleSupplier speed) {
-    return cmd("Move").onInitialize(() -> {
-    }).onExecute(() -> {
-      motor.set(speed.getAsDouble());
-      SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
-    }).finishedWhen(() -> ((PIDSparkMax) motor).getMotorController().getOutputCurrent() >= CURRENT_LIMIT)
-        .onEnd((interrupted) -> {
-          motor.set(0.0);
-        });
-  }
+  /
 
   // Move the motor based on a variable speed and stop when limit switches are hit
   public CommandBase move(DoubleSupplier speed) {
     return cmd("Move").onInitialize(() -> {
     }).onExecute(() -> {
-      motor.set(modifiers.run(speed.getAsDouble()));
+      motor.set(limit.applyAsDouble(speed.getAsDouble()));
       SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
-    }).onEnd((interrupted) -> {
+    }).finishedWhen(motor::errored).onEnd((interrupted) -> {
       motor.set(0.0);
     });
   }
 
-  // Extend the climber then stop the climber once the motor's current reaches a
-  // certain threshold, specified by CURRENT_LIMIT
-  public CommandBase extendCurrent() {
-    return cmd("Extend With Current Limits").onInitialize(() -> {
-      motor.set(EXTEND_SPEED);
-    }).finishedWhen(() -> ((PIDSparkMax) motor).getMotorController().getOutputCurrent() >= CURRENT_LIMIT)
-        .onEnd((interrupted) -> {
-        });
-  }
-
-  public CommandBase retractCurrent() {
-    return cmd("Retract With Current Limits").onInitialize(() -> {
-      motor.set(RETRACT_SPEED);
-    }).finishedWhen(() -> ((PIDSparkMax) motor).getMotorController().getOutputCurrent() >= CURRENT_LIMIT)
-        .onEnd((interrupted) -> {
-        });
-  }
-
-  // Extend the climber and use the limit switches to stop the motors
+  // Extend the climber and use validators stop the motors
   public CommandBase extend() {
-    return startEnd("Extend", () -> {
-      motor.set(upperModifier.applyAsDouble(EXTEND_SPEED));
-    }, () -> {
+    return cmd("Extend").onInitialize(() -> {
+    }).onExecute(() -> {
+      motor.set(limit.applyAsDouble(EXTEND_SPEED));
+    }).finishedWhen(motor::errored).onEnd((interrupted) -> {
       motor.set(0.0);
     });
   }
 
   public CommandBase retract() {
-    return startEnd("Retract", () -> {
-      motor.set(lowerModifier.applyAsDouble(RETRACT_SPEED));
-    }, () -> {
+    return cmd("Extend").onInitialize(() -> {
+    }).onExecute(() -> {
+      motor.set(limit.applyAsDouble(RETRACT_SPEED));
+    }).finishedWhen(motor::errored).onEnd((interrupted) -> {
       motor.set(0.0);
     });
   }
 
-  // Extend and ignore limits (only use if limits are not working)
+  // Extend and ignore validation (only use if limits are not working)
   public CommandBase extendIgnoreLimit() {
     return startEnd("Extend Ignore Limit", () -> {
       motor.set(EXTEND_SPEED);
