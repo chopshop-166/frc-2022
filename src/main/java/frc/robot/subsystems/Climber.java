@@ -28,9 +28,9 @@ public class Climber extends SmartSubsystemBase {
     Modifier upperLimit = Modifier.upperLimit(map.getUpperLimit());
     Modifier lowerLimit = Modifier.lowerLimit(map.getLowerLimit());
     motor = map.getMotor();
-    switchLimit = new ModifierGroup(upperLimit , lowerLimit);
+    switchLimit = new ModifierGroup(upperLimit, lowerLimit);
     validatorLimit = Modifier.unless(motor::errored);
-    limit = new ModifierGroup(upperLimit, lowerLimit, validatorLimit)
+    limit = new ModifierGroup(upperLimit, lowerLimit, validatorLimit);
   }
 
   // Move the motor based off a variable speed
