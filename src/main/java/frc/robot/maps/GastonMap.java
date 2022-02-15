@@ -16,24 +16,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 public class GastonMap extends RobotMap {
-    // Climber
-    private final DigitalInput leftUpperLimit = new DigitalInput(0);
-    private final DigitalInput leftLowerLimit = new DigitalInput(1);
-    private final DigitalInput rightUpperLimit = new DigitalInput(2);
-    private final DigitalInput rightLowerLimit = new DigitalInput(3);
-
-    private final PIDSparkMax leftMotor = new PIDSparkMax(0, MotorType.kBrushless);
-    private final PIDSparkMax rightMotor = new PIDSparkMax(1, MotorType.kBrushless);
 
     private final double CLIMBER_CURRENT_LIMIT = 30.0; // The current limit for the climber's motors
-
-    // Intake
-    private final DigitalInput outsideLimit = new DigitalInput(4);
-    private final DigitalInput insideLimit = new DigitalInput(5);
-
-    private final PIDSparkMax deploymentMotor = new PIDSparkMax(2, MotorType.kBrushless);
-    private final PIDSparkMax rollerMotor = new PIDSparkMax(3, MotorType.kBrushless);
-    private final SparkMaxPIDController deploymentPidController = deploymentMotor.getPidController();
 
     @Override
     public SwerveDriveMap getSwerveDriveMap() {
@@ -90,6 +74,12 @@ public class GastonMap extends RobotMap {
 
         // private RelativeEncoder deploymentEncoder =
         // deploymentMotor.getEncoder().getRaw();
+        final DigitalInput outsideLimit = new DigitalInput(4);
+        final DigitalInput insideLimit = new DigitalInput(5);
+
+        final PIDSparkMax deploymentMotor = new PIDSparkMax(2, MotorType.kBrushless);
+        final PIDSparkMax rollerMotor = new PIDSparkMax(3, MotorType.kBrushless);
+        final SparkMaxPIDController deploymentPidController = deploymentMotor.getPidController();
 
         double P = 0;
         double I = 0;
@@ -115,12 +105,18 @@ public class GastonMap extends RobotMap {
     }
 
     public TelescopeMap getLeftTelescopeMap() {
+        final DigitalInput leftUpperLimit = new DigitalInput(0);
+        final DigitalInput leftLowerLimit = new DigitalInput(1);
+        final PIDSparkMax leftMotor = new PIDSparkMax(0, MotorType.kBrushless);
         leftMotor.validateCurrent(CLIMBER_CURRENT_LIMIT);
 
         return new TelescopeMap(leftMotor, leftUpperLimit::get, leftLowerLimit::get);
     }
 
     public TelescopeMap getRightTelescopeMap() {
+        final DigitalInput rightUpperLimit = new DigitalInput(2);
+        final DigitalInput rightLowerLimit = new DigitalInput(3);
+        final PIDSparkMax rightMotor = new PIDSparkMax(1, MotorType.kBrushless);
         rightMotor.validateCurrent(CLIMBER_CURRENT_LIMIT);
 
         return new TelescopeMap(rightMotor, rightUpperLimit::get, rightLowerLimit::get);
