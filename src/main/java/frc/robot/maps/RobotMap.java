@@ -149,7 +149,7 @@ public class RobotMap {
         }
 
         public TelescopeMap() {
-            this(new SmartMotorController(new SmartMotorController()), new MockDigitalInput(), new MockDigitalInput());
+            this(new SmartMotorController(), new MockDigitalInput(), new MockDigitalInput());
         }
 
         public SmartMotorController getMotor() {
