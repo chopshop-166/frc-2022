@@ -36,6 +36,7 @@ public class Climber extends SmartSubsystemBase {
   public CommandBase move(DoubleSupplier speed) {
     return cmd("Move").onExecute(() -> {
       motor.set(limit.run(speed.getAsDouble()));
+      SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
     }).onEnd((interrupted) -> {
       motor.set(0.0);
     });
@@ -55,6 +56,7 @@ public class Climber extends SmartSubsystemBase {
   public CommandBase moveLimit(DoubleSupplier speed) {
     return cmd("Move With Limits").onExecute(() -> {
       motor.set(switchLimit.run(speed.getAsDouble()));
+      SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
     }).onEnd((interrupted) -> {
       motor.set(0.0);
     });
