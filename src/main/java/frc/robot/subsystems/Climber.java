@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
@@ -21,12 +22,24 @@ public class Climber extends SmartSubsystemBase {
 
   private final Modifier validatorLimit;
   private final ModifierGroup switchLimit;
+  private final ModifierGroup limit;
 
   public Climber(TelescopeMap map) {
+    Modifier upperLimit = Modifier.upperLimit(map.getUpperLimit());
+    Modifier lowerLimit = Modifier.lowerLimit(map.getLowerLimit());
     motor = map.getMotor();
-    switchLimit = new ModifierGroup(Modifier.upperLimit(map.getUpperLimit()), Modifier.lowerLimit(map.getLowerLimit()));
-
+    switchLimit = new ModifierGroup(upperLimit , lowerLimit);
     validatorLimit = Modifier.unless(motor::errored);
+    limit = new ModifierGroup(upperLimit, lowerLimit, validatorLimit)
+  }
+
+  // Move the motor based off a variable speed
+  public CommandBase move(DoubleSupplier speed) {
+    return cmd("Move").onExecute(() -> {
+      motor.set(limit.run(speed.getAsDouble()));
+    }).onEnd((interrupted) -> {
+      motor.set(0.0);
+    });
   }
 
   // Move the motor based on a variable speed and stop when validator fails
@@ -48,6 +61,14 @@ public class Climber extends SmartSubsystemBase {
     });
   }
 
+  public CommandBase extend() {
+    return cmd("Extend").onExecute(() -> {
+      motor.set(limit.run(EXTEND_SPEED));
+    }).onEnd((interrupted) -> {
+      motor.set(0.0);
+    });
+  }
+
   // Extend the climber and use validators stop the motors
   public CommandBase extendCurrent() {
     return cmd("Extend With Current Limit").onExecute(() -> {
@@ -61,6 +82,14 @@ public class Climber extends SmartSubsystemBase {
   public CommandBase extendLimit() {
     return cmd("Extend With Limits").onExecute(() -> {
       motor.set(switchLimit.run(EXTEND_SPEED));
+    }).onEnd((interrupted) -> {
+      motor.set(0.0);
+    });
+  }
+
+  public CommandBase retract() {
+    return cmd("Retract").onExecute(() -> {
+      motor.set(limit.run(RETRACT_SPEED));
     }).onEnd((interrupted) -> {
       motor.set(0.0);
     });
