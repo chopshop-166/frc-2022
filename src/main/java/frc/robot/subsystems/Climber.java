@@ -9,7 +9,7 @@ import com.chopshop166.chopshoplib.motors.SmartMotorController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.maps.RobotMap.TelescopeMap;
+import frc.robot.maps.RobotMap.ClimberMap;
 
 public class Climber extends SmartSubsystemBase {
 
@@ -23,7 +23,7 @@ public class Climber extends SmartSubsystemBase {
   private final ModifierGroup switchLimit;
   private final ModifierGroup limit;
 
-  public Climber(TelescopeMap map) {
+  public Climber(ClimberMap map) {
     Modifier upperLimit = Modifier.upperLimit(map.getUpperLimit());
     Modifier lowerLimit = Modifier.lowerLimit(map.getLowerLimit());
     motor = map.getMotor();

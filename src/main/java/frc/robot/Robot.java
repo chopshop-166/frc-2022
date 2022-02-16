@@ -23,8 +23,8 @@ public class Robot extends CommandRobot {
 
   private final Intake intake = new Intake(map.getIntakeMap());
 
-  private final Climber leftClimber = new Climber(map.getLeftTelescopeMap());
-  private final Climber rightClimber = new Climber(map.getRightTelescopeMap());
+  private final Climber leftClimber = new Climber(map.getLeftClimberMap());
+  private final Climber rightClimber = new Climber(map.getRightClimberMap());
 
   @Override
   public void robotInit() {

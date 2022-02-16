@@ -104,21 +104,21 @@ public class GastonMap extends RobotMap {
 
     }
 
-    public TelescopeMap getLeftTelescopeMap() {
+    public ClimberMap getLeftClimberMap() {
         final DigitalInput leftUpperLimit = new DigitalInput(0);
         final DigitalInput leftLowerLimit = new DigitalInput(1);
         final PIDSparkMax leftMotor = new PIDSparkMax(0, MotorType.kBrushless);
         leftMotor.validateCurrent(CLIMBER_CURRENT_LIMIT);
 
-        return new TelescopeMap(leftMotor, leftUpperLimit::get, leftLowerLimit::get);
+        return new ClimberMap(leftMotor, leftUpperLimit::get, leftLowerLimit::get);
     }
 
-    public TelescopeMap getRightTelescopeMap() {
+    public ClimberMap getRightTelescopeMap() {
         final DigitalInput rightUpperLimit = new DigitalInput(2);
         final DigitalInput rightLowerLimit = new DigitalInput(3);
         final PIDSparkMax rightMotor = new PIDSparkMax(1, MotorType.kBrushless);
         rightMotor.validateCurrent(CLIMBER_CURRENT_LIMIT);
 
-        return new TelescopeMap(rightMotor, rightUpperLimit::get, rightLowerLimit::get);
+        return new ClimberMap(rightMotor, rightUpperLimit::get, rightLowerLimit::get);
     }
 }
