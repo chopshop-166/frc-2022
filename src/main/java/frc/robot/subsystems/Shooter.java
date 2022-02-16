@@ -20,17 +20,17 @@ import frc.robot.maps.RobotMap.ShooterMap;
 
 public class Shooter extends SmartSubsystemBase {
 
-  private SmartMotorController shooterMotor;
-  private SmartMotorController loaderMotor;
-  private IEncoder shootEncoder;
+  private final SmartMotorController shooterMotor;
+  private final SmartMotorController loaderMotor;
+  private final IEncoder shootEncoder;
 
-  private double shootWheelWidth;
-  private double velMul;
-  private double MAXRPM = 5000;
-  private double waitTime = 1.0;
-  private double SHOOTTIME = 2;
-  private double LOADINGSPEED = .5; // must be between 0 and 1
-  private double rpmBuffer;
+  private final double SHOOT_WHEEL_WIDTH;
+  private final double VEL_MUL;
+  private final double MAX_RPM = 5000;
+  private final double WAIT_TIME = 1.0;
+  private final double SHOOTTIME = 2;
+  private final double LOADINGSPEED = .5; // must be between 0 and 1
+  private final double RPM_BUFFER = 10;
   private double shootSpeed;
 
   public enum DefaultSpeed {
@@ -52,17 +52,14 @@ public class Shooter extends SmartSubsystemBase {
     // assign motorcontrollers from shootermap
     shooterMotor = shooterMap.getShooterMotor();
     loaderMotor = shooterMap.getLoadingMotor();
-    shootWheelWidth = shooterMap.getWheelDiameter();
+    SHOOT_WHEEL_WIDTH = shooterMap.getWheelDiameter();
     shootEncoder = shooterMotor.getEncoder();
-    System.out.print(DefaultSpeed.OFF);
-    velMul = shootWheelWidth * Math.PI / (60 * 12);
+    VEL_MUL = SHOOT_WHEEL_WIDTH * Math.PI / (60 * 12);
   }
 
   @Override
   public void periodic() {
-    double velocity = shootEncoder.getRate() * velMul;
-    // diameter*pi(curcumfrence)* rmp (inches per min) / 60 (inches per second)
-    // / 12 (feet per second)
+    double velocity = shootEncoder.getRate() * VEL_MUL;
     SmartDashboard.putNumber("Speed (feet per second)", velocity);
   }
 
@@ -73,27 +70,27 @@ public class Shooter extends SmartSubsystemBase {
   }
 
   public double getWaitTime() {
-    return this.waitTime;
+    return this.WAIT_TIME;
   }
 
   public CommandBase setDefaultSpeed(DefaultSpeed speed) {
     return instant("Set default speed", () -> {
-      shooterMotor.setSetpoint(speed.getSpeed() * MAXRPM);
-      shootSpeed = speed.getSpeed() * MAXRPM;
+      shooterMotor.setSetpoint(speed.getSpeed() * MAX_RPM);
+      shootSpeed = speed.getSpeed() * MAX_RPM;
     });
   }
 
   public CommandBase waitTilSpeedUp() {
-    BooleanSupplier somethingMoreCohearant = () -> Math.abs(shootEncoder.getRate())
-        - Math.min(MAXRPM, shootSpeed) < rpmBuffer;
-    PersistenceCheck p = new PersistenceCheck(5, somethingMoreCohearant);
+    BooleanSupplier cheack = () -> Math.abs(shootEncoder.getRate())
+        - Math.min(MAX_RPM, shootSpeed) < RPM_BUFFER;
+    PersistenceCheck p = new PersistenceCheck(5, cheack);
     return cmd("waits til speed up").finishedWhen(p);
   }
 
   public CommandBase setSpeed(DoubleSupplier speed) {
-    double speeds = speed.getAsDouble() * MAXRPM;
+    double speeds = speed.getAsDouble();
     return running("setSpeed", () -> {
-      shooterMotor.setSetpoint(speeds * speeds);
+      shooterMotor.setSetpoint(speeds * speeds * MAX_RPM);
     });
   }
 
