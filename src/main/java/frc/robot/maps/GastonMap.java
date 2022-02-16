@@ -92,14 +92,12 @@ public class GastonMap extends RobotMap {
     private final PIDSparkMax rollerMotor = new PIDSparkMax(3, MotorType.kBrushless);
     private final SparkMaxPIDController deploymentPidController = deploymentMotor.getPidController();
 
-    // shooter stuff
-    private final PIDSparkMax shooterMoter = new PIDSparkMax(5, MotorType.kBrushless);
-    private final PIDSparkMax shooterIntakeMoter = new PIDSparkMax(6, MotorType.kBrushless);
-
     public ShooterMap getShooterMap() {
+        final PIDSparkMax shooterMoter = new PIDSparkMax(5, MotorType.kBrushless);
+        final PIDSparkMax shooterLoadingMoter = new PIDSparkMax(6, MotorType.kBrushless);
+        final double shootWheelDiameter = 2.0;
         shooterMoter.setControlType(PIDControlType.Velocity);
-        ShooterMap map = new ShooterMap(shooterMoter, shooterIntakeMoter);
-        return map;
+        return new ShooterMap(shooterMoter, shooterLoadingMoter, shootWheelDiameter);
     }
 
     public IntakeMap getIntakeMap() {
