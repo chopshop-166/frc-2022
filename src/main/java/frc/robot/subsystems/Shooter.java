@@ -81,9 +81,9 @@ public class Shooter extends SmartSubsystemBase {
   }
 
   public CommandBase waitTilSpeedUp() {
-    BooleanSupplier cheack = () -> Math.abs(shootEncoder.getRate())
+    BooleanSupplier check = () -> Math.abs(shootEncoder.getRate())
         - Math.min(MAX_RPM, shootSpeed) < RPM_BUFFER;
-    PersistenceCheck p = new PersistenceCheck(5, cheack);
+    PersistenceCheck p = new PersistenceCheck(5, check);
     return cmd("waits til speed up").finishedWhen(p);
   }
 
