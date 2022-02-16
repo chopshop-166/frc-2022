@@ -9,13 +9,12 @@ import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
-import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
-
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.DefaultSpeed;
 
 public class Robot extends CommandRobot {
 
@@ -28,7 +27,7 @@ public class Robot extends CommandRobot {
 
   private final Intake intake = new Intake(map.getIntakeMap());
 
-  private Shooter shooter = new Shooter(map.getShooterMap()); // gets shootermap and makes a shooter subsystem
+  private final Shooter shooter = new Shooter(map.getShooterMap());
 
   private final Climber leftClimber = new Climber(map.getLeftTelescopeMap());
   private final Climber rightClimber = new Climber(map.getRightTelescopeMap());
@@ -53,16 +52,15 @@ public class Robot extends CommandRobot {
 
     // shooter bindings
 
-    copilotController.getPovButton(POVDirection.UP).whenPressed(shooter.setDefaultSpeed(2)); // sets upper goal speed
-    copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setDefaultSpeed(1)); // sets lower goal
-                                                                                               // speed
-
+    copilotController.getPovButton(POVDirection.UP).whenPressed(shooter.setDefaultSpeed(DefaultSpeed.HIGH));
+    // sets upper goal speed
+    copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setDefaultSpeed(DefaultSpeed.LOW));
+    // sets lower goal speed
     copilotController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
     // when left bumper is pressed lets pilot set speed :)
     copilotController.rbumper().whenPressed(sequence("Shoot",
-        new WaitCommand(shooter.getWaitTime()), // gives the PID controll time to do its thing
-        shooter.shoot()));
-    // get ready, aim, FIRE!!
+        race("shoot race", new WaitCommand(shooter.getWaitTime()), shooter.waitTilSpeedUp()), shooter.shoot()));
+    // waits for motor to speed up, or till a set time goes by, then shoots
 
     // intake bindings
 
