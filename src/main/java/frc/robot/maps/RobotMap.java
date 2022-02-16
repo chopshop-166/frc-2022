@@ -142,10 +142,10 @@ public class RobotMap {
         private double shootWheelDiameter;
 
         public ShooterMap(SmartMotorController shootMotorController, SmartMotorController loadingMotorController,
-                double shootWheelSize) {
+                double shootWheelSizeInInches) {
             shootMotor = shootMotorController;
             loadingMotor = loadingMotorController;
-            shootWheelDiameter = shootWheelSize;
+            shootWheelDiameter = shootWheelSizeInInches;
         }
 
         public ShooterMap() {
