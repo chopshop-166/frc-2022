@@ -42,7 +42,7 @@ public class Robot extends CommandRobot {
     copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setDefaultSpeed(DefaultSpeed.LOW));
     copilotController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
     copilotController.rbumper().whenPressed(sequence("Shoot",
-        race("shoot race", new WaitCommand(shooter.getWaitTime()), shooter.waitTilSpeedUp()), shooter.shoot()));
+        race("shoot race", new WaitCommand(shooter.getWaitTime()), shooter.waitUntilSpeedUp()), shooter.shoot()));
     copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
     driveController.back().whenPressed(drive.resetCmd());
     DoubleSupplier trigger = driveController::getTriggers;

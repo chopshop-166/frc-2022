@@ -24,12 +24,12 @@ public class Shooter extends SmartSubsystemBase {
   private final SmartMotorController loaderMotor;
   private final IEncoder shootEncoder;
 
-  private final double SHOOT_WHEEL_WIDTH;
+  private final double SHOOT_WHEEL_RADIUS; // Inches
   private final double VEL_MUL;
   private final double MAX_RPM = 5000;
   private final double WAIT_TIME = 1.0;
-  private final double SHOOTTIME = 2;
-  private final double LOADINGSPEED = .5; // must be between 0 and 1
+  private final double SHOOT_TIME = 2;
+  private final double LOADING_SPEED = .5; // must be between 0 and 1
   private final double RPM_BUFFER = 10;
   private double shootSpeed;
 
@@ -52,9 +52,9 @@ public class Shooter extends SmartSubsystemBase {
     // assign motorcontrollers from shootermap
     shooterMotor = shooterMap.getShooterMotor();
     loaderMotor = shooterMap.getLoadingMotor();
-    SHOOT_WHEEL_WIDTH = shooterMap.getWheelDiameter();
+    SHOOT_WHEEL_RADIUS = shooterMap.getWheelRadius();
     shootEncoder = shooterMotor.getEncoder();
-    VEL_MUL = SHOOT_WHEEL_WIDTH * Math.PI / (60 * 12);
+    VEL_MUL = SHOOT_WHEEL_RADIUS * Math.PI / (60 * 12);
   }
 
   @Override
@@ -74,32 +74,32 @@ public class Shooter extends SmartSubsystemBase {
   }
 
   public CommandBase setDefaultSpeed(DefaultSpeed speed) {
-    return instant("Set default speed", () -> {
+    return instant("Set Default Speed", () -> {
       shooterMotor.setSetpoint(speed.getSpeed() * MAX_RPM);
       shootSpeed = speed.getSpeed() * MAX_RPM;
     });
   }
 
-  public CommandBase waitTilSpeedUp() {
+  public CommandBase waitUntilSpeedUp() {
     BooleanSupplier check = () -> Math.abs(shootEncoder.getRate())
         - Math.min(MAX_RPM, shootSpeed) < RPM_BUFFER;
     PersistenceCheck p = new PersistenceCheck(5, check);
-    return cmd("waits til speed up").finishedWhen(p);
+    return cmd("Wait Until Speed Up").finishedWhen(p);
   }
 
   public CommandBase setSpeed(DoubleSupplier speed) {
     double speeds = speed.getAsDouble();
-    return running("setSpeed", () -> {
+    return running("Set Speed", () -> {
       shooterMotor.setSetpoint(speeds * speeds * MAX_RPM);
     });
   }
 
   public CommandBase shoot() {
-    return sequence("Shoot", setLoadingSpeed(LOADINGSPEED), new WaitCommand(SHOOTTIME), setLoadingSpeed(0.0));
+    return sequence("Shoot", setLoadingSpeed(LOADING_SPEED), new WaitCommand(SHOOT_TIME), setLoadingSpeed(0.0));
   }
 
   public CommandBase setLoadingSpeed(double speed) {
-    return instant("Set loading speed", () -> {
+    return instant("Set Loading Speed", () -> {
       loaderMotor.set(speed);
     });
   }

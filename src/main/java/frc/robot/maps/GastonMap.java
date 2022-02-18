@@ -69,6 +69,14 @@ public class GastonMap extends RobotMap {
                 maxRotationRadianPerSecond, gyro);
     }
 
+    public ShooterMap getShooterMap() {
+        final PIDSparkMax shooterMoter = new PIDSparkMax(5, MotorType.kBrushless);
+        final PIDSparkMax shooterLoadingMoter = new PIDSparkMax(6, MotorType.kBrushless);
+        final double shootWheelRadius = 2.0;
+        shooterMoter.setControlType(PIDControlType.Velocity);
+        return new ShooterMap(shooterMoter, shooterLoadingMoter, shootWheelRadius);
+    }
+
     public IntakeMap getIntakeMap() {
         // PID coefficients
         // initializes relative encoder and pid controller, we don't need the encoder rn
@@ -113,7 +121,7 @@ public class GastonMap extends RobotMap {
         return new ClimberMap(leftMotor, leftUpperLimit::get, leftLowerLimit::get);
     }
 
-    public ClimberMap getRightTelescopeMap() {
+    public ClimberMap getRightClimberMap() {
         final DigitalInput rightUpperLimit = new DigitalInput(3);
         final DigitalInput rightLowerLimit = new DigitalInput(4);
         final PIDSparkMax rightMotor = new PIDSparkMax(10, MotorType.kBrushless);

@@ -139,13 +139,13 @@ public class RobotMap {
     public class ShooterMap {
         private SmartMotorController shootMotor;
         private SmartMotorController loadingMotor;
-        private double shootWheelDiameter;
+        private double shootWheelRadius;
 
         public ShooterMap(SmartMotorController shootMotorController, SmartMotorController loadingMotorController,
                 double shootWheelSizeInInches) {
             loadingMotor = loadingMotorController;
             shootMotor = shootMotorController;
-            shootWheelDiameter = shootWheelSizeInInches;
+            shootWheelRadius = shootWheelSizeInInches;
         }
 
         public ShooterMap() {
@@ -160,8 +160,8 @@ public class RobotMap {
             return this.loadingMotor;
         }
 
-        public double getWheelDiameter() {
-            return this.shootWheelDiameter;
+        public double getWheelRadius() {
+            return this.shootWheelRadius;
         }
     }
 
@@ -206,6 +206,7 @@ public class RobotMap {
     public ShooterMap getShooterMap() {
         return new ShooterMap();
     }
+
     public ClimberMap getRightClimberMap() {
         return new ClimberMap();
     }
