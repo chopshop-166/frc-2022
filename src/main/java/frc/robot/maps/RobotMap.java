@@ -143,8 +143,8 @@ public class RobotMap {
 
         public ShooterMap(SmartMotorController shootMotorController, SmartMotorController loadingMotorController,
                 double shootWheelSizeInInches) {
-            shootMotor = shootMotorController;
             loadingMotor = loadingMotorController;
+            shootMotor = shootMotorController;
             shootWheelDiameter = shootWheelSizeInInches;
         }
 
@@ -165,18 +165,19 @@ public class RobotMap {
         }
     }
 
-    public static class TelescopeMap {
+    public static class ClimberMap {
         private final SmartMotorController motor;
         private final BooleanSupplier upperLimit;
         private final BooleanSupplier lowerLimit;
 
-        public TelescopeMap(SmartMotorController motor, BooleanSupplier upperLimit, BooleanSupplier lowerLimit) {
+        public ClimberMap(SmartMotorController motor, BooleanSupplier upperLimit, BooleanSupplier lowerLimit) {
             this.motor = motor;
             this.upperLimit = upperLimit;
             this.lowerLimit = lowerLimit;
+
         }
 
-        public TelescopeMap() {
+        public ClimberMap() {
             this(new SmartMotorController(), new MockDigitalInput(), new MockDigitalInput());
         }
 
@@ -198,15 +199,14 @@ public class RobotMap {
         return new IntakeMap();
     }
 
-    public TelescopeMap getLeftTelescopeMap() {
-        return new TelescopeMap();
+    public ClimberMap getLeftClimberMap() {
+        return new ClimberMap();
     }
 
     public ShooterMap getShooterMap() {
         return new ShooterMap();
     }
-
-    public TelescopeMap getRightTelescopeMap() {
-        return new TelescopeMap();
+    public ClimberMap getRightClimberMap() {
+        return new ClimberMap();
     }
 }

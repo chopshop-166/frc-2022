@@ -28,9 +28,8 @@ public class Robot extends CommandRobot {
   private final Intake intake = new Intake(map.getIntakeMap());
 
   private final Shooter shooter = new Shooter(map.getShooterMap());
-
-  private final Climber leftClimber = new Climber(map.getLeftTelescopeMap());
-  private final Climber rightClimber = new Climber(map.getRightTelescopeMap());
+  private final Climber leftClimber = new Climber(map.getLeftClimberMap());
+  private final Climber rightClimber = new Climber(map.getRightClimberMap());
 
   @Override
   public void robotInit() {
@@ -39,39 +38,17 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-
-    // list of buttons used by driver... back, x, a, b, UP, DOWN, START
-
-    // avalable buttons for driver controller... y, right bumper, left bumper,
-    // left stick, right stick
-
-    // list of button used by copilot... a, x, left bumper, right bumper
-
-    // avalable button for copilot controller... UP, DOWN, LEFT, RIGHT, y, b,
-    // start, back, left stick, right stick
-
-    // shooter bindings
-
     copilotController.getPovButton(POVDirection.UP).whenPressed(shooter.setDefaultSpeed(DefaultSpeed.HIGH));
-    // sets upper goal speed
     copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setDefaultSpeed(DefaultSpeed.LOW));
-    // sets lower goal speed
     copilotController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
-    // when left bumper is pressed lets pilot set speed :)
     copilotController.rbumper().whenPressed(sequence("Shoot",
         race("shoot race", new WaitCommand(shooter.getWaitTime()), shooter.waitTilSpeedUp()), shooter.shoot()));
-    // waits for motor to speed up, or till a set time goes by, then shoots
-
-    // intake bindings
-
     copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
-
-    // drive bindings
-
     driveController.back().whenPressed(drive.resetCmd());
-
     DoubleSupplier trigger = driveController::getTriggers;
 
+    driveController.back().whenPressed(drive.resetCmd());
+    copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
     // Move with variable speed from triggers
     driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
 
@@ -95,7 +72,7 @@ public class Robot extends CommandRobot {
 
   @Override
   public void setDefaultCommands() {
-    drive.setDefaultCommand(drive.fieldCentricDrive(driveController::getLeftX,
-        driveController::getLeftY, driveController::getRightX));
+    drive.setDefaultCommand(
+        drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY, driveController::getRightX));
   }
 }
