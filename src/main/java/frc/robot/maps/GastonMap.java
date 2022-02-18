@@ -12,7 +12,6 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
@@ -72,7 +71,7 @@ public class GastonMap extends RobotMap {
     public ShooterMap getShooterMap() {
         final PIDSparkMax shooterMoter = new PIDSparkMax(13, MotorType.kBrushless);
         final PIDSparkMax shooterLoadingMoter = new PIDSparkMax(14, MotorType.kBrushless);
-        final double shootWheelRadius = 2.0;
+        final double shootWheelRadius = 2.0; // Radius in inches
         shooterMoter.setControlType(PIDControlType.Velocity);
         return new ShooterMap(shooterMoter, shooterLoadingMoter, shootWheelRadius);
     }

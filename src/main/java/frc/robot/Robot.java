@@ -8,13 +8,12 @@ import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Shooter.DefaultSpeed;
+import frc.robot.subsystems.Shooter.HubSpeed;
 
 public class Robot extends CommandRobot {
 
@@ -38,14 +37,15 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    copilotController.getPovButton(POVDirection.UP).whenPressed(shooter.setDefaultSpeed(DefaultSpeed.HIGH));
-    copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setDefaultSpeed(DefaultSpeed.LOW));
+    DoubleSupplier trigger = driveController::getTriggers;
+
+    copilotController.getPovButton(POVDirection.UP).whenPressed(shooter.setTargetHub(HubSpeed.HIGH));
+    copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setTargetHub(HubSpeed.LOW));
     copilotController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
     copilotController.rbumper().whenPressed(sequence("Shoot",
         race("shoot race", new WaitCommand(shooter.getWaitTime()), shooter.waitUntilSpeedUp()), shooter.shoot()));
     copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
     driveController.back().whenPressed(drive.resetCmd());
-    DoubleSupplier trigger = driveController::getTriggers;
 
     driveController.back().whenPressed(drive.resetCmd());
     copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));

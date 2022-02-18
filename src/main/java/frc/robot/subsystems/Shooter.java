@@ -7,8 +7,6 @@ package frc.robot.subsystems;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-
 import com.chopshop166.chopshoplib.PersistenceCheck;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
@@ -16,6 +14,7 @@ import com.chopshop166.chopshoplib.sensors.IEncoder;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap.ShooterMap;
 
 public class Shooter extends SmartSubsystemBase {
@@ -33,12 +32,12 @@ public class Shooter extends SmartSubsystemBase {
   private final double RPM_BUFFER = 10;
   private double shootSpeed;
 
-  public enum DefaultSpeed {
+  public enum HubSpeed {
     OFF(0.0), LOW(0.2), HIGH(0.5);
 
     private double speed;
 
-    private DefaultSpeed(double speed) {
+    private HubSpeed(double speed) {
       this.speed = speed;
     }
 
@@ -73,13 +72,14 @@ public class Shooter extends SmartSubsystemBase {
     return this.WAIT_TIME;
   }
 
-  public CommandBase setDefaultSpeed(DefaultSpeed speed) {
+  public CommandBase setTargetHub(HubSpeed hub) {
     return instant("Set Default Speed", () -> {
-      shooterMotor.setSetpoint(speed.getSpeed() * MAX_RPM);
-      shootSpeed = speed.getSpeed() * MAX_RPM;
+      shooterMotor.setSetpoint(hub.getSpeed() * MAX_RPM);
+      shootSpeed = hub.getSpeed() * MAX_RPM;
     });
   }
 
+  // Speed doesn't need to be set here, since it is already set in setTargetHub
   public CommandBase waitUntilSpeedUp() {
     BooleanSupplier check = () -> Math.abs(shootEncoder.getRate())
         - Math.min(MAX_RPM, shootSpeed) < RPM_BUFFER;
