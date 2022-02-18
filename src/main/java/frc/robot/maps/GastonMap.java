@@ -74,11 +74,11 @@ public class GastonMap extends RobotMap {
 
         // private RelativeEncoder deploymentEncoder =
         // deploymentMotor.getEncoder().getRaw();
-        final DigitalInput outsideLimit = new DigitalInput(4);
-        final DigitalInput insideLimit = new DigitalInput(5);
+        final DigitalInput outsideLimit = new DigitalInput(6);
+        final DigitalInput insideLimit = new DigitalInput(7);
 
-        final PIDSparkMax deploymentMotor = new PIDSparkMax(2, MotorType.kBrushless);
-        final PIDSparkMax rollerMotor = new PIDSparkMax(3, MotorType.kBrushless);
+        final PIDSparkMax deploymentMotor = new PIDSparkMax(11, MotorType.kBrushless);
+        final PIDSparkMax rollerMotor = new PIDSparkMax(12, MotorType.kBrushless);
         final SparkMaxPIDController deploymentPidController = deploymentMotor.getPidController();
 
         double P = 0;
@@ -105,18 +105,17 @@ public class GastonMap extends RobotMap {
     }
 
     public ClimberMap getLeftClimberMap() {
-        final DigitalInput leftUpperLimit = new DigitalInput(0);
-        final DigitalInput leftLowerLimit = new DigitalInput(1);
-        final PIDSparkMax leftMotor = new PIDSparkMax(0, MotorType.kBrushless);
+        final DigitalInput leftUpperLimit = new DigitalInput(1);
+        final DigitalInput leftLowerLimit = new DigitalInput(2);
+        final PIDSparkMax leftMotor = new PIDSparkMax(9, MotorType.kBrushless);
         leftMotor.validateCurrent(CLIMBER_CURRENT_LIMIT);
-
         return new ClimberMap(leftMotor, leftUpperLimit::get, leftLowerLimit::get);
     }
 
     public ClimberMap getRightTelescopeMap() {
-        final DigitalInput rightUpperLimit = new DigitalInput(2);
-        final DigitalInput rightLowerLimit = new DigitalInput(3);
-        final PIDSparkMax rightMotor = new PIDSparkMax(1, MotorType.kBrushless);
+        final DigitalInput rightUpperLimit = new DigitalInput(3);
+        final DigitalInput rightLowerLimit = new DigitalInput(4);
+        final PIDSparkMax rightMotor = new PIDSparkMax(10, MotorType.kBrushless);
         rightMotor.validateCurrent(CLIMBER_CURRENT_LIMIT);
 
         return new ClimberMap(rightMotor, rightUpperLimit::get, rightLowerLimit::get);
