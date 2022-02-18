@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
@@ -10,7 +9,7 @@ import com.chopshop166.chopshoplib.motors.SmartMotorController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.maps.RobotMap.TelescopeMap;
+import frc.robot.maps.RobotMap.ClimberMap;
 
 public class Climber extends SmartSubsystemBase {
 
@@ -19,26 +18,44 @@ public class Climber extends SmartSubsystemBase {
   private final double RETRACT_SPEED = -1.0;
 
   private final SmartMotorController motor;
-  private final BooleanSupplier upperLimit;
-  private final BooleanSupplier lowerLimit;
 
-  private final Modifier upperModifier;
-  private final Modifier lowerModifier;
-  private final ModifierGroup modifiers;
+  private final Modifier validatorLimit;
+  private final ModifierGroup switchLimit;
+  private final ModifierGroup limit;
 
-  public Climber(TelescopeMap map) {
+  public Climber(ClimberMap map) {
+    Modifier upperLimit = Modifier.upperLimit(map.getUpperLimit());
+    Modifier lowerLimit = Modifier.lowerLimit(map.getLowerLimit());
     motor = map.getMotor();
-    upperLimit = map.getUpperLimit();
-    lowerLimit = map.getLowerLimit();
-    upperModifier = Modifier.upperLimit(upperLimit);
-    lowerModifier = Modifier.lowerLimit(lowerLimit);
-    modifiers = new ModifierGroup(upperModifier, lowerModifier);
+    switchLimit = new ModifierGroup(upperLimit, lowerLimit);
+    validatorLimit = Modifier.unless(motor::errored);
+    limit = new ModifierGroup(upperLimit, lowerLimit, validatorLimit);
   }
 
-  public CommandBase move(DoubleSupplier speed) { // Move motor with variable speed that is affected by limit switches
-    return cmd("Move").onInitialize(() -> {
-      motor.set(modifiers.run(speed.getAsDouble()));
-    }).onExecute(() -> {
+  // Move the motor based off a variable speed
+  public CommandBase move(DoubleSupplier speed) {
+    return cmd("Move").onExecute(() -> {
+      motor.set(limit.run(speed.getAsDouble()));
+      SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
+    }).onEnd((interrupted) -> {
+      motor.set(0.0);
+    });
+  }
+
+  // Move the motor based on a variable speed and stop when validator fails
+  public CommandBase moveCurrent(DoubleSupplier speed) {
+    return cmd("Move With Current Limit").onExecute(() -> {
+      motor.set(validatorLimit.applyAsDouble(speed.getAsDouble()));
+      SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
+    }).finishedWhen(motor::errored).onEnd((interrupted) -> {
+      motor.set(0.0);
+    });
+  }
+
+  // Move the motor with variable speed and stop when limit switches are hit
+  public CommandBase moveLimit(DoubleSupplier speed) {
+    return cmd("Move With Limits").onExecute(() -> {
+      motor.set(switchLimit.run(speed.getAsDouble()));
       SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
     }).onEnd((interrupted) -> {
       motor.set(0.0);
@@ -46,23 +63,59 @@ public class Climber extends SmartSubsystemBase {
   }
 
   public CommandBase extend() {
-    return startEnd("Extend", () -> {
-      motor.set(upperModifier.applyAsDouble(EXTEND_SPEED));
-    }, () -> {
+    return cmd("Extend").onExecute(() -> {
+      motor.set(limit.run(EXTEND_SPEED));
+    }).onEnd((interrupted) -> {
+      motor.set(0.0);
+    });
+  }
+
+  // Extend the climber and use validators stop the motors
+  public CommandBase extendCurrent() {
+    return cmd("Extend With Current Limit").onExecute(() -> {
+      motor.set(validatorLimit.applyAsDouble(EXTEND_SPEED));
+    }).finishedWhen(motor::errored).onEnd((interrupted) -> {
+      motor.set(0.0);
+    });
+  }
+
+  // Extend the motor with limit switches
+  public CommandBase extendLimit() {
+    return cmd("Extend With Limits").onExecute(() -> {
+      motor.set(switchLimit.run(EXTEND_SPEED));
+    }).onEnd((interrupted) -> {
       motor.set(0.0);
     });
   }
 
   public CommandBase retract() {
-    return startEnd("Retract", () -> {
-      motor.set(lowerModifier.applyAsDouble(RETRACT_SPEED));
-    }, () -> {
+    return cmd("Retract").onExecute(() -> {
+      motor.set(limit.run(RETRACT_SPEED));
+    }).onEnd((interrupted) -> {
       motor.set(0.0);
     });
   }
 
+  public CommandBase retractCurrent() {
+    return cmd("Retract With Current Limit").onExecute(() -> {
+      motor.set(validatorLimit.applyAsDouble(RETRACT_SPEED));
+    }).finishedWhen(motor::errored).onEnd((interrupted) -> {
+      motor.set(0.0);
+    });
+  }
+
+  // Retract the motor with limit switches
+  public CommandBase retractLimit() {
+    return cmd("Retract With Limits").onExecute(() -> {
+      motor.set(switchLimit.run(RETRACT_SPEED));
+    }).onEnd((interrupted) -> {
+      motor.set(0.0);
+    });
+  }
+
+  // Extend and ignore validation (only use if limits are not working)
   public CommandBase extendIgnoreLimit() {
-    return startEnd("Extend Ignore Limit", () -> { // Extend and ignore limits (only use if limits are not working)
+    return startEnd("Extend Ignore Limit", () -> {
       motor.set(EXTEND_SPEED);
     }, () -> {
       motor.set(0.0);
