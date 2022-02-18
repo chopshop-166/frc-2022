@@ -74,8 +74,8 @@ public class GastonMap extends RobotMap {
 
         // private RelativeEncoder deploymentEncoder =
         // deploymentMotor.getEncoder().getRaw();
-        final DigitalInput outsideLimit = new DigitalInput(6);
-        final DigitalInput insideLimit = new DigitalInput(7);
+        final DigitalInput outsideLimit = new DigitalInput(5);
+        final DigitalInput insideLimit = new DigitalInput(6);
 
         final PIDSparkMax deploymentMotor = new PIDSparkMax(11, MotorType.kBrushless);
         final PIDSparkMax rollerMotor = new PIDSparkMax(12, MotorType.kBrushless);
