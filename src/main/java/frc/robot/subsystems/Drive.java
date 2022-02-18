@@ -6,8 +6,6 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
 
-import org.ejml.dense.row.mult.SubmatrixOps_FDRM;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
