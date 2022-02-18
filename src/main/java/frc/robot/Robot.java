@@ -39,16 +39,26 @@ public class Robot extends CommandRobot {
   public void configureButtonBindings() {
     DoubleSupplier trigger = driveController::getTriggers;
 
+    // Shooter:
+    // Set target hub for shooter
     copilotController.getPovButton(POVDirection.UP).whenPressed(shooter.setTargetHub(HubSpeed.HIGH));
     copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setTargetHub(HubSpeed.LOW));
+
+    // Variable speed for shooter (Used for testing?)
     copilotController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
+
     copilotController.rbumper().whenPressed(sequence("Shoot",
         race("shoot race", new WaitCommand(shooter.getWaitTime()), shooter.waitUntilSpeedUp()), shooter.shoot()));
+
+    // Intake:
     copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
+
+    // Drive:
+    driveController.back().whenPressed(drive.resetCmd());
     driveController.back().whenPressed(drive.resetCmd());
 
-    driveController.back().whenPressed(drive.resetCmd());
-    copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
+    // Climber:
+
     // Move with variable speed from triggers
     driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
 

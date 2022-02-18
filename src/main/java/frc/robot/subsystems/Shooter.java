@@ -46,14 +46,12 @@ public class Shooter extends SmartSubsystemBase {
     }
   }
 
-  // constructiong motorControllers
   public Shooter(ShooterMap shooterMap) {
-    // assign motorcontrollers from shootermap
     shooterMotor = shooterMap.getShooterMotor();
     loaderMotor = shooterMap.getLoadingMotor();
     SHOOT_WHEEL_RADIUS = shooterMap.getWheelRadius();
     shootEncoder = shooterMotor.getEncoder();
-    VEL_MUL = SHOOT_WHEEL_RADIUS * Math.PI / (60 * 12);
+    VEL_MUL = SHOOT_WHEEL_RADIUS * 2 * Math.PI / (60 * 12);
   }
 
   @Override
