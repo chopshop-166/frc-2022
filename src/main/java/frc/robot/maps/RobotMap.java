@@ -140,20 +140,26 @@ public class RobotMap {
         private SmartMotorController shootMotor;
         private SmartMotorController loadingMotor;
         private double shootWheelRadius;
+        private double velocityMultiplier;
 
         public ShooterMap(SmartMotorController shootMotorController, SmartMotorController loadingMotorController,
-                double shootWheelSizeInInches) {
+                double shootWheelSizeInInches, double velocityMultiplier) {
             loadingMotor = loadingMotorController;
             shootMotor = shootMotorController;
             shootWheelRadius = shootWheelSizeInInches;
+            this.velocityMultiplier = velocityMultiplier;
         }
 
         public ShooterMap() {
-            this(new SmartMotorController(), new SmartMotorController(), 1.0);
+            this(new SmartMotorController(), new SmartMotorController(), 1.0, 1.0);
         }
 
         public SmartMotorController getShooterMotor() {
             return this.shootMotor;
+        }
+
+        public double getVelocityMultiplier() {
+            return velocityMultiplier;
         }
 
         public SmartMotorController getLoadingMotor() {

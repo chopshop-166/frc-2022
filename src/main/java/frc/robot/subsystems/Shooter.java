@@ -23,7 +23,6 @@ public class Shooter extends SmartSubsystemBase {
   private final SmartMotorController loaderMotor;
   private final IEncoder shootEncoder;
 
-  private final double SHOOT_WHEEL_RADIUS; // Inches
   private final double VEL_MUL;
   private final double MAX_RPM = 5000;
   private final double WAIT_TIME = 1.0;
@@ -49,9 +48,8 @@ public class Shooter extends SmartSubsystemBase {
   public Shooter(ShooterMap shooterMap) {
     shooterMotor = shooterMap.getShooterMotor();
     loaderMotor = shooterMap.getLoadingMotor();
-    SHOOT_WHEEL_RADIUS = shooterMap.getWheelRadius();
     shootEncoder = shooterMotor.getEncoder();
-    VEL_MUL = SHOOT_WHEEL_RADIUS * 2 * Math.PI / (60 * 12);
+    VEL_MUL = shooterMap.getVelocityMultiplier();
   }
 
   @Override
