@@ -100,6 +100,8 @@ public class GastonMap extends RobotMap {
         deploymentPidController.setSmartMotionMinOutputVelocity(0, 0);
         deploymentPidController.setSmartMotionMaxAccel(600, 0);
 
+        deploymentMotor.validateCurrent(30.0); // Current limit in amps
+
         return new IntakeMap(rollerMotor, deploymentMotor, outsideLimit::get, insideLimit::get);
 
     }
