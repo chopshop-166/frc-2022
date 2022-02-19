@@ -1,6 +1,7 @@
 package frc.robot.maps;
 
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
+import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
@@ -15,6 +16,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
+@RobotMapFor("00:80:2F:17:62:25")
 public class GastonMap extends RobotMap {
 
     private final double CLIMBER_CURRENT_LIMIT = 30.0; // The current limit for the climber's motors
@@ -68,6 +70,7 @@ public class GastonMap extends RobotMap {
                 maxRotationRadianPerSecond, gyro);
     }
 
+    @Override
     public IntakeMap getIntakeMap() {
         // PID coefficients
         // initializes relative encoder and pid controller, we don't need the encoder rn
@@ -106,6 +109,7 @@ public class GastonMap extends RobotMap {
 
     }
 
+    @Override
     public ClimberMap getLeftClimberMap() {
         final DigitalInput leftUpperLimit = new DigitalInput(1);
         final DigitalInput leftLowerLimit = new DigitalInput(2);
@@ -114,7 +118,8 @@ public class GastonMap extends RobotMap {
         return new ClimberMap(leftMotor, leftUpperLimit::get, leftLowerLimit::get);
     }
 
-    public ClimberMap getRightTelescopeMap() {
+    @Override
+    public ClimberMap getRightClimberMap() {
         final DigitalInput rightUpperLimit = new DigitalInput(3);
         final DigitalInput rightLowerLimit = new DigitalInput(4);
         final PIDSparkMax rightMotor = new PIDSparkMax(10, MotorType.kBrushless);
