@@ -7,7 +7,6 @@ import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
@@ -47,8 +46,7 @@ public class Robot extends CommandRobot {
     // Variable speed for shooter (Used for testing?)
     copilotController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
 
-    copilotController.rbumper().whenPressed(sequence("Shoot",
-        race("shoot race", new WaitCommand(shooter.getWaitTime()), shooter.waitUntilSpeedUp()), shooter.shoot()));
+    copilotController.rbumper().whenPressed(shooter.shoot());
 
     // Intake:
     copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
