@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
+import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import frc.robot.maps.RobotMap;
@@ -32,21 +33,25 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    DoubleSupplier trigger = driveController::getTriggers;
+    DoubleSupplier trigger = copilotController::getTriggers;
 
     driveController.back().whenPressed(drive.resetCmd());
 
-    copilotController.a().whileHeld(intake.extend(SpinDirection.COUNTERCLOCKWISE));
-    copilotController.b().whileHeld(intake.retract(SpinDirection.COUNTERCLOCKWISE));
+    driveController.a().whileHeld(intake.extend(SpinDirection.COUNTERCLOCKWISE));
+    driveController.b().whileHeld(intake.retract(SpinDirection.COUNTERCLOCKWISE));
 
-    // Move with variable speed from triggers
-    driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
+    // Climber:
+    copilotController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
+    copilotController.y().whileHeld(parallel("Rotate", leftClimber.rotate(trigger), rightClimber.rotate(trigger)));
 
-    // Button bindings for regular climbing
-    driveController.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
-    driveController.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
+    copilotController.getPovButton(POVDirection.LEFT)
+        .whileHeld(parallel("Rotate CCW", leftClimber.rotateCCW(), rightClimber.rotateCCW()));
+    copilotController.getPovButton(POVDirection.RIGHT)
+        .whileHeld(parallel("Rotate CW", leftClimber.rotateCW(), rightClimber.rotateCW()));
+    copilotController.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
+    copilotController.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
 
-    driveController.start().whenPressed(parallel("Stop", leftClimber.stop(), rightClimber.stop()));
+    copilotController.back().whenPressed(parallel("Stop", leftClimber.stop(), rightClimber.stop()));
   }
 
   @Override
@@ -59,5 +64,6 @@ public class Robot extends CommandRobot {
   public void setDefaultCommands() {
     drive.setDefaultCommand(
         drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY, driveController::getRightX));
+
   }
 }

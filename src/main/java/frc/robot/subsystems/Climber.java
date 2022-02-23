@@ -15,6 +15,7 @@ public class Climber extends SmartSubsystemBase {
   // Constants:
   private final double EXTEND_SPEED = 1.0;
   private final double RETRACT_SPEED = -1.0;
+  private final double ROTATE_SPEED = 1.0;
 
   private final SmartMotorController extendMotor;
   private final SmartMotorController rotateMotor;
@@ -39,6 +40,32 @@ public class Climber extends SmartSubsystemBase {
       SmartDashboard.putNumber("Climber Speed", nSpeed);
     }).finishedWhen(extendMotor::errored).onEnd((interrupted) -> {
       extendMotor.set(0.0);
+    });
+  }
+
+  public CommandBase rotate(DoubleSupplier speed) {
+    double nSpeed = speed.getAsDouble();
+    return cmd("Rotate").onExecute(() -> {
+      rotateMotor.set(rotateLimit.applyAsDouble(nSpeed));
+      SmartDashboard.putNumber("Rotate Speed", nSpeed);
+    }).finishedWhen(rotateMotor::errored).onEnd((interrupted) -> {
+      rotateMotor.set(0.0);
+    });
+  }
+
+  public CommandBase rotateCW() {
+    return cmd("Rotate CW").onExecute(() -> {
+      rotateMotor.set(rotateLimit.applyAsDouble(ROTATE_SPEED));
+    }).finishedWhen(rotateMotor::errored).onEnd((interrupted) -> {
+      rotateMotor.set(0.0);
+    });
+  }
+
+  public CommandBase rotateCCW() {
+    return cmd("Rotate CCW").onExecute(() -> {
+      rotateMotor.set(rotateLimit.applyAsDouble(-ROTATE_SPEED));
+    }).finishedWhen(rotateMotor::errored).onEnd((interrupted) -> {
+      rotateMotor.set(0.0);
     });
   }
 
