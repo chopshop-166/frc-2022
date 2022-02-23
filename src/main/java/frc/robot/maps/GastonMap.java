@@ -3,6 +3,7 @@ package frc.robot.maps;
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
+import com.chopshop166.chopshoplib.sensors.REVColorSensor;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -11,8 +12,8 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 public class GastonMap extends RobotMap {
@@ -119,6 +120,18 @@ public class GastonMap extends RobotMap {
 
         return new IntakeMap(rollerMotor, deploymentMotor, outsideLimit::get, insideLimit::get);
 
+    }
+
+    @Override
+    public BallTransportMap getBallTransportMap() {
+        final PIDSparkMax topMotor = new PIDSparkMax(14, MotorType.kBrushless);
+        final PIDSparkMax bottomMotor = new PIDSparkMax(17, MotorType.kBrushless);
+
+        final REVColorSensor colorSensor = new REVColorSensor(Port.kMXP);
+
+        final DigitalInput laserSwitch = new DigitalInput(0);
+
+        return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch::get);
     }
 
     public TelescopeMap getLeftTelescopeMap() {

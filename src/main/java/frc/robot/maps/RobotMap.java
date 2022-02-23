@@ -105,7 +105,13 @@ public class RobotMap {
         private final BooleanSupplier laserSwitch;
 
         public BallTransportMap() {
-            this(new SmartMotorController(), new SmartMotorController(), new MockColorSensor(), new MockDigitalInput());
+            this.bottomMotor = new SmartMotorController();
+
+            this.topMotor = new SmartMotorController();
+
+            this.colorSensor = new MockColorSensor();
+
+            this.laserSwitch = new MockDigitalInput();
         }
 
         public BallTransportMap(final SmartMotorController bottomMotor, final SmartMotorController topMotor,
@@ -135,6 +141,10 @@ public class RobotMap {
         public BooleanSupplier getLaserSwitch() {
             return laserSwitch;
         }
+    }
+
+    public BallTransportMap getBallTransportMap() {
+        return new BallTransportMap();
     }
 
     public static class IntakeMap {
@@ -177,6 +187,10 @@ public class RobotMap {
         }
     }
 
+    public IntakeMap getIntakeMap() {
+        return new IntakeMap();
+    }
+
     public static class TelescopeMap {
         private final SmartMotorController motor;
         private final BooleanSupplier upperLimit;
@@ -204,14 +218,6 @@ public class RobotMap {
             return lowerLimit;
         }
 
-    }
-
-    public IntakeMap getIntakeMap() {
-        return new IntakeMap();
-    }
-
-    public BallTransportMap getBallTransportMap() {
-        return new BallTransportMap();
     }
 
     public TelescopeMap getLeftTelescopeMap() {
