@@ -53,9 +53,7 @@ public class BallTransport extends SmartSubsystemBase {
             }
         }).until(() -> {
             return colorSensorBallLimit() && laserSwitch.getAsBoolean();
-        }).onEnd(() -> {
-            safeState();
-        });
+        }).onEnd(this::stop);
     }
 
     // Shooter should reach top speed before this is run
@@ -80,9 +78,7 @@ public class BallTransport extends SmartSubsystemBase {
             }
         }).until(() -> {
             return !colorSensorBallLimit() && laserSwitch.getAsBoolean();
-        }).onEnd(() -> {
-            safeState();
-        });
+        }).onEnd(this::stop);
     }
 
     // Load ball until it hits the color sensor
@@ -131,9 +127,7 @@ public class BallTransport extends SmartSubsystemBase {
             }
         }).until(() -> {
             return !colorSensorBallLimit() || !laserSwitch.getAsBoolean();
-        }).onEnd(() -> {
-            safeState();
-        });
+        }).onEnd(this::stop);
     }
 
     private void updateColorBuffer() {
