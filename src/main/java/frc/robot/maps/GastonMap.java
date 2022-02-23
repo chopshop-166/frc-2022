@@ -1,6 +1,7 @@
 package frc.robot.maps;
 
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
+import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
@@ -15,6 +16,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
+@RobotMapFor("00:80:2F:17:62:25")
 public class GastonMap extends RobotMap {
 
     private final double CLIMBER_CURRENT_LIMIT = 30.0; // The current limit for the climber's motors
@@ -68,6 +70,7 @@ public class GastonMap extends RobotMap {
                 maxRotationRadianPerSecond, gyro);
     }
 
+    @Override
     public ShooterMap getShooterMap() {
         final PIDSparkMax shooterMoter = new PIDSparkMax(13, MotorType.kBrushless);
         final PIDSparkMax shooterLoadingMoter = new PIDSparkMax(14, MotorType.kBrushless);
@@ -112,10 +115,13 @@ public class GastonMap extends RobotMap {
         deploymentPidController.setSmartMotionMinOutputVelocity(0, 0);
         deploymentPidController.setSmartMotionMaxAccel(600, 0);
 
+        deploymentMotor.validateCurrent(30.0); // Current limit in amps
+
         return new IntakeMap(rollerMotor, deploymentMotor, outsideLimit::get, insideLimit::get);
 
     }
 
+    @Override
     public ClimberMap getLeftClimberMap() {
         final DigitalInput leftUpperLimit = new DigitalInput(1);
         final DigitalInput leftLowerLimit = new DigitalInput(2);
@@ -124,6 +130,8 @@ public class GastonMap extends RobotMap {
         return new ClimberMap(leftMotor, leftUpperLimit::get, leftLowerLimit::get);
     }
 
+    @Override
+    public ClimberMap getRightClimberMap() {
     public ClimberMap getRightClimberMap() {
         final DigitalInput rightUpperLimit = new DigitalInput(3);
         final DigitalInput rightLowerLimit = new DigitalInput(4);

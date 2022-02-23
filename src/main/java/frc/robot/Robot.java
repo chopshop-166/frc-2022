@@ -49,7 +49,8 @@ public class Robot extends CommandRobot {
     copilotController.rbumper().whenPressed(shooter.shoot());
 
     // Intake:
-    copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
+    copilotController.a().whileHeld(intake.extend(SpinDirection.COUNTERCLOCKWISE));
+    copilotController.b().whileHeld(intake.retract(SpinDirection.COUNTERCLOCKWISE));
 
     // Drive:
     driveController.back().whenPressed(drive.resetCmd());
