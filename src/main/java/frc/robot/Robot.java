@@ -23,8 +23,8 @@ public class Robot extends CommandRobot {
 
   private final Intake intake = new Intake(map.getIntakeMap());
 
-  private final Climber leftClimber = new Climber(map.getLeftTelescopeMap());
-  private final Climber rightClimber = new Climber(map.getRightTelescopeMap());
+  private final Climber leftClimber = new Climber(map.getLeftClimberMap());
+  private final Climber rightClimber = new Climber(map.getRightClimberMap());
 
   @Override
   public void robotInit() {
@@ -33,11 +33,12 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    driveController.back().whenPressed(drive.resetCmd());
-
     DoubleSupplier trigger = driveController::getTriggers;
 
-    copilotController.a().whileHeld(intake.runMechanism(SpinDirection.COUNTERCLOCKWISE));
+    driveController.back().whenPressed(drive.resetCmd());
+
+    copilotController.a().whileHeld(intake.extend(SpinDirection.COUNTERCLOCKWISE));
+    copilotController.b().whileHeld(intake.retract(SpinDirection.COUNTERCLOCKWISE));
 
     // Move with variable speed from triggers
     driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
@@ -63,7 +64,7 @@ public class Robot extends CommandRobot {
 
   @Override
   public void setDefaultCommands() {
-    drive.setDefaultCommand(drive.fieldCentricDrive(driveController::getLeftX,
-        driveController::getLeftY, driveController::getRightX));
+    drive.setDefaultCommand(
+        drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY, driveController::getRightX));
   }
 }

@@ -8,6 +8,7 @@ import java.util.function.BooleanSupplier;
 
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
+import com.chopshop166.chopshoplib.motors.ModifierGroup;
 import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
@@ -25,31 +26,42 @@ public class Intake extends SmartSubsystemBase {
     private final BooleanSupplier outsideLimit;
 
     private static final double ROLLER_SPEED = 1;
-    private static final double DEPLOY_SPEED = 1;
+    private static final double DEPLOY_EXTEND_SPEED = 1;
+    private static final double DEPLOY_RETRACT_SPEED = -1;
 
-    private final Modifier insideModifier;
-    private final Modifier outsideModifier;
+    private final ModifierGroup limit;
 
     public Intake(final IntakeMap map) {
         this.deploymentMotor = map.getDeploy();
         this.rollerMotor = map.getRoller();
         this.insideLimit = map.getInsideLimit();
         this.outsideLimit = map.getOutsideLimit();
-        this.outsideModifier = Modifier.upperLimit(outsideLimit);
-        this.insideModifier = Modifier.lowerLimit(insideLimit);
+
+        limit = new ModifierGroup(Modifier.unless(deploymentMotor::errored), Modifier.upperLimit(outsideLimit),
+                Modifier.lowerLimit(insideLimit));
 
         deploymentMotor.setControlType(PIDControlType.Velocity);
     }
 
     // Counterclockwise ball go in, clockwise ball go out
 
-    public CommandBase runMechanism(SpinDirection rollerDirection) {
-        return startEnd("Run Intake Mechanism", () -> {
+    public CommandBase extend(SpinDirection rollerDirection) {
+        return cmd("Extend Intake").onInitialize(() -> {
             rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
-            deploymentMotor.setSetpoint(outsideModifier.applyAsDouble(DEPLOY_SPEED));
-        }, () -> {
-            rollerMotor.set(0);
-            deploymentMotor.setSetpoint(insideModifier.applyAsDouble(-DEPLOY_SPEED));
+        }).onExecute(() -> {
+            deploymentMotor.set(limit.applyAsDouble(DEPLOY_EXTEND_SPEED));
+        }).finishedWhen(deploymentMotor::errored).onEnd((interrupted) -> {
+            deploymentMotor.set(0.0);
+        });
+    }
+
+    public CommandBase retract(SpinDirection rollerDirection) {
+        return cmd("Retract Intake").onInitialize(() -> {
+            rollerMotor.set(0.0);
+        }).onExecute(() -> {
+            deploymentMotor.set(limit.applyAsDouble(DEPLOY_RETRACT_SPEED));
+        }).finishedWhen(deploymentMotor::errored).onEnd((interrupted) -> {
+            deploymentMotor.set(0.0);
         });
     }
 
