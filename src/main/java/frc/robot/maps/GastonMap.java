@@ -132,7 +132,6 @@ public class GastonMap extends RobotMap {
 
     @Override
     public ClimberMap getRightClimberMap() {
-    public ClimberMap getRightClimberMap() {
         final DigitalInput rightUpperLimit = new DigitalInput(3);
         final DigitalInput rightLowerLimit = new DigitalInput(4);
         final PIDSparkMax rightMotor = new PIDSparkMax(10, MotorType.kBrushless);
