@@ -4,6 +4,7 @@ import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
 import com.chopshop166.chopshoplib.sensors.REVColorSensor;
+import com.chopshop166.chopshoplib.sensors.WDigitalInput;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -129,9 +130,9 @@ public class GastonMap extends RobotMap {
 
         final REVColorSensor colorSensor = new REVColorSensor(Port.kMXP);
 
-        final DigitalInput laserSwitch = new DigitalInput(0);
+        final WDigitalInput laserSwitch = new WDigitalInput(0);
 
-        return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch::get);
+        return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
     }
 
     public TelescopeMap getLeftTelescopeMap() {
