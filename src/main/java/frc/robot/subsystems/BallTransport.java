@@ -58,6 +58,7 @@ public class BallTransport extends SmartSubsystemBase {
         });
     }
 
+    // Shooter should reach top speed before this is run
     public CommandBase loadShooter() {
         return cmd("Load Ball Into Shooter").onExecute(() -> {
             if (laserSwitch.getAsBoolean()) {
@@ -70,6 +71,21 @@ public class BallTransport extends SmartSubsystemBase {
         });
     }
 
+    // Moves a ball from the color sensor to the laser switch by the shooter
+    public CommandBase colorSensorToLaser() {
+        return cmd("Move Ball From Color Sensor To Laser Switch").onExecute(() -> {
+            if (colorSensorBallLimit() && !laserSwitch.getAsBoolean()) {
+                bottomMotor.set(TRANSPORT_SPEED);
+                topMotor.set(TRANSPORT_SPEED);
+            }
+        }).until(() -> {
+            return !colorSensorBallLimit() && laserSwitch.getAsBoolean();
+        }).onEnd(() -> {
+            safeState();
+        });
+    }
+
+    // Load ball until it hits the color sensor
     public CommandBase loadTopTransporter() {
         return cmd("Load Ball Until Color Sensor").onExecute(() -> {
             if (colorSensorBallLimit()) {
@@ -83,6 +99,8 @@ public class BallTransport extends SmartSubsystemBase {
     }
 
     // TODO Needs to be fixed
+    // Unloads cargo that is opposite of the alliance color
+    // Intake must be deployed backwards for this
     public CommandBase removeCargo() {
         return cmd("Remove Cargo").onExecute(() -> {
             final Alliance allianceColor = DriverStation.getAlliance();
