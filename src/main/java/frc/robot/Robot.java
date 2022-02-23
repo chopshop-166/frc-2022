@@ -4,7 +4,6 @@ import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
-import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import frc.robot.maps.RobotMap;
@@ -46,12 +45,6 @@ public class Robot extends CommandRobot {
     // Button bindings for regular climbing
     driveController.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
     driveController.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
-
-    // Button bindings for ignoring limit switches
-    driveController.getPovButton(POVDirection.UP)
-        .whileHeld(parallel("Extend Ignore Limit", leftClimber.extendIgnoreLimit(), rightClimber.extendIgnoreLimit()));
-    driveController.getPovButton(POVDirection.DOWN).whileHeld(
-        parallel("Retract Ignore Limit", leftClimber.retractIgnoreLimit(), rightClimber.retractIgnoreLimit()));
 
     driveController.start().whenPressed(parallel("Stop", leftClimber.stop(), rightClimber.stop()));
   }

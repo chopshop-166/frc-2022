@@ -4,6 +4,7 @@ import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
+import com.chopshop166.chopshoplib.sensors.WDigitalInput;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -19,7 +20,7 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 @RobotMapFor("00:80:2F:17:62:25")
 public class GastonMap extends RobotMap {
 
-    private final double CLIMBER_CURRENT_LIMIT = 30.0; // The current limit for the climber's motors
+    private final double CURRENT_LIMIT = 20.0; // The current limit for the climber's motors
 
     @Override
     public SwerveDriveMap getSwerveDriveMap() {
@@ -103,7 +104,7 @@ public class GastonMap extends RobotMap {
         deploymentPidController.setSmartMotionMinOutputVelocity(0, 0);
         deploymentPidController.setSmartMotionMaxAccel(600, 0);
 
-        deploymentMotor.validateCurrent(30.0); // Current limit in amps
+        deploymentMotor.validateCurrent(CURRENT_LIMIT); // Current limit in amps
 
         return new IntakeMap(rollerMotor, deploymentMotor, outsideLimit::get, insideLimit::get);
 
@@ -111,20 +112,25 @@ public class GastonMap extends RobotMap {
 
     @Override
     public ClimberMap getLeftClimberMap() {
-        final DigitalInput leftUpperLimit = new DigitalInput(1);
-        final DigitalInput leftLowerLimit = new DigitalInput(2);
-        final PIDSparkMax leftMotor = new PIDSparkMax(9, MotorType.kBrushless);
-        leftMotor.validateCurrent(CLIMBER_CURRENT_LIMIT);
-        return new ClimberMap(leftMotor, leftUpperLimit::get, leftLowerLimit::get);
+        final PIDSparkMax extendMotor = new PIDSparkMax(9, MotorType.kBrushless);
+
+        final PIDSparkMax rotateMotor = new PIDSparkMax(18, MotorType.kBrushless);
+
+        extendMotor.validateCurrent(CURRENT_LIMIT);
+        rotateMotor.validateCurrent(CURRENT_LIMIT);
+
+        return new ClimberMap(extendMotor, rotateMotor);
     }
 
     @Override
     public ClimberMap getRightClimberMap() {
-        final DigitalInput rightUpperLimit = new DigitalInput(3);
-        final DigitalInput rightLowerLimit = new DigitalInput(4);
-        final PIDSparkMax rightMotor = new PIDSparkMax(10, MotorType.kBrushless);
-        rightMotor.validateCurrent(CLIMBER_CURRENT_LIMIT);
+        final PIDSparkMax extendMotor = new PIDSparkMax(10, MotorType.kBrushless);
 
-        return new ClimberMap(rightMotor, rightUpperLimit::get, rightLowerLimit::get);
+        final PIDSparkMax rotateMotor = new PIDSparkMax(19, MotorType.kBrushless);
+
+        extendMotor.validateCurrent(CURRENT_LIMIT);
+        rotateMotor.validateCurrent(CURRENT_LIMIT);
+
+        return new ClimberMap(extendMotor, rotateMotor);
     }
 }
