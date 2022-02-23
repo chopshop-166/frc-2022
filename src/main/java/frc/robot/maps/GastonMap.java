@@ -1,8 +1,8 @@
 package frc.robot.maps;
 
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
-import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDControlType;
+import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
@@ -83,6 +83,7 @@ public class GastonMap extends RobotMap {
         return new ShooterMap(shooterMoter, shooterLoadingMoter, shootWheelRadius, velocityMultiplier);
     }
 
+    @Override
     public IntakeMap getIntakeMap() {
         // PID coefficients
         // initializes relative encoder and pid controller, we don't need the encoder rn
