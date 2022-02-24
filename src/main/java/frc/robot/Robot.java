@@ -7,6 +7,7 @@ import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
 import frc.robot.subsystems.Climber;
@@ -28,6 +29,10 @@ public class Robot extends CommandRobot {
 
   private final Climber leftClimber = new Climber(map.getLeftClimberMap());
   private final Climber rightClimber = new Climber(map.getRightClimberMap());
+
+  private ConditionalCommand transportGoBRRRR() {
+    return new ConditionalCommand(onTrue, onFalse, )
+  }
 
   @Override
   public void robotInit() {

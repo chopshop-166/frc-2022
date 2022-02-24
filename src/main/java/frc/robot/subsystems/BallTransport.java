@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 import com.chopshop166.chopshoplib.SampleBuffer;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
@@ -10,7 +11,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandGroupBase;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import frc.robot.maps.RobotMap.BallTransportMap;
 
 public class BallTransport extends SmartSubsystemBase {
@@ -38,23 +44,83 @@ public class BallTransport extends SmartSubsystemBase {
         return colorSensor.getProximity() < BALL_DETECTION_LIMIT;
     }
 
-    public CommandBase loadCargoWithIntake() {
-        return cmd("Start Ball Transport Mechanism").onExecute(() -> {
-            if (laserSwitch.getAsBoolean()) {
-                topMotor.stopMotor();
-                if (colorSensorBallLimit()) {
-                    bottomMotor.stopMotor();
-                } else {
-                    bottomMotor.set(TRANSPORT_SPEED);
-                }
+    public CommandBase runMotors(Boolean bottomMotor, Boolean topMotor) {
+        return instant("Run Motors", () -> {
+            if (bottomMotor) {
+                this.bottomMotor.set(TRANSPORT_SPEED);
             } else {
-                bottomMotor.set(TRANSPORT_SPEED);
-                topMotor.set(TRANSPORT_SPEED);
+                this.bottomMotor.set(0);
             }
-        }).until(() -> {
-            return colorSensorBallLimit() && laserSwitch.getAsBoolean();
-        }).onEnd(this::stop);
+            if (topMotor) {
+                this.topMotor.set(TRANSPORT_SPEED);
+            } else {
+                this.topMotor.set(0);
+            }
+        });
     }
+
+    /*
+     * private ConditionalCommand ballZeroOne(){
+     * return new ConditionalCommand(runMotors(true, true), runMotors(true, false) ,
+     * () -> {
+     * return colorSensorBallLimit() && !laserSwitch.getAsBoolean();
+     * });
+     * }
+     * 
+     * private ConditionalCommand ballZeroZero() {
+     * return new ConditionalCommand(runMotors(false, false),runMotors(true, false)
+     * , () -> {
+     * return colorSensorBallLimit() && laserSwitch.getAsBoolean();
+     * });
+     * }
+     * public CommandBase transportLogic() {
+     * return sequence("Transport Logic", ballZeroZero(), ballZeroOne());
+     * }
+     */
+    private enum CommandSelector {
+        COLORZEROLASERZERO,
+        COLORONELASERZERO,
+        COLORZEROLASERONE,
+        COLORONELASERONE
+    }
+
+    private CommandSelector selectSelector() {
+        return () -> {
+
+        }
+    }
+
+    public SelectCommand loadCargoWithIntake() {
+        return new SelectCommand(
+
+                Map.ofEntries(
+                        Map.entry(CommandSelector.COLORZEROLASERZERO, v),
+                        Map.entry(CommandSelector.COLORONELASERZERO, v),
+                        Map.entry(CommandSelector.COLORZEROLASERONE, v),
+                        Map.entry(CommandSelector.COLORONELASERONE, v)),
+                selectSelector());
+    }
+    /*
+     * public CommandBase loadCargoWithIntake(boolean isIntakeRunning) {
+     * return cmd("Start Ball Transport Mechanism").onExecute(() -> {
+     * if (isIntakeRunning) {
+     * if (laserSwitch.getAsBoolean() && colorSensorBallLimit()) {
+     * runMotors(false, false);
+     * } else if (colorSensorBallLimit()) {
+     * colorSensorToLaser();
+     * } else {
+     * runMotors(true, false);
+     * }
+     * } else {
+     * if (colorSensorBallLimit() && !laserSwitch.getAsBoolean()) {
+     * runMotors(true, true);
+     * } else {
+     * runMotors(false, false);
+     * }
+     * }
+     * }).onEnd(this::stop);
+     * }
+     */
 
     // Shooter should reach top speed before this is run
     public CommandBase loadShooter() {
@@ -65,6 +131,7 @@ public class BallTransport extends SmartSubsystemBase {
         }).until(() -> {
             return !laserSwitch.getAsBoolean();
         }).onEnd(() -> {
+            colorBuffer.removeLast();
             topMotor.stopMotor();
         });
     }
@@ -77,12 +144,13 @@ public class BallTransport extends SmartSubsystemBase {
                 topMotor.set(TRANSPORT_SPEED);
             }
         }).until(() -> {
-            return !colorSensorBallLimit() && laserSwitch.getAsBoolean();
+            return laserSwitch.getAsBoolean();
         }).onEnd(this::stop);
     }
 
     // Load ball until it hits the color sensor
-    public CommandBase loadTopTransporter() {
+    @Deprecated
+    public CommandBase loadBottomTransporter() {
         return cmd("Load Ball Until Color Sensor").onExecute(() -> {
             if (colorSensorBallLimit()) {
                 bottomMotor.set(TRANSPORT_SPEED);
@@ -130,7 +198,7 @@ public class BallTransport extends SmartSubsystemBase {
         }).onEnd(this::stop);
     }
 
-    private void updateColorBuffer() {
+    private void updateBuffer() {
         final Color colorSensed = colorSensor.getColor();
         if (colorSensed != colorBuffer.peekFirst()) {
             if (colorSensed == Color.kFirstRed || colorSensed == Color.kFirstBlue) {
@@ -141,7 +209,7 @@ public class BallTransport extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        updateColorBuffer();
+        updateBuffer();
         SmartDashboard.putBoolean("Laser Switch Activated", laserSwitch.getAsBoolean());
         SmartDashboard.putBoolean("Cargo in Color Sensor", colorSensorBallLimit());
     }
