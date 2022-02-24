@@ -93,13 +93,11 @@ public class Shooter extends SmartSubsystemBase {
   }
 
   public CommandBase fire() {
-    return sequence("Shoot", setLoadingSpeed(LOADING_SPEED), new WaitCommand(SHOOT_TIME), setLoadingSpeed(0.0));
+    return startEnd("Fire", () -> setLoadingSpeed(LOADING_SPEED), () -> setLoadingSpeed(0.0)).withTimeout(SHOOT_TIME);
   }
 
-  public CommandBase setLoadingSpeed(double speed) {
-    return instant("Set Loading Speed", () -> {
-      loaderMotor.set(speed);
-    });
+  public void setLoadingSpeed(double speed) {
+    loaderMotor.set(speed);
   }
 
 }
