@@ -3,9 +3,10 @@ package frc.robot.maps;
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
-import com.chopshop166.chopshoplib.sensors.MockGyro;
+import com.chopshop166.chopshoplib.sensors.PigeonGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController;
 
@@ -63,10 +64,10 @@ public class GastonMap extends RobotMap {
         final double maxRotationRadianPerSecond = Math.PI;
 
         // final Gyro gyro = new PigeonGyro(new PigeonIMU(5));
-        final Gyro testGyro = new MockGyro();
+        final Gyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
 
         return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight, maxDriveSpeedMetersPerSecond,
-                maxRotationRadianPerSecond, testGyro);
+                maxRotationRadianPerSecond, pigeonGyro);
     }
 
     @Override

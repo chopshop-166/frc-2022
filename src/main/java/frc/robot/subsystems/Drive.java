@@ -53,9 +53,9 @@ public class Drive extends SmartSubsystemBase {
     final double translateXSpeed = deadband.applyAsDouble(translateX.getAsDouble()) * maxDriveSpeedMetersPerSecond;
     final double translateYSpeed = deadband.applyAsDouble(translateY.getAsDouble()) * maxDriveSpeedMetersPerSecond;
     final double rotationSpeed = deadband.applyAsDouble(rotation.getAsDouble()) * maxRotationRadiansPerSecond;
-    SmartDashboard.putNumber("translate y", translateYSpeed);
-    SmartDashboard.putNumber("translate x", translateXSpeed);
-    SmartDashboard.putNumber("retation speed", rotationSpeed);
+    SmartDashboard.putNumber("Translate Y", translateYSpeed);
+    SmartDashboard.putNumber("Translate X", translateXSpeed);
+    SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
     final ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(translateYSpeed, translateXSpeed,
         rotationSpeed, Rotation2d.fromDegrees(-gyro.getAngle()));
 
