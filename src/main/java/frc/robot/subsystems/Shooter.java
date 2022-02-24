@@ -14,7 +14,6 @@ import com.chopshop166.chopshoplib.sensors.IEncoder;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap.ShooterMap;
 
 public class Shooter extends SmartSubsystemBase {
@@ -25,9 +24,6 @@ public class Shooter extends SmartSubsystemBase {
 
   private final double VEL_MUL;
   private final double MAX_RPM = 5300;
-  private final double WAIT_TIME = 1.0;
-  private final double SHOOT_TIME = 2;
-  private final double LOADING_SPEED = .5; // must be between 0 and 1
   private final double RPM_BUFFER = 10;
   private double shootSpeed;
 
@@ -85,19 +81,6 @@ public class Shooter extends SmartSubsystemBase {
     return instant("Set Speed", () -> {
       shooterMotor.setSetpoint(speeds * speeds * MAX_RPM);
     });
-  }
-
-  public CommandBase shoot() {
-    return sequence("Shoot",
-        race("shoot race", new WaitCommand(WAIT_TIME), waitUntilSpeedUp()), fire());
-  }
-
-  public CommandBase fire() {
-    return startEnd("Fire", () -> setLoadingSpeed(LOADING_SPEED), () -> setLoadingSpeed(0.0)).withTimeout(SHOOT_TIME);
-  }
-
-  public void setLoadingSpeed(double speed) {
-    loaderMotor.set(speed);
   }
 
 }

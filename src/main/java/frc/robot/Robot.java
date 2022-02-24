@@ -46,13 +46,11 @@ public class Robot extends CommandRobot {
     // Variable speed for shooter (Used for testing?)
     copilotController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
 
-    copilotController.rbumper().whenPressed(shooter.shoot());
-
     // Intake:
     copilotController.a().whileHeld(intake.extend(SpinDirection.COUNTERCLOCKWISE));
     copilotController.b().whileHeld(intake.retract(SpinDirection.COUNTERCLOCKWISE));
 
-    // Drive:
+    // Drive:s
     driveController.back().whenPressed(drive.resetCmd());
     driveController.back().whenPressed(drive.resetCmd());
 
