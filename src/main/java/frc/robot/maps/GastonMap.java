@@ -72,40 +72,19 @@ public class GastonMap extends RobotMap {
 
     @Override
     public IntakeMap getIntakeMap() {
-        // PID coefficients
-        // initializes relative encoder and pid controller, we don't need the encoder rn
-
-        // private RelativeEncoder deploymentEncoder =
-        // deploymentMotor.getEncoder().getRaw();
-        final DigitalInput outsideLimit = new DigitalInput(5);
-        final DigitalInput insideLimit = new DigitalInput(6);
+        final int CURRENT_LIMIT = 30;
 
         final PIDSparkMax deploymentMotor = new PIDSparkMax(11, MotorType.kBrushless);
-        final PIDSparkMax rollerMotor = new PIDSparkMax(12, MotorType.kBrushless);
-        final SparkMaxPIDController deploymentPidController = deploymentMotor.getPidController();
+        final PIDSparkMax deploymentFollower = new PIDSparkMax(12, MotorType.kBrushless);
+        final PIDSparkMax rollerMotor = new PIDSparkMax(13, MotorType.kBrushless);
 
-        double P = 0;
-        double I = 0;
-        double D = 0;
-        double IZone = 0;
-        double maxOutput = 1;
-        double minOutput = -1;
+        deploymentMotor.validateCurrent(CURRENT_LIMIT); // Current limit in amps
 
-        // TODO pid/smart motion coefficients for intake
+        deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(), true);
+        deploymentMotor.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
+        deploymentFollower.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
 
-        deploymentPidController.setP(P);
-        deploymentPidController.setI(I);
-        deploymentPidController.setD(D);
-        deploymentPidController.setIZone(IZone);
-        deploymentPidController.setOutputRange(minOutput, maxOutput);
-
-        deploymentPidController.setSmartMotionMaxVelocity(30, 0);
-        deploymentPidController.setSmartMotionMinOutputVelocity(0, 0);
-        deploymentPidController.setSmartMotionMaxAccel(600, 0);
-
-        deploymentMotor.validateCurrent(30.0); // Current limit in amps
-
-        return new IntakeMap(rollerMotor, deploymentMotor, outsideLimit::get, insideLimit::get);
+        return new IntakeMap(deploymentMotor, rollerMotor);
 
     }
 
