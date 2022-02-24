@@ -77,8 +77,8 @@ public class Shooter extends SmartSubsystemBase {
   }
 
   public CommandBase setSpeed(DoubleSupplier speed) {
-    double speeds = speed.getAsDouble();
     return instant("Set Speed", () -> {
+      double speeds = speed.getAsDouble();
       shooterMotor.setSetpoint(speeds * speeds * MAX_RPM);
     });
   }
