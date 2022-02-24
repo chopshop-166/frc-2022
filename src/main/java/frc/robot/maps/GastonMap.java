@@ -4,6 +4,7 @@ import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
+import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -72,14 +73,16 @@ public class GastonMap extends RobotMap {
 
     @Override
     public ShooterMap getShooterMap() {
-        final PIDSparkMax shooterMoter = new PIDSparkMax(13, MotorType.kBrushless);
+        final PIDSparkMax shooterMoter1 = new PIDSparkMax(15, MotorType.kBrushless);
+        final PIDSparkMax shooterMoter2 = new PIDSparkMax(16, MotorType.kBrushless);
         final double shootWheelRadius = 2.0; // Radius in inches
 
         // Convert rpm to ft/s
         final double velocityMultiplier = shootWheelRadius * 2 * Math.PI / (60 * 12);
 
-        shooterMoter.setControlType(PIDControlType.Velocity);
-        return new ShooterMap(shooterMoter, shootWheelRadius, velocityMultiplier);
+        shooterMoter1.setControlType(PIDControlType.Velocity);
+        shooterMoter2.setControlType(PIDControlType.Velocity);
+        return new ShooterMap(new SmartMotorController(shooterMoter1, shooterMoter2), velocityMultiplier);
     }
 
     @Override
