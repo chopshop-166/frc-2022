@@ -22,9 +22,9 @@ public class Shooter extends SmartSubsystemBase {
   private final SmartMotorController loaderMotor;
   private final IEncoder shootEncoder;
 
+  private static final double MAX_RPM = 5300;
+  private static final double RPM_BUFFER = 10;
   private final double VEL_MUL;
-  private final double MAX_RPM = 5300;
-  private final double RPM_BUFFER = 10;
   private double shootSpeed;
 
   public enum HubSpeed {
@@ -33,7 +33,7 @@ public class Shooter extends SmartSubsystemBase {
     private double speed;
 
     private HubSpeed(double speed) {
-      this.speed = speed;
+      this.speed = speed * Shooter.getMaxRpm();
     }
 
     public double getSpeed() {
@@ -62,8 +62,8 @@ public class Shooter extends SmartSubsystemBase {
 
   public CommandBase setTargetHub(HubSpeed hub) {
     return instant("Set Default Speed", () -> {
-      shooterMotor.setSetpoint(hub.getSpeed() * MAX_RPM);
-      shootSpeed = hub.getSpeed() * MAX_RPM;
+      shooterMotor.setSetpoint(hub.getSpeed());
+      shootSpeed = hub.getSpeed();
     });
   }
 
@@ -83,4 +83,7 @@ public class Shooter extends SmartSubsystemBase {
     });
   }
 
+  public static double getMaxRpm() {
+    return MAX_RPM;
+  }
 }
