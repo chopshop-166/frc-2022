@@ -75,10 +75,10 @@ public class GastonMap extends RobotMap {
     public ShooterMap getShooterMap() {
         final PIDSparkMax shooterMoter1 = new PIDSparkMax(15, MotorType.kBrushless);
         final PIDSparkMax shooterMoter2 = new PIDSparkMax(16, MotorType.kBrushless);
-        final double shootWheelRadius = 2.0; // Radius in inches
+        final double shootWheelDiameter = 2.0; // Diameter in inches
 
         // Convert rpm to ft/s
-        final double velocityMultiplier = shootWheelRadius * 2 * Math.PI / (60 * 12);
+        final double velocityMultiplier = shootWheelDiameter * Math.PI / (60 * 12);
 
         shooterMoter1.setControlType(PIDControlType.Velocity);
         shooterMoter2.setControlType(PIDControlType.Velocity);
