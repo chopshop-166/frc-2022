@@ -138,20 +138,15 @@ public class RobotMap {
 
     public class ShooterMap {
         private SmartMotorController shootMotor;
-        private SmartMotorController loadingMotor;
-        private double shootWheelRadius;
         private double velocityMultiplier;
 
-        public ShooterMap(SmartMotorController shootMotorController, SmartMotorController loadingMotorController,
-                double shootWheelSizeInInches, double velocityMultiplier) {
-            loadingMotor = loadingMotorController;
+        public ShooterMap(SmartMotorController shootMotorController, double velocityMultiplier) {
             shootMotor = shootMotorController;
-            shootWheelRadius = shootWheelSizeInInches;
             this.velocityMultiplier = velocityMultiplier;
         }
 
         public ShooterMap() {
-            this(new SmartMotorController(), new SmartMotorController(), 1.0, 1.0);
+            this(new SmartMotorController(), 1.0);
         }
 
         public SmartMotorController getShooterMotor() {
@@ -162,13 +157,6 @@ public class RobotMap {
             return velocityMultiplier;
         }
 
-        public SmartMotorController getLoadingMotor() {
-            return this.loadingMotor;
-        }
-
-        public double getWheelRadius() {
-            return this.shootWheelRadius;
-        }
     }
 
     public static class ClimberMap {

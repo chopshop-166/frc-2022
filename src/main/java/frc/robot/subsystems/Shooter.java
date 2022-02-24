@@ -19,7 +19,6 @@ import frc.robot.maps.RobotMap.ShooterMap;
 public class Shooter extends SmartSubsystemBase {
 
   private final SmartMotorController shooterMotor;
-  private final SmartMotorController loaderMotor;
   private final IEncoder shootEncoder;
 
   private static final double MAX_RPM = 5300;
@@ -43,7 +42,6 @@ public class Shooter extends SmartSubsystemBase {
 
   public Shooter(ShooterMap shooterMap) {
     shooterMotor = shooterMap.getShooterMotor();
-    loaderMotor = shooterMap.getLoadingMotor();
     shootEncoder = shooterMotor.getEncoder();
     VEL_MUL = shooterMap.getVelocityMultiplier();
   }
@@ -57,7 +55,6 @@ public class Shooter extends SmartSubsystemBase {
   @Override
   public void safeState() {
     shooterMotor.set(0.0);
-    loaderMotor.set(0.0);
   }
 
   public CommandBase setTargetHub(HubSpeed hub) {
