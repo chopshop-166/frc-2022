@@ -8,7 +8,6 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
@@ -72,17 +71,21 @@ public class GastonMap extends RobotMap {
 
     @Override
     public IntakeMap getIntakeMap() {
-        final int CURRENT_LIMIT = 30;
+        final int CURRENT_LIMIT = 30;// Current limit in amps
 
         final PIDSparkMax deploymentMotor = new PIDSparkMax(11, MotorType.kBrushless);
         final PIDSparkMax deploymentFollower = new PIDSparkMax(12, MotorType.kBrushless);
         final PIDSparkMax rollerMotor = new PIDSparkMax(13, MotorType.kBrushless);
 
-        deploymentMotor.validateCurrent(CURRENT_LIMIT); // Current limit in amps
+        // Use current as a validator along with setting a current limit
+        // on the motor controllers
+
+        deploymentMotor.validateCurrent(CURRENT_LIMIT);
 
         deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(), true);
         deploymentMotor.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
         deploymentFollower.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
+        rollerMotor.getMotorController().setInverted(true);
 
         return new IntakeMap(deploymentMotor, rollerMotor);
 
