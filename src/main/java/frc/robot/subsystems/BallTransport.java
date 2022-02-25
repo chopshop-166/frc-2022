@@ -14,7 +14,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
+import frc.robot.Robot;
 import frc.robot.maps.RobotMap.BallTransportMap;
 
 public class BallTransport extends SmartSubsystemBase {
@@ -38,12 +40,16 @@ public class BallTransport extends SmartSubsystemBase {
         this.laserSwitch = map.getLaserSwitch();
     }
 
-    private boolean colorSensorBallLimit() {
+    public boolean colorSensorBallLimit() {
         return colorSensor.getProximity() < BALL_DETECTION_LIMIT;
     }
 
+    public boolean getLaserSwitch() {
+        return laserSwitch.getAsBoolean();
+    }
+
     // command selector enum used for command selector
-    private enum CommandSelector {
+    public enum CommandSelector {
         COLORZEROLASERZERO,
         COLORONELASERZERO,
         COLORZEROLASERONE,
@@ -51,6 +57,7 @@ public class BallTransport extends SmartSubsystemBase {
     }
 
     // returns a value of command selector enum based on sensor input.
+
     private CommandSelector commandSelector() {
         if (colorSensorBallLimit() && laserSwitch.getAsBoolean()) {
             return CommandSelector.COLORONELASERONE;
@@ -63,6 +70,12 @@ public class BallTransport extends SmartSubsystemBase {
         }
     }
 
+    /*
+     * this is supposed to be a loop once it starts
+     * reason for this is because when the intake is down we want it to keep cycling
+     * new balls as they exit the system
+     * and this seems like the most logical way of doing it
+     */
     private BuildCommand noBall() {
         return new BuildCommand("Wait for ball in color sensor").onExecute(() -> {
             bottomMotor.set(TRANSPORT_SPEED);
@@ -86,14 +99,21 @@ public class BallTransport extends SmartSubsystemBase {
 
     }
 
-    private BuildCommand ballAtLaser() {
-        return new BuildCommand("Stop ball at laser sensor").onExecute(() -> {
+    private CommandBase ballAtLaser() {
+        return cmd("Stop ball at laser sensor").onExecute(() -> {
             bottomMotor.set(TRANSPORT_SPEED);
             topMotor.stopMotor();
         }).until(() -> {
             return colorSensorBallLimit();
-        }).onEnd(() -> {
-            ballAtLaserAndColor();
+        }).onEnd((shooterWantsBall) -> {
+            if (shooterWantsBall) {
+                loadShooter();
+            } else {
+                ballAtLaserAndColor();
+            }
+        }).withInterrupt(() -> {
+            // Maybe have shooter boolean supplier?
+            return false;
         });
     }
 
@@ -105,6 +125,17 @@ public class BallTransport extends SmartSubsystemBase {
             return !laserSwitch.getAsBoolean();
         }).onEnd(() -> {
             ballAtColor();
+        });
+    }
+
+    private BuildCommand loadShooter() {
+        return new BuildCommand("Load Shooter").onExecute(() -> {
+            topMotor.set(TRANSPORT_SPEED);
+            topMotor.set(TRANSPORT_SPEED);
+        }).until(() -> {
+            return !laserSwitch.getAsBoolean() && !colorSensorBallLimit();
+        }).onEnd(() -> {
+            loadCargoNoIntake();
         });
     }
 
