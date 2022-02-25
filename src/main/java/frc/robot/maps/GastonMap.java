@@ -71,7 +71,8 @@ public class GastonMap extends RobotMap {
 
     @Override
     public IntakeMap getIntakeMap() {
-        final int CURRENT_LIMIT = 30;// Current limit in amps
+        // Current limit in amps
+        final int CURRENT_LIMIT = 30;
 
         final PIDSparkMax deploymentMotor = new PIDSparkMax(11, MotorType.kBrushless);
         final PIDSparkMax deploymentFollower = new PIDSparkMax(12, MotorType.kBrushless);
