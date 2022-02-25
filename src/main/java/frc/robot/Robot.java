@@ -30,10 +30,6 @@ public class Robot extends CommandRobot {
   private final Climber leftClimber = new Climber(map.getLeftClimberMap());
   private final Climber rightClimber = new Climber(map.getRightClimberMap());
 
-  private ConditionalCommand transportGoBRRRR() {
-    return new ConditionalCommand(onTrue, onFalse, )
-  }
-
   @Override
   public void robotInit() {
     super.robotInit();
@@ -45,8 +41,10 @@ public class Robot extends CommandRobot {
 
     driveController.back().whenPressed(drive.resetCmd());
 
-    copilotController.a().whileHeld(intake.extend(SpinDirection.COUNTERCLOCKWISE));
-    copilotController.b().whileHeld(intake.retract(SpinDirection.COUNTERCLOCKWISE));
+    copilotController.a().whileHeld(parallel("Intake extended w/ Ball Transport",
+        intake.extend(SpinDirection.COUNTERCLOCKWISE), ballTransport.loadCargoWithIntake()));
+    copilotController.b().whileHeld(parallel("Intake retracted w/ Ball Transport",
+        intake.retract(SpinDirection.COUNTERCLOCKWISE), ballTransport.loadCargoNoIntake()));
 
     // Move with variable speed from triggers
     driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));

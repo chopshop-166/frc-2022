@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 import com.chopshop166.chopshoplib.SampleBuffer;
+import com.chopshop166.chopshoplib.commands.BuildCommand;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IColorSensor;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import frc.robot.maps.RobotMap.BallTransportMap;
 
@@ -84,22 +86,91 @@ public class BallTransport extends SmartSubsystemBase {
         COLORONELASERONE
     }
 
-    private CommandSelector selectSelector() {
-        return () -> {
-
+    private CommandSelector commandSelector() {
+        if (colorSensorBallLimit() && laserSwitch.getAsBoolean()) {
+            return CommandSelector.COLORONELASERONE;
+        } else if (colorSensorBallLimit()) {
+            return CommandSelector.COLORONELASERZERO;
+        } else if (laserSwitch.getAsBoolean()) {
+            return CommandSelector.COLORZEROLASERONE;
+        } else {
+            return CommandSelector.COLORONELASERONE;
         }
     }
 
-    public SelectCommand loadCargoWithIntake() {
-        return new SelectCommand(
-
-                Map.ofEntries(
-                        Map.entry(CommandSelector.COLORZEROLASERZERO, v),
-                        Map.entry(CommandSelector.COLORONELASERZERO, v),
-                        Map.entry(CommandSelector.COLORZEROLASERONE, v),
-                        Map.entry(CommandSelector.COLORONELASERONE, v)),
-                selectSelector());
+    private BuildCommand noBall() {
+        return new BuildCommand("No ball in transport").onExecute(() -> {
+            bottomMotor.set(TRANSPORT_SPEED);
+            topMotor.set(0);
+        }).until(() -> {
+            return colorSensorBallLimit();
+        }).onEnd(() -> {
+            ballAtColor();
+        });
     }
+
+    private BuildCommand ballAtColor() {
+        return new BuildCommand("Ball at Color Sensor").onExecute(() -> {
+            bottomMotor.set(TRANSPORT_SPEED);
+            topMotor.set(TRANSPORT_SPEED);
+        }).until(() -> {
+            return laserSwitch.getAsBoolean();
+        }).onEnd(() -> {
+            ballAtLaser();
+        });
+
+    }
+
+    private BuildCommand ballAtLaser() {
+        return new BuildCommand("Ball at Laser Sensor").onExecute(() -> {
+            bottomMotor.set(TRANSPORT_SPEED);
+            topMotor.set(0);
+        }).until(() -> {
+            return colorSensorBallLimit();
+        }).onEnd(() -> {
+            ballAtLaserAndColor();
+        });
+    }
+
+    private BuildCommand ballAtLaserAndColor() {
+        return new BuildCommand("Ball at laser/color").onExecute(() -> {
+            bottomMotor.set(0);
+            topMotor.set(0);
+        }).until(() -> {
+            return !laserSwitch.getAsBoolean();
+        }).onEnd(() -> {
+            ballAtColor();
+        });
+    }
+
+    private Command noBall = noBall();
+    private Command ballAtColor = ballAtColor();
+    private Command ballAtLaser = ballAtLaser();
+    private Command ballAtLaserAndColor = ballAtLaserAndColor();
+
+    private final Map<Object, Command> selectCommandMap = Map.ofEntries(
+            Map.entry(CommandSelector.COLORZEROLASERZERO, noBall),
+            Map.entry(CommandSelector.COLORONELASERONE, ballAtLaserAndColor),
+            Map.entry(CommandSelector.COLORONELASERZERO, ballAtColor),
+            Map.entry(CommandSelector.COLORZEROLASERONE, ballAtLaser));
+
+    public CommandBase loadCargoNoIntake() {
+        return cmd("Load Cargo Without Intake").onExecute(() -> {
+            if (colorSensorBallLimit() && !laserSwitch.getAsBoolean()) {
+                ballAtColor();
+            } else {
+                topMotor.set(0);
+                bottomMotor.set(0);
+            }
+        }).until(() -> {
+            return laserSwitch.getAsBoolean();
+        });
+    }
+
+    public SelectCommand loadCargoWithIntake() {
+        return new SelectCommand(selectCommandMap, this::commandSelector);
+    }
+
     /*
      * public CommandBase loadCargoWithIntake(boolean isIntakeRunning) {
      * return cmd("Start Ball Transport Mechanism").onExecute(() -> {
