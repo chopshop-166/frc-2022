@@ -37,8 +37,9 @@ public class Robot extends CommandRobot {
 
     driveController.back().whenPressed(drive.resetCmd());
 
-    driveController.a().whileHeld(intake.extend(SpinDirection.COUNTERCLOCKWISE));
-    driveController.b().whileHeld(intake.retract(SpinDirection.COUNTERCLOCKWISE));
+    // intake
+    copilotController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
+        .whenReleased(intake.retract(SpinDirection.COUNTERCLOCKWISE));
 
     // Climber:
     copilotController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));

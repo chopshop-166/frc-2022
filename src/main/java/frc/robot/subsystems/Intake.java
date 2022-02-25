@@ -22,23 +22,17 @@ public class Intake extends SmartSubsystemBase {
     private final SmartMotorController deploymentMotor;
     private final SmartMotorController rollerMotor;
 
-    private final BooleanSupplier insideLimit;
-    private final BooleanSupplier outsideLimit;
+    private static final double ROLLER_SPEED = 0.5;
+    private static final double DEPLOY_EXTEND_SPEED = 0.25;
+    private static final double DEPLOY_RETRACT_SPEED = -0.25;
 
-    private static final double ROLLER_SPEED = 1;
-    private static final double DEPLOY_EXTEND_SPEED = 1;
-    private static final double DEPLOY_RETRACT_SPEED = -1;
-
-    private final ModifierGroup limit;
+    private final Modifier limit;
 
     public Intake(final IntakeMap map) {
         this.deploymentMotor = map.getDeploy();
         this.rollerMotor = map.getRoller();
-        this.insideLimit = map.getInsideLimit();
-        this.outsideLimit = map.getOutsideLimit();
 
-        limit = new ModifierGroup(Modifier.unless(deploymentMotor::errored), Modifier.upperLimit(outsideLimit),
-                Modifier.lowerLimit(insideLimit));
+        limit = Modifier.unless(deploymentMotor::errored);
 
         deploymentMotor.setControlType(PIDControlType.Velocity);
     }
@@ -68,14 +62,11 @@ public class Intake extends SmartSubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        SmartDashboard.putBoolean("Intake Deployed", !insideLimit.getAsBoolean());
-        SmartDashboard.putNumber("Roller Speed", rollerMotor.get());
     }
 
     @Override
     public void safeState() {
         rollerMotor.stopMotor();
         deploymentMotor.stopMotor();
-
     }
 }

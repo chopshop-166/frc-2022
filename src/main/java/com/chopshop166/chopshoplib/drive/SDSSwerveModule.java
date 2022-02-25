@@ -32,23 +32,23 @@ public class SDSSwerveModule implements SwerveModule {
     /** The last calculated speed error. */
     private double speedError;
 
-    public static final Configuration MK3_STANDARD = new Configuration(
-            (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 60.0), Units.inchesToMeters(4));
+    public static final Configuration MK3_STANDARD = new Configuration((14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 60.0),
+            Units.inchesToMeters(4));
 
-    public static final Configuration MK3_FAST = new Configuration(
-            (16.0 / 48.0) * (28.0 / 16.0) * (15.0 / 60.0), Units.inchesToMeters(4));
+    public static final Configuration MK3_FAST = new Configuration((16.0 / 48.0) * (28.0 / 16.0) * (15.0 / 60.0),
+            Units.inchesToMeters(4));
 
-    public static final Configuration MK4_V1 = new Configuration(
-            (14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0), Units.inchesToMeters(3.95));
+    public static final Configuration MK4_V1 = new Configuration((14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0),
+            Units.inchesToMeters(3.95));
 
-    public static final Configuration MK4_V2 = new Configuration(
-            (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0), Units.inchesToMeters(3.95));
+    public static final Configuration MK4_V2 = new Configuration((14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0),
+            Units.inchesToMeters(3.95));
 
-    public static final Configuration MK4_V3 = new Configuration(
-            (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0), Units.inchesToMeters(3.95));
+    public static final Configuration MK4_V3 = new Configuration((14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0),
+            Units.inchesToMeters(3.95));
 
-    public static final Configuration MK4_V4 = new Configuration(
-            (16.0 / 48.0) * (28.0 / 16.0) * (15.0 / 45.0), Units.inchesToMeters(3.95));
+    public static final Configuration MK4_V4 = new Configuration((16.0 / 48.0) * (28.0 / 16.0) * (15.0 / 45.0),
+            Units.inchesToMeters(3.95));
 
     /** PID P value. */
     private static final PIDValues PID_VALUES = new PIDValues(0.0043, 0.00, 0.0001);
@@ -93,8 +93,8 @@ public class SDSSwerveModule implements SwerveModule {
      * @param driveController    The drive motor controller.
      */
     public SDSSwerveModule(final Translation2d moduleLocation, final CANCoder steeringEncoder,
-            final PIDSparkMax steeringController, final PIDSparkMax driveController,
-            final Configuration conf, final PIDController pid) {
+            final PIDSparkMax steeringController, final PIDSparkMax driveController, final Configuration conf,
+            final PIDController pid) {
         this.location = moduleLocation;
         this.steeringEncoder = steeringEncoder;
         this.steeringController = steeringController;
@@ -144,7 +144,7 @@ public class SDSSwerveModule implements SwerveModule {
         // Run Steering angle PID to calculate output since the Spark Max can't take
         // advantage of the Cancoder
         final double angleOutput = steeringPID.calculate(getAngle().getDegrees(), state.angle.getDegrees());
-        if (state.speedMetersPerSecond == 0) {
+        if (state.speedMetersPerSecond != 0) {
             steeringController.set(angleOutput);
         }
 
