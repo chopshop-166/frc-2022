@@ -37,7 +37,9 @@ public class Robot extends CommandRobot {
 
     driveController.back().whenPressed(drive.resetCmd());
 
-    // intake
+    // Intake:
+    // On button press: extend intake and start roller
+    // On button release: retract intake and stop roller
     copilotController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
         .whenReleased(intake.retract(SpinDirection.COUNTERCLOCKWISE));
 

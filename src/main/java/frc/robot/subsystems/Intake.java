@@ -4,16 +4,12 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.BooleanSupplier;
-
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
-import com.chopshop166.chopshoplib.motors.ModifierGroup;
 import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.IntakeMap;
 
@@ -37,18 +33,23 @@ public class Intake extends SmartSubsystemBase {
         deploymentMotor.setControlType(PIDControlType.Velocity);
     }
 
-    // Counterclockwise ball go in, clockwise ball go out
+    // rollerDirection is CLOCKWISE for the ball to go in, and COUNTERCLOCKWISE for
+    // going out
 
+    // Extend with the deployment motor and spin roller
     public CommandBase extend(SpinDirection rollerDirection) {
         return cmd("Extend Intake").onInitialize(() -> {
             rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
         }).onExecute(() -> {
+            // Using validators in a modifier in combination with using it to stop the
+            // command
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_EXTEND_SPEED));
         }).finishedWhen(deploymentMotor::errored).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
         });
     }
 
+    // Retract with the deployment motor and stop roller
     public CommandBase retract(SpinDirection rollerDirection) {
         return cmd("Retract Intake").onInitialize(() -> {
             rollerMotor.set(0.0);
