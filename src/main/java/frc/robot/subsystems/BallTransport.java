@@ -154,28 +154,28 @@ public class BallTransport extends SmartSubsystemBase {
         // point
         return cmd("Remove \"Wrong Colored\" Cargo").onExecute(() -> {
             final Alliance allianceColor = DriverStation.getAlliance();
-            Color allianceBallColor;
-            if (allianceColor == Alliance.Red) {
-                allianceBallColor = Color.kFirstRed;
+            Color oppositeAllianceBallColor;
+            if (allianceColor == Alliance.Blue) {
+                oppositeAllianceBallColor = Color.kFirstRed;
             } else {
-                allianceBallColor = Color.kFirstBlue;
+                oppositeAllianceBallColor = Color.kFirstBlue;
             }
 
             if (colorBuffer.size() == 1) {
                 // this accounts for if there's only one ball in the color buffer
                 // in this case the intake doesn't need to be deployed because it can just go
                 // out shooter end
-                if (colorBuffer.peekFirst() == allianceBallColor) {
+                if (colorBuffer.peekFirst() == oppositeAllianceBallColor) {
                     topMotor.set(REMOVE_SPEED);
                     bottomMotor.set(REMOVE_SPEED);
                     colorBuffer.clear();
                 }
             } else {
-                if (colorBuffer.peekLast() == allianceBallColor) {
+                if (colorBuffer.peekLast() == oppositeAllianceBallColor) {
                     topMotor.set(REMOVE_SPEED);
                     colorBuffer.removeLast();
                 }
-                if (colorBuffer.peekFirst() == allianceBallColor) {
+                if (colorBuffer.peekFirst() == oppositeAllianceBallColor) {
                     bottomMotor.set(-REMOVE_SPEED);
                     colorBuffer.removeFirst();
                 }
