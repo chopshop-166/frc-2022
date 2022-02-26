@@ -99,7 +99,7 @@ public class BallTransport extends SmartSubsystemBase {
     }
 
     private CommandBase ballAtLaserAndColor() {
-        return cmd("Wait for ball removal from ball transport").onExecute(() -> {
+        return instant("Wait for ball removal from ball transport", () -> {
             bottomMotor.stopMotor();
             topMotor.stopMotor();
         });
