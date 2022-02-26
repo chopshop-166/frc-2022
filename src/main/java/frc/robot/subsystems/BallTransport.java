@@ -130,6 +130,9 @@ public class BallTransport extends SmartSubsystemBase {
     // select command that determines what command needs to be run based on the
     // command selector.
     // this needs to be run with intake
+
+    // TODO this select command assumes that the command is run repeatedly through
+    // while held this might need to be changed if testing fails
     public SelectCommand loadCargoWithIntake() {
         return new SelectCommand(selectCommandMap, this::commandSelector);
     }
@@ -137,6 +140,8 @@ public class BallTransport extends SmartSubsystemBase {
     // Unloads cargo that is opposite of the alliance color
     // Intake must be deployed backwards for this
     public CommandBase removeCargo() {
+        // this is pretty much a startend command but no reason to change it at this
+        // point
         return cmd("Remove \"Wrong Colored\" Cargo").onExecute(() -> {
             switch (allianceColor) {
                 case Red:
