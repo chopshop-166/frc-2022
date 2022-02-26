@@ -187,14 +187,24 @@ public class BallTransport extends SmartSubsystemBase {
                 default:
                     break;
             }
-        }).onEnd(() -> {
-            bottomMotor.stopMotor();
-            topMotor.stopMotor();
-        }).withTimeout(4);
+        }).onEnd(this::stop).withTimeout(4);
+    }
+
+    private String colorBufferConvertor(Color color) {
+        if (color == color.kFirstRed) {
+            return "Red";
+        } else if (color == color.kFirstBlue) {
+            return "Blue";
+        } else {
+            return "None";
+        }
     }
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("Color Sensor Proximity", colorSensor.getProximity());
+        SmartDashboard.putString("Color Buffer #1", colorBufferConvertor(colorBuffer.peekFirst()));
+        SmartDashboard.putString("Color Buffer #2", colorBufferConvertor(colorBuffer.peekLast()));
         SmartDashboard.putBoolean("Laser Switch Activated", laserSwitch.getAsBoolean());
         SmartDashboard.putBoolean("Cargo in Color Sensor", colorSensorBallLimit());
     }
