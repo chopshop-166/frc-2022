@@ -11,13 +11,10 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 @RobotMapFor("00:80:2F:17:62:25")
 public class GastonMap extends RobotMap {
-
-    private final double CURRENT_LIMIT = 20.0; // The current limit for the climber's motors
 
     @Override
     public SwerveDriveMap getSwerveDriveMap() {
@@ -94,24 +91,37 @@ public class GastonMap extends RobotMap {
 
     @Override
     public ClimberMap getLeftClimberMap() {
+        // The current limit for the climber's motors in amps
+        final int EXTEND_LIMIT = 20;
+        final int ROTATE_LIMIT = 20;
+
         final PIDSparkMax extendMotor = new PIDSparkMax(9, MotorType.kBrushless);
 
         final PIDSparkMax rotateMotor = new PIDSparkMax(18, MotorType.kBrushless);
 
-        extendMotor.validateCurrent(CURRENT_LIMIT);
-        rotateMotor.validateCurrent(CURRENT_LIMIT);
+        // Setting the current limits on both the validators and motor controllers
+        extendMotor.validateCurrent(EXTEND_LIMIT);
+        extendMotor.getMotorController().setSmartCurrentLimit(EXTEND_LIMIT);
+        rotateMotor.validateCurrent(ROTATE_LIMIT);
+        rotateMotor.getMotorController().setSmartCurrentLimit(ROTATE_LIMIT);
 
         return new ClimberMap(extendMotor, rotateMotor);
     }
 
     @Override
     public ClimberMap getRightClimberMap() {
+        // The current limit for the climber's motors in amps
+        final int EXTEND_LIMIT = 20;
+        final int ROTATE_LIMIT = 20;
         final PIDSparkMax extendMotor = new PIDSparkMax(10, MotorType.kBrushless);
 
         final PIDSparkMax rotateMotor = new PIDSparkMax(19, MotorType.kBrushless);
 
-        extendMotor.validateCurrent(CURRENT_LIMIT);
-        rotateMotor.validateCurrent(CURRENT_LIMIT);
+        // Setting the current limits on both the validators and motor controllers
+        extendMotor.validateCurrent(EXTEND_LIMIT);
+        extendMotor.getMotorController().setSmartCurrentLimit(EXTEND_LIMIT);
+        rotateMotor.validateCurrent(ROTATE_LIMIT);
+        rotateMotor.getMotorController().setSmartCurrentLimit(ROTATE_LIMIT);
 
         return new ClimberMap(extendMotor, rotateMotor);
     }

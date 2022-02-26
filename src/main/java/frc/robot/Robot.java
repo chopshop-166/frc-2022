@@ -9,6 +9,7 @@ import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Climber.ExtendDirection;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 
@@ -44,17 +45,29 @@ public class Robot extends CommandRobot {
         .whenReleased(intake.retract(SpinDirection.COUNTERCLOCKWISE));
 
     // Climber:
-    copilotController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
-    copilotController.y().whileHeld(parallel("Rotate", leftClimber.rotate(trigger), rightClimber.rotate(trigger)));
+    copilotController.x()
+        .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(trigger), rightClimber.extendSpeed(trigger)));
+    copilotController.y()
+        .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(trigger), rightClimber.rotateSpeed(trigger)));
 
     copilotController.getPovButton(POVDirection.LEFT)
-        .whileHeld(parallel("Rotate CCW", leftClimber.rotateCCW(), rightClimber.rotateCCW()));
+        .whileHeld(parallel("Rotate CCW", leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
+            rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
     copilotController.getPovButton(POVDirection.RIGHT)
-        .whileHeld(parallel("Rotate CW", leftClimber.rotateCW(), rightClimber.rotateCW()));
-    copilotController.a().whileHeld(parallel("Extend", leftClimber.extend(), rightClimber.extend()));
-    copilotController.b().whileHeld(parallel("Retract", leftClimber.retract(), rightClimber.retract()));
+        .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
+            rightClimber.rotate(SpinDirection.CLOCKWISE)));
+    copilotController.a()
+        .whileHeld(parallel("Extend", leftClimber.extend(ExtendDirection.EXTEND),
+            rightClimber.extend(ExtendDirection.EXTEND)));
+    copilotController.b()
+        .whileHeld(parallel("Retract", leftClimber.extend(ExtendDirection.RETRACT),
+            rightClimber.extend(ExtendDirection.RETRACT)));
 
-    copilotController.back().whenPressed(parallel("Stop", leftClimber.stop(), rightClimber.stop()));
+    // Stop all subsystems
+    copilotController.back().whenPressed(cmd("Stop All").onInitialize(() -> {
+      safeStateAll();
+    }));
+
   }
 
   @Override

@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
+import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -13,15 +14,28 @@ import frc.robot.maps.RobotMap.ClimberMap;
 public class Climber extends SmartSubsystemBase {
 
   // Constants:
-  private final double EXTEND_SPEED = 1.0;
-  private final double RETRACT_SPEED = -1.0;
-  private final double ROTATE_SPEED = 1.0;
+
+  private final double ROTATE_SPEED = 0.2;
 
   private final SmartMotorController extendMotor;
   private final SmartMotorController rotateMotor;
 
   private final Modifier extendLimit;
   private final Modifier rotateLimit;
+
+  public enum ExtendDirection {
+    EXTEND(0.2), RETRACT(-0.2);
+
+    private final double direction;
+
+    private ExtendDirection(double direction) {
+      this.direction = direction;
+    }
+
+    public double get() {
+      return direction;
+    }
+  }
 
   public Climber(ClimberMap map) {
 
@@ -33,9 +47,9 @@ public class Climber extends SmartSubsystemBase {
   }
 
   // Move the motor based off a variable speed
-  public CommandBase move(DoubleSupplier speed) {
-    double nSpeed = speed.getAsDouble();
-    return cmd("Move").onExecute(() -> {
+  public CommandBase extendSpeed(DoubleSupplier speed) {
+    return cmd("Extend Speed").onExecute(() -> {
+      double nSpeed = speed.getAsDouble();
       extendMotor.set(extendLimit.applyAsDouble(nSpeed));
       SmartDashboard.putNumber("Climber Speed", nSpeed);
     }).finishedWhen(extendMotor::errored).onEnd((interrupted) -> {
@@ -43,9 +57,9 @@ public class Climber extends SmartSubsystemBase {
     });
   }
 
-  public CommandBase rotate(DoubleSupplier speed) {
-    double nSpeed = speed.getAsDouble();
-    return cmd("Rotate").onExecute(() -> {
+  public CommandBase rotateSpeed(DoubleSupplier speed) {
+    return cmd("Rotate Speed").onExecute(() -> {
+      double nSpeed = speed.getAsDouble();
       rotateMotor.set(rotateLimit.applyAsDouble(nSpeed));
       SmartDashboard.putNumber("Rotate Speed", nSpeed);
     }).finishedWhen(rotateMotor::errored).onEnd((interrupted) -> {
@@ -53,42 +67,19 @@ public class Climber extends SmartSubsystemBase {
     });
   }
 
-  public CommandBase rotateCW() {
-    return cmd("Rotate CW").onExecute(() -> {
-      rotateMotor.set(rotateLimit.applyAsDouble(ROTATE_SPEED));
+  public CommandBase rotate(SpinDirection direction) {
+    return cmd("Rotate").onExecute(() -> {
+      rotateMotor.set(rotateLimit.applyAsDouble(direction.get(ROTATE_SPEED)));
     }).finishedWhen(rotateMotor::errored).onEnd((interrupted) -> {
       rotateMotor.set(0.0);
     });
   }
 
-  public CommandBase rotateCCW() {
-    return cmd("Rotate CCW").onExecute(() -> {
-      rotateMotor.set(rotateLimit.applyAsDouble(-ROTATE_SPEED));
-    }).finishedWhen(rotateMotor::errored).onEnd((interrupted) -> {
-      rotateMotor.set(0.0);
-    });
-  }
-
-  public CommandBase extend() {
+  public CommandBase extend(ExtendDirection direction) {
     return cmd("Extend").onExecute(() -> {
-      extendMotor.set(extendLimit.applyAsDouble(EXTEND_SPEED));
+      extendMotor.set(extendLimit.applyAsDouble(direction.get()));
     }).finishedWhen(extendMotor::errored).onEnd((interrupted) -> {
       extendMotor.set(0.0);
-    });
-  }
-
-  public CommandBase retract() {
-    return cmd("Retract").onExecute(() -> {
-      extendMotor.set(extendLimit.applyAsDouble(RETRACT_SPEED));
-    }).finishedWhen(extendMotor::errored).onEnd((interrupted) -> {
-      extendMotor.set(0.0);
-    });
-  }
-
-  public CommandBase stop() {
-    return instant("Stop", () -> {
-      extendMotor.set(0.0);
-      rotateMotor.set(0.0);
     });
   }
 
