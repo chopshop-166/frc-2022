@@ -1,12 +1,9 @@
 package frc.robot.maps;
 
-import java.util.function.BooleanSupplier;
-
 import com.chopshop166.chopshoplib.drive.MockSwerveModule;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
-import com.chopshop166.chopshoplib.sensors.MockDigitalInput;
 import com.chopshop166.chopshoplib.sensors.MockGyro;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -123,31 +120,25 @@ public class RobotMap {
     }
 
     public static class ClimberMap {
-        private final SmartMotorController motor;
-        private final BooleanSupplier upperLimit;
-        private final BooleanSupplier lowerLimit;
 
-        public ClimberMap(SmartMotorController motor, BooleanSupplier upperLimit, BooleanSupplier lowerLimit) {
-            this.motor = motor;
-            this.upperLimit = upperLimit;
-            this.lowerLimit = lowerLimit;
+        private final SmartMotorController extendMotor;
+        private final SmartMotorController rotateMotor;
 
+        public ClimberMap(SmartMotorController extendMotor, SmartMotorController rotateMotor) {
+            this.extendMotor = extendMotor;
+            this.rotateMotor = rotateMotor;
         }
 
         public ClimberMap() {
-            this(new SmartMotorController(), new MockDigitalInput(), new MockDigitalInput());
+            this(new SmartMotorController(), new SmartMotorController());
         }
 
-        public SmartMotorController getMotor() {
-            return motor;
+        public SmartMotorController getExtendMotor() {
+            return extendMotor;
         }
 
-        public BooleanSupplier getUpperLimit() {
-            return upperLimit;
-        }
-
-        public BooleanSupplier getLowerLimit() {
-            return lowerLimit;
+        public SmartMotorController getRotateMotor() {
+            return rotateMotor;
         }
 
     }
