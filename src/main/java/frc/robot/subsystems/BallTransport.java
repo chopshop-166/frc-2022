@@ -33,6 +33,13 @@ public class BallTransport extends SmartSubsystemBase {
     // creates a color sample buffer.
     private SampleBuffer<Color> colorBuffer = new SampleBuffer<>(2);
 
+    // command selector enum used for command selector
+    private enum CommandSelector {
+        LOWER_TO_COLOR,
+        STOP,
+        MOVE_BOTH_TO_LASER
+    }
+
     public BallTransport(final BallTransportMap map) {
         this.bottomMotor = map.getBottomMotor();
         this.topMotor = map.getTopMotor();
@@ -44,88 +51,67 @@ public class BallTransport extends SmartSubsystemBase {
         return colorSensor.getProximity() > BALL_DETECTION_LIMIT;
     }
 
-    private CommandBase noBall() {
+    private CommandBase moveLowerToColor() {
         return cmd("Wait for Ball").onExecute(() -> {
             bottomMotor.set(TRANSPORT_SPEED);
-            topMotor.stopMotor();
         }).until(() -> {
             return colorSensorBallLimit();
         }).onEnd(() -> {
+            bottomMotor.stopMotor();
             colorBuffer.addFirst(colorSensor.getColor());
         });
     }
 
-    private CommandBase ballAtColor() {
+    private CommandBase moveBothToLaser() {
         return cmd("Move ball from color sensor to laser").onExecute(() -> {
             bottomMotor.set(TRANSPORT_SPEED);
             topMotor.set(TRANSPORT_SPEED);
         }).until(() -> {
             return laserSwitch.getAsBoolean();
-        });
-
-    }
-
-    private CommandBase ballAtLaser() {
-        return cmd("Keep ball on laser switch").onExecute(() -> {
-            bottomMotor.set(TRANSPORT_SPEED);
-            topMotor.stopMotor();
-        }).until(() -> {
-            return colorSensorBallLimit();
-        });
+        }).onEnd(this::stop);
     }
 
     public CommandBase stopTransport() {
-        return instant("Stop Ball Transport", () -> {
-            bottomMotor.stopMotor();
-            topMotor.stopMotor();
-        });
+        return instant("Stop Ball Transport", this::safeState);
     }
 
+    // Shooter should reach top speed before this is run
     public CommandBase loadShooter() {
-        return cmd("Load Shooter").onExecute(() -> {
-            topMotor.set(TRANSPORT_SPEED);
-            bottomMotor.set(TRANSPORT_SPEED);
-        }).onEnd(() -> {
-            // this assumes both balls have been shot
-            colorBuffer.clear();
+        return cmd("Load Ball Into Shooter").onExecute(() -> {
+            if (laserSwitch.getAsBoolean()) {
+                topMotor.set(TRANSPORT_SPEED);
+            }
+        }).until(() -> {
+            return !laserSwitch.getAsBoolean();
+        }).onEnd((interrupted) -> {
+            if (!interrupted) {
+                colorBuffer.pop();
+            }
             topMotor.stopMotor();
-            bottomMotor.stopMotor();
         });
     }
 
-    private Command noBall = noBall();
-    private Command ballAtColor = ballAtColor();
-    private Command ballAtLaser = ballAtLaser();
-    private Command ballAtLaserAndColor = stopTransport();
-
-    // command selector enum used for command selector
-    private enum CommandSelector {
-        WAITFORBALL,
-        MOVEBALLTOLASER,
-        WAITFORBALLNOLASER,
-        INTAKEFILLED
-    }
+    private Command moveLowerToColor = moveLowerToColor();
+    private Command moveBothToLaser = moveBothToLaser();
+    private Command stopTransport = stopTransport();
 
     // returns a value of command selector enum based on sensor input.
 
     private CommandSelector commandSelector() {
         if (colorSensorBallLimit() && laserSwitch.getAsBoolean()) {
-            return CommandSelector.WAITFORBALL;
-        } else if (colorSensorBallLimit()) {
-            return CommandSelector.MOVEBALLTOLASER;
-        } else if (laserSwitch.getAsBoolean()) {
-            return CommandSelector.WAITFORBALLNOLASER;
+            return CommandSelector.STOP;
+        } else if (colorSensorBallLimit() && !laserSwitch.getAsBoolean()) {
+            return CommandSelector.MOVE_BOTH_TO_LASER;
         } else {
-            return CommandSelector.INTAKEFILLED;
+            return CommandSelector.LOWER_TO_COLOR;
         }
     }
 
     // Creates a map of entries for the command selector to use.
     private final Map<Object, Command> selectCommandMap = Map.ofEntries(
-            Map.entry(CommandSelector.WAITFORBALL, noBall),
-            Map.entry(CommandSelector.MOVEBALLTOLASER, ballAtLaserAndColor),
-            Map.entry(CommandSelector.WAITFORBALLNOLASER, ballAtColor),
-            Map.entry(CommandSelector.INTAKEFILLED, ballAtLaser));
+            Map.entry(CommandSelector.LOWER_TO_COLOR, moveLowerToColor),
+            Map.entry(CommandSelector.STOP, stopTransport),
+            Map.entry(CommandSelector.MOVE_BOTH_TO_LASER, moveBothToLaser));
 
     // select command that determines what command needs to be run based on the
     // command selector.
