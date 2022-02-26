@@ -41,7 +41,7 @@ public class BallTransport extends SmartSubsystemBase {
     }
 
     private boolean colorSensorBallLimit() {
-        return colorSensor.getProximity() < BALL_DETECTION_LIMIT;
+        return colorSensor.getProximity() > BALL_DETECTION_LIMIT;
     }
 
     private CommandBase noBall() {
@@ -90,7 +90,7 @@ public class BallTransport extends SmartSubsystemBase {
             colorBuffer.clear();
             topMotor.stopMotor();
             bottomMotor.stopMotor();
-        }).withTimeout(4);
+        });
     }
 
     private Command noBall = noBall();
@@ -139,46 +139,53 @@ public class BallTransport extends SmartSubsystemBase {
     public CommandBase removeCargo() {
         return cmd("Remove \"Wrong Colored\" Cargo").onExecute(() -> {
             switch (allianceColor) {
-                default:
-                    if (colorBuffer.isEmpty()) {
-                        // this accounts for if the color buffer is empty
-                        break;
-                    } else if (colorBuffer.size() == 1) {
+                case Red:
+                    if (colorBuffer.size() == 1) {
                         // this accounts for if there's only one ball in the color buffer
                         // in this case the intake doesn't need to be deployed because it can just go
                         // out shooter end
-                        topMotor.set(REMOVE_SPEED);
-                        bottomMotor.set(REMOVE_SPEED);
-                        colorBuffer.clear();
-                        break;
-                    }
-                case Red:
-                    if (colorBuffer.peekLast() == Color.kFirstBlue) {
-                        topMotor.set(REMOVE_SPEED);
-                        colorBuffer.removeLast();
-                    }
-                    if (colorBuffer.peekFirst() == Color.kFirstBlue) {
-                        bottomMotor.set(-REMOVE_SPEED);
-                        colorBuffer.removeFirst();
+                        if (colorBuffer.peekFirst() == Color.kFirstBlue) {
+                            topMotor.set(REMOVE_SPEED);
+                            bottomMotor.set(REMOVE_SPEED);
+                            colorBuffer.clear();
+                        }
+                    } else {
+                        if (colorBuffer.peekLast() == Color.kFirstBlue) {
+                            topMotor.set(REMOVE_SPEED);
+                            colorBuffer.removeLast();
+                        }
+                        if (colorBuffer.peekFirst() == Color.kFirstBlue) {
+                            bottomMotor.set(-REMOVE_SPEED);
+                            colorBuffer.removeFirst();
+                        }
                     }
                     break;
                 case Blue:
-                    if (colorBuffer.peekLast() == Color.kFirstRed) {
-                        topMotor.set(REMOVE_SPEED);
-                        colorBuffer.removeLast();
-                    }
-                    if (colorBuffer.peekFirst() == Color.kFirstRed) {
-                        bottomMotor.set(-REMOVE_SPEED);
-                        colorBuffer.removeFirst();
+                    if (colorBuffer.size() == 1) {
+                        if (colorBuffer.peekFirst() == Color.kFirstRed) {
+                            topMotor.set(REMOVE_SPEED);
+                            bottomMotor.set(REMOVE_SPEED);
+                            colorBuffer.clear();
+                        }
+                    } else {
+                        if (colorBuffer.peekLast() == Color.kFirstRed) {
+                            topMotor.set(REMOVE_SPEED);
+                            colorBuffer.removeLast();
+                        }
+                        if (colorBuffer.peekFirst() == Color.kFirstRed) {
+                            bottomMotor.set(-REMOVE_SPEED);
+                            colorBuffer.removeFirst();
+                        }
                     }
                     break;
                 case Invalid:
+                default:
                     break;
             }
         }).onEnd(() -> {
             bottomMotor.stopMotor();
             topMotor.stopMotor();
-        }).withTimeout(5);
+        }).withTimeout(4);
     }
 
     @Override
