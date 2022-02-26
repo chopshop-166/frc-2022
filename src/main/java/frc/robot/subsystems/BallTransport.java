@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 import com.chopshop166.chopshoplib.SampleBuffer;
-import com.chopshop166.chopshoplib.commands.BuildCommand;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IColorSensor;
@@ -14,9 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
-import frc.robot.Robot;
 import frc.robot.maps.RobotMap.BallTransportMap;
 
 public class BallTransport extends SmartSubsystemBase {
@@ -132,6 +129,7 @@ public class BallTransport extends SmartSubsystemBase {
 
     // select command that determines what command needs to be run based on the
     // command selector.
+    // this needs to be run with intake
     public SelectCommand loadCargoWithIntake() {
         return new SelectCommand(selectCommandMap, this::commandSelector);
     }
