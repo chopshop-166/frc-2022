@@ -8,6 +8,7 @@ import com.chopshop166.chopshoplib.motors.SwPIDMotorController;
 import com.chopshop166.chopshoplib.sensors.IEncoder;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
 import com.chopshop166.chopshoplib.sensors.WEncoder;
+import com.chopshop166.chopshoplib.states.PIDValues;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -79,10 +80,14 @@ public class GastonMap extends RobotMap {
         final IEncoder encoder = new WEncoder(0, 1);
         final PIDSparkMax motor = new PIDSparkMax(16, MotorType.kBrushless);
         final PIDSparkMax follower = new PIDSparkMax(15, MotorType.kBrushless);
-
-        PIDController pid = new PIDController(2.1542, 0, 0);
+        PIDController pid = new PIDController(0, 0, 0);
         SwPIDMotorController motorPid = new SwPIDMotorController(motor, encoder, pid, encoder::getRate);
 
+        // Ks: 0.022734
+        // Kv: 0.14846
+        // Ka: 0.058402
+
+        motorPid.addDefaultConfiguration(new PIDValues(2.1542, 0, 0, 0.14846));
         motor.setControlType(PIDControlType.Velocity);
         follower.setControlType(PIDControlType.Velocity);
         follower.getMotorController().follow(motor.getMotorController(), true);
