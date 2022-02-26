@@ -137,7 +137,6 @@ public class BallTransport extends SmartSubsystemBase {
 
     // Unloads cargo that is opposite of the alliance color
     // Intake must be deployed backwards for this
-
     public CommandBase removeCargo() {
         return cmd("Remove Cargo").onExecute(() -> {
             switch (allianceColor) {
@@ -151,7 +150,7 @@ public class BallTransport extends SmartSubsystemBase {
                         colorBuffer.removeLast();
                     }
                     if (colorBuffer.peekFirst() == Color.kFirstBlue) {
-                        bottomMotor.set(REMOVE_SPEED);
+                        bottomMotor.set(-REMOVE_SPEED);
                         colorBuffer.removeFirst();
                     }
                     break;
@@ -161,7 +160,7 @@ public class BallTransport extends SmartSubsystemBase {
                         colorBuffer.removeLast();
                     }
                     if (colorBuffer.peekFirst() == Color.kFirstRed) {
-                        bottomMotor.set(REMOVE_SPEED);
+                        bottomMotor.set(-REMOVE_SPEED);
                         colorBuffer.removeFirst();
                     }
                     break;
