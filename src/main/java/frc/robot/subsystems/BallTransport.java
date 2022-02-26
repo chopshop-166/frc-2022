@@ -176,18 +176,8 @@ public class BallTransport extends SmartSubsystemBase {
         }).withTimeout(5);
     }
 
-    private void updateBuffer() {
-        final Color colorSensed = colorSensor.getColor();
-        if (colorSensed != colorBuffer.peekFirst()) {
-            if (colorSensed == Color.kFirstRed || colorSensed == Color.kFirstBlue) {
-                colorBuffer.add(colorSensed);
-            }
-        }
-    }
-
     @Override
     public void periodic() {
-        updateBuffer();
         SmartDashboard.putBoolean("Laser Switch Activated", laserSwitch.getAsBoolean());
         SmartDashboard.putBoolean("Cargo in Color Sensor", colorSensorBallLimit());
     }
