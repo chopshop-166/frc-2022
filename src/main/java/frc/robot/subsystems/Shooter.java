@@ -29,7 +29,7 @@ public class Shooter extends SmartSubsystemBase {
       this.speed = speed;
     }
 
-    public double getSpeed() {
+    public double get() {
       return this.speed;
     }
   }
@@ -37,12 +37,13 @@ public class Shooter extends SmartSubsystemBase {
   public Shooter(ShooterMap map) {
     motor = map.getMotor();
     encoder = map.getEncoder();
+    shootSpeed = HubSpeed.LOW.get();
   }
 
   public CommandBase setTargetHub(HubSpeed hub) {
     return instant("Set Default Speed", () -> {
-      motor.setSetpoint(hub.getSpeed());
-      shootSpeed = hub.getSpeed();
+      shootSpeed = hub.get();
+      motor.setSetpoint(shootSpeed);
     });
   }
 
