@@ -44,18 +44,24 @@ public class Intake extends SmartSubsystemBase {
             // Using validators in a modifier in combination with using it to stop the
             // command
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_EXTEND_SPEED));
-        }).finishedWhen(deploymentMotor::errored).onEnd((interrupted) -> {
+        }).until(deploymentMotor::errored).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
         });
     }
 
+    public CommandBase rollIntake(SpinDirection rollerDirection) {
+        return startEnd("Start Intake", () -> {
+            rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
+        }, () -> rollerMotor.stopMotor());
+    }
+
     // Retract with the deployment motor and stop roller
-    public CommandBase retract(SpinDirection rollerDirection) {
+    public CommandBase retract() {
         return cmd("Retract Intake").onInitialize(() -> {
             rollerMotor.set(0.0);
         }).onExecute(() -> {
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_RETRACT_SPEED));
-        }).finishedWhen(deploymentMotor::errored).onEnd((interrupted) -> {
+        }).until(deploymentMotor::errored).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
         });
     }

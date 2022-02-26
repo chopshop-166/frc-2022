@@ -23,11 +23,13 @@ public class BallTransport extends SmartSubsystemBase {
     private final BooleanSupplier laserSwitch;
 
     // "random values that get bigger when it's closer"
-    static private final int BALL_DETECTION_LIMIT = 1000;
+    static private final int BALL_DETECTION_LIMIT = 160;
     static private final double REMOVE_SPEED = -0.25;
-    static private final double TRANSPORT_SPEED = 0.25;
+    static private final double TRANSPORT_SPEED = 0.5;
 
     private final Alliance allianceColor = DriverStation.getAlliance();
+
+    boolean seenBall = false;
 
     // creates a color sample buffer.
     private SampleBuffer<Color> colorBuffer = new SampleBuffer<>(2);
@@ -101,12 +103,6 @@ public class BallTransport extends SmartSubsystemBase {
         }
     }
 
-    // Creates a map of entries for the command selector to use.
-    private final Map<Object, Command> selectCommandMap = Map.ofEntries(
-            Map.entry(CommandSelector.LOWER_TO_COLOR, moveLowerToColor()),
-            Map.entry(CommandSelector.STOP, stopTransport()),
-            Map.entry(CommandSelector.MOVE_BOTH_TO_LASER, moveBothToLaser()));
-
     // select command that determines what command needs to be run based on the
     // command selector.
     // this needs to be run with intake
@@ -114,7 +110,43 @@ public class BallTransport extends SmartSubsystemBase {
     // TODO this select command assumes that the command is run repeatedly through
     // while held this might need to be changed if testing fails
     public SelectCommand loadCargoWithIntake() {
+        // Creates a map of entries for the command selector to use.
+        final Map<Object, Command> selectCommandMap = Map.ofEntries(
+                Map.entry(CommandSelector.LOWER_TO_COLOR, moveLowerToColor()),
+                Map.entry(CommandSelector.STOP, stopTransport()),
+                Map.entry(CommandSelector.MOVE_BOTH_TO_LASER, moveBothToLaser()));
         return new SelectCommand(selectCommandMap, this::commandSelector);
+    }
+
+    public CommandBase defaultToLaser() {
+        return running("Default to Laser", () -> {
+            if (colorSensorBallLimit()) {
+                seenBall = true;
+            }
+            if (!laserSwitch.getAsBoolean() && seenBall) {
+                bottomMotor.set(TRANSPORT_SPEED);
+                topMotor.set(TRANSPORT_SPEED);
+            } else {
+                seenBall = false;
+                safeState();
+            }
+        });
+    }
+
+    public CommandBase runTopBackwards() {
+        return startEnd("Run Top Transport Backwards", () -> {
+            topMotor.set(REMOVE_SPEED);
+        }, () -> {
+            topMotor.stopMotor();
+        });
+    }
+
+    public CommandBase runBottomBackwards() {
+        return startEnd("Run Bottom Transport Backwards", () -> {
+            bottomMotor.set(REMOVE_SPEED);
+        }, () -> {
+            bottomMotor.stopMotor();
+        });
     }
 
     // Unloads cargo that is opposite of the alliance color

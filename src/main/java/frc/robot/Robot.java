@@ -7,6 +7,8 @@ import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
 import frc.robot.subsystems.Climber;
@@ -45,13 +47,22 @@ public class Robot extends CommandRobot {
     // Intake:
     // On button press: extend intake and start roller
     // On button release: retract intake and stop roller
+    driveController.b().whileHeld(intake.rollIntake(SpinDirection.COUNTERCLOCKWISE));
+
+    // Soon to be shooter command
+    driveController.x().whenPressed(ballTransport.loadShooter());
+
     driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
-        .whileHeld(ballTransport.loadCargoWithIntake()).whenReleased(parallel("Intake retracted w/ Ball Transport",
-            intake.retract(SpinDirection.COUNTERCLOCKWISE), ballTransport.stopTransport()));
+        .whileHeld(ballTransport.loadCargoWithIntake())
+        .whenReleased(sequence("Ball transport end", race("Finish Transport", new WaitCommand(2), ballTransport
+            .loadCargoWithIntake()),
+            parallel("Intake retracted w/ Ball Transport", ballTransport.stopTransport(), intake.retract())));
     driveController.y()
         .whenPressed(sequence("Remove Wrong Colored Balls", intake.extend(SpinDirection.COUNTERCLOCKWISE),
-            ballTransport.removeCargo(), intake.retract(SpinDirection.COUNTERCLOCKWISE)));
+            ballTransport.removeCargo(), intake.retract()));
 
+    SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
+    SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
     // Climber:
     copilotController.x()
         .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
@@ -91,5 +102,6 @@ public class Robot extends CommandRobot {
   public void setDefaultCommands() {
     drive.setDefaultCommand(
         drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY, driveController::getRightX));
+    ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
   }
 }
