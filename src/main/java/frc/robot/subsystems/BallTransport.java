@@ -28,6 +28,8 @@ public class BallTransport extends SmartSubsystemBase {
     // "random values that get bigger when it's closer"
     static final private int BALL_DETECTION_LIMIT = 1000;
 
+    private final Alliance allianceColor = DriverStation.getAlliance();
+
     private final double REMOVE_SPEED = 1.0;
     private final double TRANSPORT_SPEED = 1.0;
 
@@ -41,12 +43,8 @@ public class BallTransport extends SmartSubsystemBase {
         this.laserSwitch = map.getLaserSwitch();
     }
 
-    public boolean colorSensorBallLimit() {
+    private boolean colorSensorBallLimit() {
         return colorSensor.getProximity() < BALL_DETECTION_LIMIT;
-    }
-
-    public boolean getLaserSwitch() {
-        return laserSwitch.getAsBoolean();
     }
 
     private CommandBase noBall() {
@@ -55,6 +53,8 @@ public class BallTransport extends SmartSubsystemBase {
             topMotor.stopMotor();
         }).until(() -> {
             return colorSensorBallLimit();
+        }).onEnd(() -> {
+            colorBuffer.addFirst(colorSensor.getColor());
         });
     }
 
@@ -89,6 +89,7 @@ public class BallTransport extends SmartSubsystemBase {
             topMotor.set(TRANSPORT_SPEED);
             bottomMotor.set(TRANSPORT_SPEED);
         }).onEnd(() -> {
+            colorBuffer.clear();
             topMotor.stopMotor();
             bottomMotor.stopMotor();
         }).withTimeout(4);
@@ -100,7 +101,7 @@ public class BallTransport extends SmartSubsystemBase {
     private Command ballAtLaserAndColor = stopTransport();
 
     // command selector enum used for command selector
-    public enum CommandSelector {
+    private enum CommandSelector {
         WAITFORBALL,
         MOVEBALLTOLASER,
         WAITFORBALLNOLASER,
@@ -134,52 +135,54 @@ public class BallTransport extends SmartSubsystemBase {
         return new SelectCommand(selectCommandMap, this::commandSelector);
     }
 
-    // TODO Needs to be fixed
     // Unloads cargo that is opposite of the alliance color
     // Intake must be deployed backwards for this
-    /*
-     * public CommandBase removeCargo() {
-     * return cmd("Remove Cargo").onExecute(() -> {
-     * final Alliance allianceColor = DriverStation.getAlliance();
-     * switch (allianceColor) {
-     * case Red:
-     * if (colorBuffer.peekLast() == Color.kFirstBlue) {
-     * topMotor.set(REMOVE_SPEED);
-     * colorBuffer.removeLast();
-     * }
-     * if (colorBuffer.peekFirst() == Color.kFirstBlue) {
-     * bottomMotor.set(-REMOVE_SPEED);
-     * colorBuffer.removeFirst();
-     * }
-     * break;
-     * case Blue:
-     * if (colorBuffer.peekLast() == Color.kFirstRed) {
-     * topMotor.set(REMOVE_SPEED);
-     * colorBuffer.removeLast();
-     * }
-     * if (colorBuffer.peekFirst() == Color.kFirstRed) {
-     * bottomMotor.set(-REMOVE_SPEED);
-     * colorBuffer.removeFirst();
-     * }
-     * break;
-     * case Invalid:
-     * default:
-     * break;
-     * }
-     * }).until(() -> {
-     * return !colorSensorBallLimit() || !laserSwitch.getAsBoolean();
-     * }).onEnd(this::stop);
-     * }
-     */
+
+    public CommandBase removeCargo() {
+        return cmd("Remove Cargo").onExecute(() -> {
+            switch (allianceColor) {
+                default:
+                    if (colorBuffer.isEmpty()) {
+                        break;
+                    }
+                case Red:
+                    if (colorBuffer.peekLast() == Color.kFirstBlue) {
+                        topMotor.set(REMOVE_SPEED);
+                        colorBuffer.removeLast();
+                    }
+                    if (colorBuffer.peekFirst() == Color.kFirstBlue) {
+                        bottomMotor.set(REMOVE_SPEED);
+                        colorBuffer.removeFirst();
+                    }
+                    break;
+                case Blue:
+                    if (colorBuffer.peekLast() == Color.kFirstRed) {
+                        topMotor.set(REMOVE_SPEED);
+                        colorBuffer.removeLast();
+                    }
+                    if (colorBuffer.peekFirst() == Color.kFirstRed) {
+                        bottomMotor.set(REMOVE_SPEED);
+                        colorBuffer.removeFirst();
+                    }
+                    break;
+                case Invalid:
+                    break;
+            }
+        }).until(() -> {
+            return !colorSensorBallLimit() && !laserSwitch.getAsBoolean();
+        }).onEnd(() -> {
+            bottomMotor.stopMotor();
+            topMotor.stopMotor();
+        }).withTimeout(5);
+    }
+
     private void updateBuffer() {
-        /*
-         * final Color colorSensed = colorSensor.getColor();
-         * if (colorSensed != colorBuffer.peekFirst()) {
-         * if (colorSensed == Color.kFirstRed || colorSensed == Color.kFirstBlue) {
-         * colorBuffer.add(colorSensed);
-         * }
-         * }
-         */
+        final Color colorSensed = colorSensor.getColor();
+        if (colorSensed != colorBuffer.peekFirst()) {
+            if (colorSensed == Color.kFirstRed || colorSensed == Color.kFirstBlue) {
+                colorBuffer.add(colorSensed);
+            }
+        }
     }
 
     @Override
