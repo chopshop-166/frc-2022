@@ -43,7 +43,7 @@ public class Climber extends SmartSubsystemBase {
     rotateMotor = map.getRotateMotor();
 
     extendLimit = Modifier.unless(extendMotor::errored);
-    rotateLimit = Modifier.unless(extendMotor::errored);
+    rotateLimit = Modifier.unless(rotateMotor::errored);
   }
 
   // Move the motor based off a variable speed
