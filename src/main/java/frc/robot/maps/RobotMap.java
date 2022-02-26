@@ -126,8 +126,8 @@ public class RobotMap {
         private SmartMotorController shootMotor;
         private double velocityMultiplier;
 
-        public ShooterMap(SmartMotorController shootMotorController, double velocityMultiplier) {
-            shootMotor = shootMotorController;
+        public ShooterMap(SmartMotorController shootMotor, double velocityMultiplier) {
+            this.shootMotor = shootMotor;
             this.velocityMultiplier = velocityMultiplier;
         }
 
@@ -136,13 +136,16 @@ public class RobotMap {
         }
 
         public SmartMotorController getShooterMotor() {
-            return this.shootMotor;
+            return shootMotor;
         }
 
-        public double getVelocityMultiplier() {
-            return velocityMultiplier;
+        public double getVelocity() {
+            return shootMotor.getEncoder().getRate() * velocityMultiplier;
         }
+    }
 
+    public ShooterMap getShooterMap() {
+        return new ShooterMap();
     }
 
     public static class ClimberMap {
@@ -181,10 +184,6 @@ public class RobotMap {
 
     public ClimberMap getLeftClimberMap() {
         return new ClimberMap();
-    }
-
-    public ShooterMap getShooterMap() {
-        return new ShooterMap();
     }
 
     public ClimberMap getRightClimberMap() {

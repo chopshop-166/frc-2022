@@ -19,7 +19,7 @@ public class Shooter extends SmartSubsystemBase {
 
   private static final double MAX_RPM = 5300;
   private static final double RPM_BUFFER = 10;
-  private final double VEL_MUL;
+  private final double velocity;
   private double shootSpeed;
 
   public enum HubSpeed {
@@ -39,12 +39,11 @@ public class Shooter extends SmartSubsystemBase {
   public Shooter(ShooterMap shooterMap) {
     shooterMotor = shooterMap.getShooterMotor();
     shootEncoder = shooterMotor.getEncoder();
-    VEL_MUL = shooterMap.getVelocityMultiplier();
+    velocity = shooterMap.getVelocity();
   }
 
   @Override
   public void periodic() {
-    double velocity = shootEncoder.getRate() * VEL_MUL;
     SmartDashboard.putNumber("Speed (feet per second)", velocity);
   }
 
