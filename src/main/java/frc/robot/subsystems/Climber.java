@@ -4,8 +4,8 @@ import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
-import com.chopshop166.chopshoplib.motors.ModifierGroup;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
+import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -14,131 +14,77 @@ import frc.robot.maps.RobotMap.ClimberMap;
 public class Climber extends SmartSubsystemBase {
 
   // Constants:
-  private final double EXTEND_SPEED = 1.0;
-  private final double RETRACT_SPEED = -1.0;
 
-  private final SmartMotorController motor;
+  private final double ROTATE_SPEED = 0.2;
 
-  private final Modifier validatorLimit;
-  private final ModifierGroup switchLimit;
-  private final ModifierGroup limit;
+  private final SmartMotorController extendMotor;
+  private final SmartMotorController rotateMotor;
+
+  private final Modifier extendLimit;
+  private final Modifier rotateLimit;
+
+  public enum ExtendDirection {
+    EXTEND(0.2), RETRACT(-0.2);
+
+    private final double direction;
+
+    private ExtendDirection(double direction) {
+      this.direction = direction;
+    }
+
+    public double get() {
+      return direction;
+    }
+  }
 
   public Climber(ClimberMap map) {
-    Modifier upperLimit = Modifier.upperLimit(map.getUpperLimit());
-    Modifier lowerLimit = Modifier.lowerLimit(map.getLowerLimit());
-    motor = map.getMotor();
-    switchLimit = new ModifierGroup(upperLimit, lowerLimit);
-    validatorLimit = Modifier.unless(motor::errored);
-    limit = new ModifierGroup(upperLimit, lowerLimit, validatorLimit);
+
+    extendMotor = map.getExtendMotor();
+    rotateMotor = map.getRotateMotor();
+
+    extendLimit = Modifier.unless(extendMotor::errored);
+    rotateLimit = Modifier.unless(rotateMotor::errored);
   }
 
   // Move the motor based off a variable speed
-  public CommandBase move(DoubleSupplier speed) {
-    return cmd("Move").onExecute(() -> {
-      motor.set(limit.run(speed.getAsDouble()));
-      SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
-    }).onEnd((interrupted) -> {
-      motor.set(0.0);
+  public CommandBase extendSpeed(DoubleSupplier speed) {
+    return cmd("Extend Speed").onExecute(() -> {
+      extendMotor.set(extendLimit.applyAsDouble(speed.getAsDouble()));
+      SmartDashboard.putNumber("Climber Speed", extendMotor.get());
+    }).finishedWhen(extendMotor::errored).onEnd((interrupted) -> {
+      extendMotor.set(0.0);
     });
   }
 
-  // Move the motor based on a variable speed and stop when validator fails
-  public CommandBase moveCurrent(DoubleSupplier speed) {
-    return cmd("Move With Current Limit").onExecute(() -> {
-      motor.set(validatorLimit.applyAsDouble(speed.getAsDouble()));
-      SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
-    }).finishedWhen(motor::errored).onEnd((interrupted) -> {
-      motor.set(0.0);
+  public CommandBase rotateSpeed(DoubleSupplier speed) {
+    return cmd("Rotate Speed").onExecute(() -> {
+      rotateMotor.set(rotateLimit.applyAsDouble(speed.getAsDouble()));
+      SmartDashboard.putNumber("Rotate Speed", rotateMotor.get());
+    }).finishedWhen(rotateMotor::errored).onEnd((interrupted) -> {
+      rotateMotor.set(0.0);
     });
   }
 
-  // Move the motor with variable speed and stop when limit switches are hit
-  public CommandBase moveLimit(DoubleSupplier speed) {
-    return cmd("Move With Limits").onExecute(() -> {
-      motor.set(switchLimit.run(speed.getAsDouble()));
-      SmartDashboard.putNumber("Climber Speed", speed.getAsDouble());
-    }).onEnd((interrupted) -> {
-      motor.set(0.0);
+  public CommandBase rotate(SpinDirection direction) {
+    return cmd("Rotate").onExecute(() -> {
+      rotateMotor.set(rotateLimit.applyAsDouble(direction.get(ROTATE_SPEED)));
+    }).finishedWhen(rotateMotor::errored).onEnd((interrupted) -> {
+      rotateMotor.set(0.0);
     });
   }
 
-  public CommandBase extend() {
+  public CommandBase extend(ExtendDirection direction) {
     return cmd("Extend").onExecute(() -> {
-      motor.set(limit.run(EXTEND_SPEED));
-    }).onEnd((interrupted) -> {
-      motor.set(0.0);
-    });
-  }
-
-  // Extend the climber and use validators stop the motors
-  public CommandBase extendCurrent() {
-    return cmd("Extend With Current Limit").onExecute(() -> {
-      motor.set(validatorLimit.applyAsDouble(EXTEND_SPEED));
-    }).finishedWhen(motor::errored).onEnd((interrupted) -> {
-      motor.set(0.0);
-    });
-  }
-
-  // Extend the motor with limit switches
-  public CommandBase extendLimit() {
-    return cmd("Extend With Limits").onExecute(() -> {
-      motor.set(switchLimit.run(EXTEND_SPEED));
-    }).onEnd((interrupted) -> {
-      motor.set(0.0);
-    });
-  }
-
-  public CommandBase retract() {
-    return cmd("Retract").onExecute(() -> {
-      motor.set(limit.run(RETRACT_SPEED));
-    }).onEnd((interrupted) -> {
-      motor.set(0.0);
-    });
-  }
-
-  public CommandBase retractCurrent() {
-    return cmd("Retract With Current Limit").onExecute(() -> {
-      motor.set(validatorLimit.applyAsDouble(RETRACT_SPEED));
-    }).finishedWhen(motor::errored).onEnd((interrupted) -> {
-      motor.set(0.0);
-    });
-  }
-
-  // Retract the motor with limit switches
-  public CommandBase retractLimit() {
-    return cmd("Retract With Limits").onExecute(() -> {
-      motor.set(switchLimit.run(RETRACT_SPEED));
-    }).onEnd((interrupted) -> {
-      motor.set(0.0);
-    });
-  }
-
-  // Extend and ignore validation (only use if limits are not working)
-  public CommandBase extendIgnoreLimit() {
-    return startEnd("Extend Ignore Limit", () -> {
-      motor.set(EXTEND_SPEED);
-    }, () -> {
-      motor.set(0.0);
-    });
-  }
-
-  public CommandBase retractIgnoreLimit() {
-    return startEnd("Retract Ignore Limit", () -> {
-      motor.set(RETRACT_SPEED);
-    }, () -> {
-      motor.set(0.0);
-    });
-  }
-
-  public CommandBase stop() {
-    return instant("Stop", () -> {
-      motor.set(0.0);
+      extendMotor.set(extendLimit.applyAsDouble(direction.get()));
+    }).finishedWhen(extendMotor::errored).onEnd((interrupted) -> {
+      extendMotor.set(0.0);
     });
   }
 
   @Override
   public void safeState() {
-    motor.set(0.0);
+    extendMotor.set(0.0);
+    rotateMotor.set(0.0);
   }
 
   @Override
