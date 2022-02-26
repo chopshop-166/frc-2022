@@ -25,6 +25,7 @@ public class BallTransport extends SmartSubsystemBase {
     private final IColorSensor colorSensor;
     private final BooleanSupplier laserSwitch;
 
+    // "random values that get bigger when it's closer"
     static final private int BALL_DETECTION_LIMIT = 1000;
 
     private final double REMOVE_SPEED = 1.0;
@@ -46,28 +47,6 @@ public class BallTransport extends SmartSubsystemBase {
 
     public boolean getLaserSwitch() {
         return laserSwitch.getAsBoolean();
-    }
-
-    // command selector enum used for command selector
-    public enum CommandSelector {
-        WAITFORBALL,
-        MOVEBALLTOLASER,
-        WAITFORBALLNOLASER,
-        INTAKEFILLED
-    }
-
-    // returns a value of command selector enum based on sensor input.
-
-    private CommandSelector commandSelector() {
-        if (colorSensorBallLimit() && laserSwitch.getAsBoolean()) {
-            return CommandSelector.WAITFORBALL;
-        } else if (colorSensorBallLimit()) {
-            return CommandSelector.MOVEBALLTOLASER;
-        } else if (laserSwitch.getAsBoolean()) {
-            return CommandSelector.WAITFORBALLNOLASER;
-        } else {
-            return CommandSelector.INTAKEFILLED;
-        }
     }
 
     private CommandBase noBall() {
@@ -119,6 +98,28 @@ public class BallTransport extends SmartSubsystemBase {
     private Command ballAtColor = ballAtColor();
     private Command ballAtLaser = ballAtLaser();
     private Command ballAtLaserAndColor = stopTransport();
+
+    // command selector enum used for command selector
+    public enum CommandSelector {
+        WAITFORBALL,
+        MOVEBALLTOLASER,
+        WAITFORBALLNOLASER,
+        INTAKEFILLED
+    }
+
+    // returns a value of command selector enum based on sensor input.
+
+    private CommandSelector commandSelector() {
+        if (colorSensorBallLimit() && laserSwitch.getAsBoolean()) {
+            return CommandSelector.WAITFORBALL;
+        } else if (colorSensorBallLimit()) {
+            return CommandSelector.MOVEBALLTOLASER;
+        } else if (laserSwitch.getAsBoolean()) {
+            return CommandSelector.WAITFORBALLNOLASER;
+        } else {
+            return CommandSelector.INTAKEFILLED;
+        }
+    }
 
     // Creates a map of entries for the command selector to use.
     private final Map<Object, Command> selectCommandMap = Map.ofEntries(
