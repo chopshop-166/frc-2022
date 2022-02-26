@@ -8,7 +8,6 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IEncoder;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.ShooterMap;
 
@@ -19,16 +18,15 @@ public class Shooter extends SmartSubsystemBase {
 
   private static final double MAX_RPM = 5300;
   private static final double RPM_BUFFER = 10;
-  private final double velocity;
   private double shootSpeed;
 
   public enum HubSpeed {
-    OFF(0.0), LOW(0.2), HIGH(0.5);
+    OFF(0), LOW(1000), HIGH(2650);
 
     private double speed;
 
     private HubSpeed(double speed) {
-      this.speed = speed * Shooter.getMaxRpm();
+      this.speed = speed;
     }
 
     public double getSpeed() {
@@ -39,17 +37,6 @@ public class Shooter extends SmartSubsystemBase {
   public Shooter(ShooterMap shooterMap) {
     shooterMotor = shooterMap.getShooterMotor();
     shootEncoder = shooterMotor.getEncoder();
-    velocity = shooterMap.getVelocity();
-  }
-
-  @Override
-  public void periodic() {
-    SmartDashboard.putNumber("Speed (feet per second)", velocity);
-  }
-
-  @Override
-  public void safeState() {
-    shooterMotor.set(0.0);
   }
 
   public CommandBase setTargetHub(HubSpeed hub) {
@@ -75,7 +62,12 @@ public class Shooter extends SmartSubsystemBase {
     });
   }
 
-  public static double getMaxRpm() {
-    return MAX_RPM;
+  @Override
+  public void periodic() {
+  }
+
+  @Override
+  public void safeState() {
+    shooterMotor.stopMotor();
   }
 }

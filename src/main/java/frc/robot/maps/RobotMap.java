@@ -124,23 +124,17 @@ public class RobotMap {
 
     public class ShooterMap {
         private SmartMotorController shootMotor;
-        private double velocityMultiplier;
 
-        public ShooterMap(SmartMotorController shootMotor, double velocityMultiplier) {
+        public ShooterMap(SmartMotorController shootMotor) {
             this.shootMotor = shootMotor;
-            this.velocityMultiplier = velocityMultiplier;
         }
 
         public ShooterMap() {
-            this(new SmartMotorController(), 1.0);
+            this(new SmartMotorController());
         }
 
         public SmartMotorController getShooterMotor() {
             return shootMotor;
-        }
-
-        public double getVelocity() {
-            return shootMotor.getEncoder().getRate() * velocityMultiplier;
         }
     }
 
