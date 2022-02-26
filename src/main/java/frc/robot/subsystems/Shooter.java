@@ -21,7 +21,7 @@ public class Shooter extends SmartSubsystemBase {
   private double shootSpeed;
 
   public enum HubSpeed {
-    OFF(0), LOW(1000), HIGH(2650);
+    LOW(1000), HIGH(2650);
 
     private double speed;
 
@@ -44,6 +44,10 @@ public class Shooter extends SmartSubsystemBase {
       shooterMotor.setSetpoint(hub.getSpeed());
       shootSpeed = hub.getSpeed();
     });
+  }
+
+  public CommandBase stopShooter() {
+    return instant("Stop Shooter", this::safeState);
   }
 
   // Speed doesn't need to be set here, since it is already set in
