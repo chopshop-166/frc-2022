@@ -4,7 +4,9 @@ import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
+import com.chopshop166.chopshoplib.sensors.IEncoder;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
+import com.chopshop166.chopshoplib.sensors.WEncoder;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -12,7 +14,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 @RobotMapFor("00:80:2F:17:62:25")
@@ -72,16 +73,16 @@ public class GastonMap extends RobotMap {
 
     @Override
     public ShooterMap getShooterMap() {
+        // Determine encoder pins
+        final IEncoder encoder = new WEncoder(0, 1);
         final PIDSparkMax motor = new PIDSparkMax(15, MotorType.kBrushless);
         final PIDSparkMax follower = new PIDSparkMax(16, MotorType.kBrushless);
-        // Determine encoder pins
-        final Encoder encoder = new Encoder(0, 1);
 
         motor.setControlType(PIDControlType.Velocity);
         follower.setControlType(PIDControlType.Velocity);
-        follower.getMotorController().follow(follower.getMotorController(), true);
+        follower.getMotorController().follow(motor.getMotorController(), true);
 
-        return new ShooterMap(motor);
+        return new ShooterMap(motor, encoder);
     }
 
     @Override

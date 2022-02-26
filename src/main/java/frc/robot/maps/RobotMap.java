@@ -4,6 +4,8 @@ import com.chopshop166.chopshoplib.drive.MockSwerveModule;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
+import com.chopshop166.chopshoplib.sensors.IEncoder;
+import com.chopshop166.chopshoplib.sensors.MockEncoder;
 import com.chopshop166.chopshoplib.sensors.MockGyro;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -121,17 +123,23 @@ public class RobotMap {
 
     public class ShooterMap {
         private SmartMotorController motor;
+        private IEncoder encoder;
 
-        public ShooterMap(SmartMotorController motor) {
+        public ShooterMap(SmartMotorController motor, IEncoder encoder) {
             this.motor = motor;
+            this.encoder = encoder;
         }
 
         public ShooterMap() {
-            this(new SmartMotorController());
+            this(new SmartMotorController(), new MockEncoder());
         }
 
         public SmartMotorController getMotor() {
             return motor;
+        }
+
+        public IEncoder getEncoder() {
+            return encoder;
         }
 
     }

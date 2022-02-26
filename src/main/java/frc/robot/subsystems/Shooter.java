@@ -36,7 +36,7 @@ public class Shooter extends SmartSubsystemBase {
 
   public Shooter(ShooterMap map) {
     motor = map.getMotor();
-    encoder = motor.getEncoder();
+    encoder = map.getEncoder();
   }
 
   public CommandBase setTargetHub(HubSpeed hub) {
