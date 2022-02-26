@@ -78,7 +78,9 @@ public class GastonMap extends RobotMap {
 
         shooterMotor1.setControlType(PIDControlType.Velocity);
         shooterMotor2.setControlType(PIDControlType.Velocity);
-        return new ShooterMap(new SmartMotorController(shooterMotor1, shooterMotor2));
+        shooterMotor2.getMotorController().follow(shooterMotor1.getMotorController(), true);
+
+        return new ShooterMap(shooterMotor1);
     }
 
     @Override
