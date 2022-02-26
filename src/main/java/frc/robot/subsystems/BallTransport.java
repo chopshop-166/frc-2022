@@ -71,7 +71,7 @@ public class BallTransport extends SmartSubsystemBase {
     }
 
     private CommandBase noBall() {
-        return cmd("Wait for ball in color sensor").onExecute(() -> {
+        return cmd("Wait for Ball").onExecute(() -> {
             bottomMotor.set(TRANSPORT_SPEED);
             topMotor.stopMotor();
         }).until(() -> {
@@ -90,7 +90,7 @@ public class BallTransport extends SmartSubsystemBase {
     }
 
     private CommandBase ballAtLaser() {
-        return cmd("Stop ball at laser sensor").onExecute(() -> {
+        return cmd("Keep ball on laser switch").onExecute(() -> {
             bottomMotor.set(TRANSPORT_SPEED);
             topMotor.stopMotor();
         }).until(() -> {
@@ -98,8 +98,8 @@ public class BallTransport extends SmartSubsystemBase {
         });
     }
 
-    private CommandBase ballAtLaserAndColor() {
-        return instant("Wait for ball removal from ball transport", () -> {
+    public CommandBase stopTransport() {
+        return instant("Stop Ball Transport", () -> {
             bottomMotor.stopMotor();
             topMotor.stopMotor();
         });
@@ -118,7 +118,7 @@ public class BallTransport extends SmartSubsystemBase {
     private Command noBall = noBall();
     private Command ballAtColor = ballAtColor();
     private Command ballAtLaser = ballAtLaser();
-    private Command ballAtLaserAndColor = ballAtLaserAndColor();
+    private Command ballAtLaserAndColor = stopTransport();
 
     // Creates a map of entries for the command selector to use.
     private final Map<Object, Command> selectCommandMap = Map.ofEntries(
@@ -126,21 +126,6 @@ public class BallTransport extends SmartSubsystemBase {
             Map.entry(CommandSelector.COLORONELASERONE, ballAtLaserAndColor),
             Map.entry(CommandSelector.COLORONELASERZERO, ballAtColor),
             Map.entry(CommandSelector.COLORZEROLASERONE, ballAtLaser));
-
-    // command for loading cargo from color sensor to laser sensor while the intake
-    // is retracted.
-    public CommandBase loadCargoNoIntake() {
-        return cmd("Load Cargo Without Intake").onExecute(() -> {
-            if (colorSensorBallLimit() && !laserSwitch.getAsBoolean()) {
-                ballAtColor();
-            } else {
-                topMotor.stopMotor();
-                bottomMotor.stopMotor();
-            }
-        }).until(() -> {
-            return laserSwitch.getAsBoolean();
-        });
-    }
 
     // select command that determines what command needs to be run based on the
     // command selector.

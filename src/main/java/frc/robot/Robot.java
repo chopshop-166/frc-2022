@@ -44,7 +44,7 @@ public class Robot extends CommandRobot {
     copilotController.a().whileHeld(parallel("Intake extended w/ Ball Transport",
         intake.extend(SpinDirection.COUNTERCLOCKWISE), ballTransport.loadCargoWithIntake()));
     copilotController.b().whileHeld(parallel("Intake retracted w/ Ball Transport",
-        intake.retract(SpinDirection.COUNTERCLOCKWISE), ballTransport.loadCargoNoIntake()));
+        intake.retract(SpinDirection.COUNTERCLOCKWISE), ballTransport.stopTransport()));
 
     // Move with variable speed from triggers
     driveController.x().whileHeld(parallel("Move", leftClimber.move(trigger), rightClimber.move(trigger)));
