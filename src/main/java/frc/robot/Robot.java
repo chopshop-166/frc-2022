@@ -47,7 +47,6 @@ public class Robot extends CommandRobot {
     // Intake:
     // On button press: extend intake and start roller
     // On button release: retract intake and stop roller
-    driveController.b().whileHeld(intake.rollIntake(SpinDirection.COUNTERCLOCKWISE));
 
     // Soon to be shooter command
     driveController.x().whenPressed(ballTransport.loadShooter());
@@ -63,6 +62,8 @@ public class Robot extends CommandRobot {
 
     SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
     SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
+    SmartDashboard.putData("Only Roll Intake Forwards", intake.rollIntake(SpinDirection.COUNTERCLOCKWISE));
+
     // Climber:
     copilotController.x()
         .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
