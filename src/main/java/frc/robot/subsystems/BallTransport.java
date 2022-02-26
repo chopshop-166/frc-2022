@@ -89,6 +89,7 @@ public class BallTransport extends SmartSubsystemBase {
             topMotor.set(TRANSPORT_SPEED);
             bottomMotor.set(TRANSPORT_SPEED);
         }).onEnd(() -> {
+            // this assumes both balls have been shot
             colorBuffer.clear();
             topMotor.stopMotor();
             bottomMotor.stopMotor();
@@ -138,7 +139,7 @@ public class BallTransport extends SmartSubsystemBase {
     // Unloads cargo that is opposite of the alliance color
     // Intake must be deployed backwards for this
     public CommandBase removeCargo() {
-        return cmd("Remove Cargo").onExecute(() -> {
+        return cmd("Remove \"Wrong Colored\" Cargo").onExecute(() -> {
             switch (allianceColor) {
                 default:
                     if (colorBuffer.isEmpty()) {
@@ -146,6 +147,8 @@ public class BallTransport extends SmartSubsystemBase {
                         break;
                     } else if (colorBuffer.size() == 1) {
                         // this accounts for if there's only one ball in the color buffer
+                        // in this case the intake doesn't need to be deployed because it can just go
+                        // out shooter end
                         topMotor.set(REMOVE_SPEED);
                         bottomMotor.set(REMOVE_SPEED);
                         colorBuffer.clear();
