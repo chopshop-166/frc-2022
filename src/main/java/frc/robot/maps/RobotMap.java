@@ -99,24 +99,17 @@ public class RobotMap {
     public static class IntakeMap {
         private final SmartMotorController deploymentMotor;
         private final SmartMotorController rollerMotor;
-        private final BooleanSupplier insideLimit;
-        private final BooleanSupplier outsideLimit;
 
         public IntakeMap() {
-            this(new SmartMotorController(), new SmartMotorController(), new MockDigitalInput(),
-                    new MockDigitalInput());
+            this(new SmartMotorController(), new SmartMotorController());
         }
 
-        public IntakeMap(final SmartMotorController deploymentMotor, final SmartMotorController rollerMotor,
-                final BooleanSupplier outsideLimit, final BooleanSupplier insideLimit) {
+        public IntakeMap(final SmartMotorController deploymentMotor, final SmartMotorController rollerMotor) {
 
             this.rollerMotor = rollerMotor;
 
             this.deploymentMotor = deploymentMotor;
 
-            this.outsideLimit = outsideLimit;
-
-            this.insideLimit = insideLimit;
         }
 
         public SmartMotorController getRoller() {
@@ -127,13 +120,6 @@ public class RobotMap {
             return deploymentMotor;
         }
 
-        public BooleanSupplier getInsideLimit() {
-            return insideLimit;
-        }
-
-        public BooleanSupplier getOutsideLimit() {
-            return outsideLimit;
-        }
     }
 
     public class ShooterMap {

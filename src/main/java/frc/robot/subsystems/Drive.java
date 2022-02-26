@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.SwerveDriveMap;
 
@@ -52,7 +53,9 @@ public class Drive extends SmartSubsystemBase {
     final double translateXSpeed = deadband.applyAsDouble(translateX.getAsDouble()) * maxDriveSpeedMetersPerSecond;
     final double translateYSpeed = deadband.applyAsDouble(translateY.getAsDouble()) * maxDriveSpeedMetersPerSecond;
     final double rotationSpeed = deadband.applyAsDouble(rotation.getAsDouble()) * maxRotationRadiansPerSecond;
-
+    SmartDashboard.putNumber("Translate Y", translateYSpeed);
+    SmartDashboard.putNumber("Translate X", translateXSpeed);
+    SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
     final ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(translateYSpeed, translateXSpeed,
         rotationSpeed, Rotation2d.fromDegrees(-gyro.getAngle()));
 
