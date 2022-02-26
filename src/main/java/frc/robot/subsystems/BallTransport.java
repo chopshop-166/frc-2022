@@ -108,10 +108,11 @@ public class BallTransport extends SmartSubsystemBase {
     public CommandBase loadShooter() {
         return cmd("Load Shooter").onExecute(() -> {
             topMotor.set(TRANSPORT_SPEED);
-            topMotor.set(TRANSPORT_SPEED);
-        }).until(() -> {
-            return !laserSwitch.getAsBoolean() && !colorSensorBallLimit();
-        });
+            bottomMotor.set(TRANSPORT_SPEED);
+        }).onEnd(() -> {
+            topMotor.stopMotor();
+            bottomMotor.stopMotor();
+        }).withTimeout(4);
     }
 
     private Command noBall = noBall();
