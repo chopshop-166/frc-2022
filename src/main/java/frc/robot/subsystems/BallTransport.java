@@ -142,6 +142,13 @@ public class BallTransport extends SmartSubsystemBase {
             switch (allianceColor) {
                 default:
                     if (colorBuffer.isEmpty()) {
+                        // this accounts for if the color buffer is empty
+                        break;
+                    } else if (colorBuffer.size() == 1) {
+                        // this accounts for if there's only one ball in the color buffer
+                        topMotor.set(REMOVE_SPEED);
+                        bottomMotor.set(REMOVE_SPEED);
+                        colorBuffer.clear();
                         break;
                     }
                 case Red:
