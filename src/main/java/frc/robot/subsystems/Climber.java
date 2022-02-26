@@ -49,9 +49,8 @@ public class Climber extends SmartSubsystemBase {
   // Move the motor based off a variable speed
   public CommandBase extendSpeed(DoubleSupplier speed) {
     return cmd("Extend Speed").onExecute(() -> {
-      double nSpeed = speed.getAsDouble();
-      extendMotor.set(extendLimit.applyAsDouble(nSpeed));
-      SmartDashboard.putNumber("Climber Speed", nSpeed);
+      extendMotor.set(extendLimit.applyAsDouble(speed.getAsDouble()));
+      SmartDashboard.putNumber("Climber Speed", extendMotor.get());
     }).finishedWhen(extendMotor::errored).onEnd((interrupted) -> {
       extendMotor.set(0.0);
     });
@@ -59,9 +58,8 @@ public class Climber extends SmartSubsystemBase {
 
   public CommandBase rotateSpeed(DoubleSupplier speed) {
     return cmd("Rotate Speed").onExecute(() -> {
-      double nSpeed = speed.getAsDouble();
-      rotateMotor.set(rotateLimit.applyAsDouble(nSpeed));
-      SmartDashboard.putNumber("Rotate Speed", nSpeed);
+      rotateMotor.set(rotateLimit.applyAsDouble(speed.getAsDouble()));
+      SmartDashboard.putNumber("Rotate Speed", rotateMotor.get());
     }).finishedWhen(rotateMotor::errored).onEnd((interrupted) -> {
       rotateMotor.set(0.0);
     });
