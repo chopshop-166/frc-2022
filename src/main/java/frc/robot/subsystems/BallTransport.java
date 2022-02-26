@@ -23,12 +23,11 @@ public class BallTransport extends SmartSubsystemBase {
     private final BooleanSupplier laserSwitch;
 
     // "random values that get bigger when it's closer"
-    static final private int BALL_DETECTION_LIMIT = 1000;
+    static private final int BALL_DETECTION_LIMIT = 1000;
+    static private final double REMOVE_SPEED = -0.25;
+    static private final double TRANSPORT_SPEED = 0.25;
 
     private final Alliance allianceColor = DriverStation.getAlliance();
-
-    private final double REMOVE_SPEED = 1.0;
-    private final double TRANSPORT_SPEED = 1.0;
 
     // creates a color sample buffer.
     private SampleBuffer<Color> colorBuffer = new SampleBuffer<>(2);
@@ -91,12 +90,7 @@ public class BallTransport extends SmartSubsystemBase {
         });
     }
 
-    private Command moveLowerToColor = moveLowerToColor();
-    private Command moveBothToLaser = moveBothToLaser();
-    private Command stopTransport = stopTransport();
-
     // returns a value of command selector enum based on sensor input.
-
     private CommandSelector commandSelector() {
         if (colorSensorBallLimit() && laserSwitch.getAsBoolean()) {
             return CommandSelector.STOP;
@@ -109,9 +103,9 @@ public class BallTransport extends SmartSubsystemBase {
 
     // Creates a map of entries for the command selector to use.
     private final Map<Object, Command> selectCommandMap = Map.ofEntries(
-            Map.entry(CommandSelector.LOWER_TO_COLOR, moveLowerToColor),
-            Map.entry(CommandSelector.STOP, stopTransport),
-            Map.entry(CommandSelector.MOVE_BOTH_TO_LASER, moveBothToLaser));
+            Map.entry(CommandSelector.LOWER_TO_COLOR, moveLowerToColor()),
+            Map.entry(CommandSelector.STOP, stopTransport()),
+            Map.entry(CommandSelector.MOVE_BOTH_TO_LASER, moveBothToLaser()));
 
     // select command that determines what command needs to be run based on the
     // command selector.
@@ -173,13 +167,13 @@ public class BallTransport extends SmartSubsystemBase {
                 default:
                     break;
             }
-        }).onEnd(this::stop).withTimeout(4);
+        }).onEnd(this::stop);
     }
 
     private String colorBufferConvertor(Color color) {
-        if (color == color.kFirstRed) {
+        if (color == Color.kFirstRed) {
             return "Red";
-        } else if (color == color.kFirstBlue) {
+        } else if (color == Color.kFirstBlue) {
             return "Blue";
         } else {
             return "None";

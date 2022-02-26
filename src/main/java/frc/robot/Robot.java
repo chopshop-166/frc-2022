@@ -45,9 +45,11 @@ public class Robot extends CommandRobot {
     // Intake:
     // On button press: extend intake and start roller
     // On button release: retract intake and stop roller
-    driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE)).whileHeld(ballTransport.loadCargoWithIntake()).whenReleased(parallel("Intake retracted w/ Ball Transport",
-        intake.retract(SpinDirection.COUNTERCLOCKWISE), ballTransport.stopTransport()));
-    driveController.y().whenPressed(sequence("Remove Wrong Colored Balls", intake.extend(SpinDirection.COUNTERCLOCKWISE),
+    driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
+        .whileHeld(ballTransport.loadCargoWithIntake()).whenReleased(parallel("Intake retracted w/ Ball Transport",
+            intake.retract(SpinDirection.COUNTERCLOCKWISE), ballTransport.stopTransport()));
+    driveController.y()
+        .whenPressed(sequence("Remove Wrong Colored Balls", intake.extend(SpinDirection.COUNTERCLOCKWISE),
             ballTransport.removeCargo(), intake.retract(SpinDirection.COUNTERCLOCKWISE)));
 
     // Climber:
@@ -89,6 +91,5 @@ public class Robot extends CommandRobot {
   public void setDefaultCommands() {
     drive.setDefaultCommand(
         drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY, driveController::getRightX));
-
   }
 }
