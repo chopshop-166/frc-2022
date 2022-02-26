@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 @RobotMapFor("00:80:2F:17:62:25")
@@ -71,14 +72,16 @@ public class GastonMap extends RobotMap {
 
     @Override
     public ShooterMap getShooterMap() {
-        final PIDSparkMax shooterMotor1 = new PIDSparkMax(15, MotorType.kBrushless);
-        final PIDSparkMax shooterMotor2 = new PIDSparkMax(16, MotorType.kBrushless);
+        final PIDSparkMax motor = new PIDSparkMax(15, MotorType.kBrushless);
+        final PIDSparkMax follower = new PIDSparkMax(16, MotorType.kBrushless);
+        // Determine encoder pins
+        final Encoder encoder = new Encoder(0, 1);
 
-        shooterMotor1.setControlType(PIDControlType.Velocity);
-        shooterMotor2.setControlType(PIDControlType.Velocity);
-        shooterMotor2.getMotorController().follow(shooterMotor1.getMotorController(), true);
+        motor.setControlType(PIDControlType.Velocity);
+        follower.setControlType(PIDControlType.Velocity);
+        follower.getMotorController().follow(follower.getMotorController(), true);
 
-        return new ShooterMap(shooterMotor1);
+        return new ShooterMap(motor);
     }
 
     @Override

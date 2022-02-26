@@ -13,8 +13,8 @@ import frc.robot.maps.RobotMap.ShooterMap;
 
 public class Shooter extends SmartSubsystemBase {
 
-  private final SmartMotorController shooterMotor;
-  private final IEncoder shootEncoder;
+  private final SmartMotorController motor;
+  private final IEncoder encoder;
 
   private static final double MAX_RPM = 5300;
   private static final double RPM_BUFFER = 10;
@@ -34,14 +34,14 @@ public class Shooter extends SmartSubsystemBase {
     }
   }
 
-  public Shooter(ShooterMap shooterMap) {
-    shooterMotor = shooterMap.getShooterMotor();
-    shootEncoder = shooterMotor.getEncoder();
+  public Shooter(ShooterMap map) {
+    motor = map.getMotor();
+    encoder = motor.getEncoder();
   }
 
   public CommandBase setTargetHub(HubSpeed hub) {
     return instant("Set Default Speed", () -> {
-      shooterMotor.setSetpoint(hub.getSpeed());
+      motor.setSetpoint(hub.getSpeed());
       shootSpeed = hub.getSpeed();
     });
   }
@@ -53,16 +53,16 @@ public class Shooter extends SmartSubsystemBase {
   // Speed doesn't need to be set here, since it is already set in
   // setTargetHub/setSpeed
   public CommandBase waitUntilSpeedUp() {
-    BooleanSupplier check = () -> Math.abs(shootEncoder.getRate())
+    BooleanSupplier check = () -> Math.abs(encoder.getRate())
         - Math.min(MAX_RPM, shootSpeed) < RPM_BUFFER;
     PersistenceCheck p = new PersistenceCheck(5, check);
-    return cmd("Wait Until Speed Up").finishedWhen(p);
+    return cmd("Wait Until Speed Up").until(p);
   }
 
   public CommandBase setSpeed(DoubleSupplier speed) {
     return instant("Set Speed", () -> {
       double speeds = speed.getAsDouble();
-      shooterMotor.setSetpoint(speeds * speeds * MAX_RPM);
+      motor.setSetpoint(speeds * speeds * MAX_RPM);
     });
   }
 
@@ -72,6 +72,6 @@ public class Shooter extends SmartSubsystemBase {
 
   @Override
   public void safeState() {
-    shooterMotor.stopMotor();
+    motor.stopMotor();
   }
 }

@@ -120,19 +120,20 @@ public class RobotMap {
     }
 
     public class ShooterMap {
-        private SmartMotorController shootMotor;
+        private SmartMotorController motor;
 
-        public ShooterMap(SmartMotorController shootMotor) {
-            this.shootMotor = shootMotor;
+        public ShooterMap(SmartMotorController motor) {
+            this.motor = motor;
         }
 
         public ShooterMap() {
             this(new SmartMotorController());
         }
 
-        public SmartMotorController getShooterMotor() {
-            return shootMotor;
+        public SmartMotorController getMotor() {
+            return motor;
         }
+
     }
 
     public ShooterMap getShooterMap() {
