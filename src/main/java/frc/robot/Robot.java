@@ -53,20 +53,20 @@ public class Robot extends CommandRobot {
 
     driveController.a().whenPressed(intake.extend())
         .whileHeld(
-            sequence("Start Intake and Transporter", intake.startIntake(SpinDirection.COUNTERCLOCKWISE),
+            sequence("Start Intake and Transporter", intake.startRoller(SpinDirection.COUNTERCLOCKWISE),
                 ballTransport.loadCargoWithIntake()))
         .whenReleased(sequence("Ball transport end", race("Finish Transport", new WaitCommand(2), ballTransport
             .loadCargoWithIntake()),
             parallel("Intake retracted w/ Ball Transport", ballTransport.stopTransport(), intake.retract())));
     driveController.y()
         .whenPressed(
-            sequence("Remove Wrong Colored Balls", intake.extend(), intake.startIntake(SpinDirection.CLOCKWISE),
+            sequence("Remove Wrong Colored Balls", intake.extend(), intake.startRoller(SpinDirection.CLOCKWISE),
                 ballTransport.removeCargo(), intake.retract()));
 
     SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
     SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
-    SmartDashboard.putData("Only Roll Intake Forwards", intake.startIntake(SpinDirection.COUNTERCLOCKWISE));
-    SmartDashboard.putData("Stop Intake", intake.stopIntake());
+    SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
+    SmartDashboard.putData("Stop Intake", intake.stopRoller());
 
     // Climber:
     copilotController.x()
