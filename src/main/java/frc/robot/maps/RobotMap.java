@@ -1,7 +1,5 @@
 package frc.robot.maps;
 
-import java.util.function.BooleanSupplier;
-
 import com.chopshop166.chopshoplib.drive.MockSwerveModule;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
@@ -150,24 +148,17 @@ public class RobotMap {
     public static class IntakeMap {
         private final SmartMotorController deploymentMotor;
         private final SmartMotorController rollerMotor;
-        private final BooleanSupplier insideLimit;
-        private final BooleanSupplier outsideLimit;
 
         public IntakeMap() {
-            this(new SmartMotorController(), new SmartMotorController(), new MockDigitalInput(),
-                    new MockDigitalInput());
+            this(new SmartMotorController(), new SmartMotorController());
         }
 
-        public IntakeMap(final SmartMotorController deploymentMotor, final SmartMotorController rollerMotor,
-                final BooleanSupplier outsideLimit, final BooleanSupplier insideLimit) {
+        public IntakeMap(final SmartMotorController deploymentMotor, final SmartMotorController rollerMotor) {
 
             this.rollerMotor = rollerMotor;
 
             this.deploymentMotor = deploymentMotor;
 
-            this.outsideLimit = outsideLimit;
-
-            this.insideLimit = insideLimit;
         }
 
         public SmartMotorController getRoller() {
@@ -178,13 +169,6 @@ public class RobotMap {
             return deploymentMotor;
         }
 
-        public BooleanSupplier getInsideLimit() {
-            return insideLimit;
-        }
-
-        public BooleanSupplier getOutsideLimit() {
-            return outsideLimit;
-        }
     }
 
     public IntakeMap getIntakeMap() {
@@ -192,31 +176,25 @@ public class RobotMap {
     }
 
     public static class ClimberMap {
-        private final SmartMotorController motor;
-        private final BooleanSupplier upperLimit;
-        private final BooleanSupplier lowerLimit;
 
-        public ClimberMap(SmartMotorController motor, BooleanSupplier upperLimit, BooleanSupplier lowerLimit) {
-            this.motor = motor;
-            this.upperLimit = upperLimit;
-            this.lowerLimit = lowerLimit;
+        private final SmartMotorController extendMotor;
+        private final SmartMotorController rotateMotor;
 
+        public ClimberMap(SmartMotorController extendMotor, SmartMotorController rotateMotor) {
+            this.extendMotor = extendMotor;
+            this.rotateMotor = rotateMotor;
         }
 
         public ClimberMap() {
-            this(new SmartMotorController(), new MockDigitalInput(), new MockDigitalInput());
+            this(new SmartMotorController(), new SmartMotorController());
         }
 
-        public SmartMotorController getMotor() {
-            return motor;
+        public SmartMotorController getExtendMotor() {
+            return extendMotor;
         }
 
-        public BooleanSupplier getUpperLimit() {
-            return upperLimit;
-        }
-
-        public BooleanSupplier getLowerLimit() {
-            return lowerLimit;
+        public SmartMotorController getRotateMotor() {
+            return rotateMotor;
         }
 
     }
