@@ -70,20 +70,12 @@ public class BallTransport extends SmartSubsystemBase {
         }
     }
 
-    /*
-     * this is supposed to be a loop once it starts
-     * reason for this is because when the intake is down we want it to keep cycling
-     * new balls as they exit the system
-     * and this seems like the most logical way of doing it
-     */
     private BuildCommand noBall() {
         return new BuildCommand("Wait for ball in color sensor").onExecute(() -> {
             bottomMotor.set(TRANSPORT_SPEED);
             topMotor.stopMotor();
         }).until(() -> {
             return colorSensorBallLimit();
-        }).onEnd(() -> {
-            ballAtColor();
         });
     }
 
@@ -93,8 +85,6 @@ public class BallTransport extends SmartSubsystemBase {
             topMotor.set(TRANSPORT_SPEED);
         }).until(() -> {
             return laserSwitch.getAsBoolean();
-        }).onEnd(() -> {
-            ballAtLaser();
         });
 
     }
@@ -105,15 +95,6 @@ public class BallTransport extends SmartSubsystemBase {
             topMotor.stopMotor();
         }).until(() -> {
             return colorSensorBallLimit();
-        }).onEnd((shooterWantsBall) -> {
-            if (shooterWantsBall) {
-                loadShooter();
-            } else {
-                ballAtLaserAndColor();
-            }
-        }).withInterrupt(() -> {
-            // Maybe have shooter boolean supplier?
-            return false;
         });
     }
 
@@ -123,8 +104,6 @@ public class BallTransport extends SmartSubsystemBase {
             topMotor.stopMotor();
         }).until(() -> {
             return !laserSwitch.getAsBoolean();
-        }).onEnd(() -> {
-            ballAtColor();
         });
     }
 
@@ -134,8 +113,6 @@ public class BallTransport extends SmartSubsystemBase {
             topMotor.set(TRANSPORT_SPEED);
         }).until(() -> {
             return !laserSwitch.getAsBoolean() && !colorSensorBallLimit();
-        }).onEnd(() -> {
-            loadCargoNoIntake();
         });
     }
 
@@ -210,12 +187,14 @@ public class BallTransport extends SmartSubsystemBase {
      * }
      */
     private void updateBuffer() {
-        final Color colorSensed = colorSensor.getColor();
-        if (colorSensed != colorBuffer.peekFirst()) {
-            if (colorSensed == Color.kFirstRed || colorSensed == Color.kFirstBlue) {
-                colorBuffer.add(colorSensed);
-            }
-        }
+        /*
+         * final Color colorSensed = colorSensor.getColor();
+         * if (colorSensed != colorBuffer.peekFirst()) {
+         * if (colorSensed == Color.kFirstRed || colorSensed == Color.kFirstBlue) {
+         * colorBuffer.add(colorSensed);
+         * }
+         * }
+         */
     }
 
     @Override
