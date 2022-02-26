@@ -174,8 +174,6 @@ public class BallTransport extends SmartSubsystemBase {
                 case Invalid:
                     break;
             }
-        }).until(() -> {
-            return !colorSensorBallLimit() && !laserSwitch.getAsBoolean();
         }).onEnd(() -> {
             bottomMotor.stopMotor();
             topMotor.stopMotor();
