@@ -7,7 +7,10 @@ import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap;
+import frc.robot.subsystems.BallTransport;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Climber.ExtendDirection;
 import frc.robot.subsystems.Drive;
@@ -23,6 +26,8 @@ public class Robot extends CommandRobot {
   private final Drive drive = new Drive(map.getSwerveDriveMap());
 
   private final Intake intake = new Intake(map.getIntakeMap());
+
+  private final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
 
   private final Climber leftClimber = new Climber(map.getLeftClimberMap());
   private final Climber rightClimber = new Climber(map.getRightClimberMap());
@@ -42,8 +47,22 @@ public class Robot extends CommandRobot {
     // Intake:
     // On button press: extend intake and start roller
     // On button release: retract intake and stop roller
-    copilotController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
-        .whenReleased(intake.retract(SpinDirection.COUNTERCLOCKWISE));
+
+    // Soon to be shooter command
+    driveController.x().whenPressed(ballTransport.loadShooter());
+
+    driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
+        .whileHeld(ballTransport.loadCargoWithIntake())
+        .whenReleased(sequence("Ball transport end", race("Finish Transport", new WaitCommand(2), ballTransport
+            .loadCargoWithIntake()),
+            parallel("Intake retracted w/ Ball Transport", ballTransport.stopTransport(), intake.retract())));
+    driveController.y()
+        .whenPressed(sequence("Remove Wrong Colored Balls", intake.extend(SpinDirection.COUNTERCLOCKWISE),
+            ballTransport.removeCargo(), intake.retract()));
+
+    SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
+    SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
+    SmartDashboard.putData("Only Roll Intake Forwards", intake.rollIntake(SpinDirection.COUNTERCLOCKWISE));
 
     // Climber:
     copilotController.x()
@@ -72,7 +91,6 @@ public class Robot extends CommandRobot {
     copilotController.back().whenPressed(cmd("Stop All").onInitialize(() -> {
       safeStateAll();
     }));
-
   }
 
   @Override
@@ -85,6 +103,6 @@ public class Robot extends CommandRobot {
   public void setDefaultCommands() {
     drive.setDefaultCommand(
         drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY, driveController::getRightX));
-
+    ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
   }
 }

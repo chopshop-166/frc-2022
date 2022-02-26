@@ -4,6 +4,8 @@ import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
+import com.chopshop166.chopshoplib.sensors.REVColorSensor;
+import com.chopshop166.chopshoplib.sensors.WDigitalInput;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -11,6 +13,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 @RobotMapFor("00:80:2F:17:62:25")
@@ -92,6 +96,17 @@ public class GastonMap extends RobotMap {
     }
 
     @Override
+    public BallTransportMap getBallTransportMap() {
+        final PIDSparkMax topMotor = new PIDSparkMax(14, MotorType.kBrushless);
+        final PIDSparkMax bottomMotor = new PIDSparkMax(17, MotorType.kBrushless);
+
+        final REVColorSensor colorSensor = new REVColorSensor(Port.kMXP);
+
+        final WDigitalInput laserSwitch = new WDigitalInput(0);
+
+        return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
+    }
+
     public ClimberMap getLeftClimberMap() {
         // The current limit for the climber's motors in amps
 

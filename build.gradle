@@ -57,7 +57,7 @@ repositories {
 }
 
 chopshop {
-    version = "2022.5.1"
+    version = "2022.6.1"
 }
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
@@ -82,7 +82,7 @@ dependencies {
 
     implementation 'com.google.guava:guava:30.1-jre'
     testImplementation 'junit:junit:4.12'
-    
+
     implementation chopshop.deps()
 }
 
