@@ -70,8 +70,8 @@ public class BallTransport extends SmartSubsystemBase {
         }
     }
 
-    private BuildCommand noBall() {
-        return new BuildCommand("Wait for ball in color sensor").onExecute(() -> {
+    private CommandBase noBall() {
+        return cmd("Wait for ball in color sensor").onExecute(() -> {
             bottomMotor.set(TRANSPORT_SPEED);
             topMotor.stopMotor();
         }).until(() -> {
@@ -79,8 +79,8 @@ public class BallTransport extends SmartSubsystemBase {
         });
     }
 
-    private BuildCommand ballAtColor() {
-        return new BuildCommand("Move ball from color sensor to laser").onExecute(() -> {
+    private CommandBase ballAtColor() {
+        return cmd("Move ball from color sensor to laser").onExecute(() -> {
             bottomMotor.set(TRANSPORT_SPEED);
             topMotor.set(TRANSPORT_SPEED);
         }).until(() -> {
@@ -98,8 +98,8 @@ public class BallTransport extends SmartSubsystemBase {
         });
     }
 
-    private BuildCommand ballAtLaserAndColor() {
-        return new BuildCommand("Wait for ball removal from ball transport").onExecute(() -> {
+    private CommandBase ballAtLaserAndColor() {
+        return cmd("Wait for ball removal from ball transport").onExecute(() -> {
             bottomMotor.stopMotor();
             topMotor.stopMotor();
         }).until(() -> {
@@ -107,8 +107,8 @@ public class BallTransport extends SmartSubsystemBase {
         });
     }
 
-    private BuildCommand loadShooter() {
-        return new BuildCommand("Load Shooter").onExecute(() -> {
+    public CommandBase loadShooter() {
+        return cmd("Load Shooter").onExecute(() -> {
             topMotor.set(TRANSPORT_SPEED);
             topMotor.set(TRANSPORT_SPEED);
         }).until(() -> {
