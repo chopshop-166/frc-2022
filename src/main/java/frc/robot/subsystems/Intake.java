@@ -44,7 +44,7 @@ public class Intake extends SmartSubsystemBase {
             // Using validators in a modifier in combination with using it to stop the
             // command
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_EXTEND_SPEED));
-        }).finishedWhen(deploymentMotor::errored).onEnd((interrupted) -> {
+        }).until(deploymentMotor::errored).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
         });
     }
@@ -55,7 +55,7 @@ public class Intake extends SmartSubsystemBase {
             rollerMotor.set(0.0);
         }).onExecute(() -> {
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_RETRACT_SPEED));
-        }).finishedWhen(deploymentMotor::errored).onEnd((interrupted) -> {
+        }).until(deploymentMotor::errored).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
         });
     }
