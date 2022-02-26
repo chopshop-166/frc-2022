@@ -27,8 +27,6 @@ public class BallTransport extends SmartSubsystemBase {
     static private final double REMOVE_SPEED = -0.25;
     static private final double TRANSPORT_SPEED = 0.5;
 
-    private final Alliance allianceColor = DriverStation.getAlliance();
-
     boolean seenBall = false;
 
     // creates a color sample buffer.
@@ -155,49 +153,32 @@ public class BallTransport extends SmartSubsystemBase {
         // this is pretty much a startend command but no reason to change it at this
         // point
         return cmd("Remove \"Wrong Colored\" Cargo").onExecute(() -> {
-            switch (allianceColor) {
-                case Red:
-                    if (colorBuffer.size() == 1) {
-                        // this accounts for if there's only one ball in the color buffer
-                        // in this case the intake doesn't need to be deployed because it can just go
-                        // out shooter end
-                        if (colorBuffer.peekFirst() == Color.kFirstBlue) {
-                            topMotor.set(REMOVE_SPEED);
-                            bottomMotor.set(REMOVE_SPEED);
-                            colorBuffer.clear();
-                        }
-                    } else {
-                        if (colorBuffer.peekLast() == Color.kFirstBlue) {
-                            topMotor.set(REMOVE_SPEED);
-                            colorBuffer.removeLast();
-                        }
-                        if (colorBuffer.peekFirst() == Color.kFirstBlue) {
-                            bottomMotor.set(-REMOVE_SPEED);
-                            colorBuffer.removeFirst();
-                        }
-                    }
-                    break;
-                case Blue:
-                    if (colorBuffer.size() == 1) {
-                        if (colorBuffer.peekFirst() == Color.kFirstRed) {
-                            topMotor.set(REMOVE_SPEED);
-                            bottomMotor.set(REMOVE_SPEED);
-                            colorBuffer.clear();
-                        }
-                    } else {
-                        if (colorBuffer.peekLast() == Color.kFirstRed) {
-                            topMotor.set(REMOVE_SPEED);
-                            colorBuffer.removeLast();
-                        }
-                        if (colorBuffer.peekFirst() == Color.kFirstRed) {
-                            bottomMotor.set(-REMOVE_SPEED);
-                            colorBuffer.removeFirst();
-                        }
-                    }
-                    break;
-                case Invalid:
-                default:
-                    break;
+            final Alliance allianceColor = DriverStation.getAlliance();
+            Color allianceBallColor;
+            if (allianceColor == Alliance.Red) {
+                allianceBallColor = Color.kFirstRed;
+            } else {
+                allianceBallColor = Color.kFirstBlue;
+            }
+
+            if (colorBuffer.size() == 1) {
+                // this accounts for if there's only one ball in the color buffer
+                // in this case the intake doesn't need to be deployed because it can just go
+                // out shooter end
+                if (colorBuffer.peekFirst() == allianceBallColor) {
+                    topMotor.set(REMOVE_SPEED);
+                    bottomMotor.set(REMOVE_SPEED);
+                    colorBuffer.clear();
+                }
+            } else {
+                if (colorBuffer.peekLast() == allianceBallColor) {
+                    topMotor.set(REMOVE_SPEED);
+                    colorBuffer.removeLast();
+                }
+                if (colorBuffer.peekFirst() == allianceBallColor) {
+                    bottomMotor.set(-REMOVE_SPEED);
+                    colorBuffer.removeFirst();
+                }
             }
         }).onEnd(this::stop);
     }
