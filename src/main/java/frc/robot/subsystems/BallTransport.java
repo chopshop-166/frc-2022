@@ -102,8 +102,6 @@ public class BallTransport extends SmartSubsystemBase {
         return cmd("Wait for ball removal from ball transport").onExecute(() -> {
             bottomMotor.stopMotor();
             topMotor.stopMotor();
-        }).until(() -> {
-            return !laserSwitch.getAsBoolean();
         });
     }
 
