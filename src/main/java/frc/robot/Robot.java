@@ -34,8 +34,8 @@ public class Robot extends CommandRobot {
 
   @Override
   public void configureButtonBindings() {
-    DoubleSupplier trigger = copilotController::getTriggers;
-    DoubleSupplier climberJoystick = copilotController::getLeftX;
+    DoubleSupplier climberTrigger = copilotController::getTriggers;
+    DoubleSupplier climberJoystickX = copilotController::getLeftX;
 
     driveController.back().whenPressed(drive.resetCmd());
 
@@ -47,10 +47,13 @@ public class Robot extends CommandRobot {
 
     // Climber:
     copilotController.x()
-        .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(trigger), rightClimber.extendSpeed(trigger)));
+        .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
+            climberTrigger), rightClimber.extendSpeed(climberTrigger)));
     copilotController.y()
-        .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(climberJoystick), rightClimber.rotateSpeed(
-            climberJoystick)));
+        .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(
+            climberJoystickX),
+            rightClimber.rotateSpeed(
+                climberJoystickX)));
 
     copilotController.getPovButton(POVDirection.LEFT)
         .whileHeld(parallel("Rotate CCW", leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
