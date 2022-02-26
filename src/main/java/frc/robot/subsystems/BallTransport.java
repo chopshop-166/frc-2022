@@ -50,23 +50,23 @@ public class BallTransport extends SmartSubsystemBase {
 
     // command selector enum used for command selector
     public enum CommandSelector {
-        COLORZEROLASERZERO,
-        COLORONELASERZERO,
-        COLORZEROLASERONE,
-        COLORONELASERONE
+        WAITFORBALL,
+        MOVEBALLTOLASER,
+        WAITFORBALLNOLASER,
+        INTAKEFILLED
     }
 
     // returns a value of command selector enum based on sensor input.
 
     private CommandSelector commandSelector() {
         if (colorSensorBallLimit() && laserSwitch.getAsBoolean()) {
-            return CommandSelector.COLORONELASERONE;
+            return CommandSelector.WAITFORBALL;
         } else if (colorSensorBallLimit()) {
-            return CommandSelector.COLORONELASERZERO;
+            return CommandSelector.MOVEBALLTOLASER;
         } else if (laserSwitch.getAsBoolean()) {
-            return CommandSelector.COLORZEROLASERONE;
+            return CommandSelector.WAITFORBALLNOLASER;
         } else {
-            return CommandSelector.COLORONELASERONE;
+            return CommandSelector.INTAKEFILLED;
         }
     }
 
@@ -122,10 +122,10 @@ public class BallTransport extends SmartSubsystemBase {
 
     // Creates a map of entries for the command selector to use.
     private final Map<Object, Command> selectCommandMap = Map.ofEntries(
-            Map.entry(CommandSelector.COLORZEROLASERZERO, noBall),
-            Map.entry(CommandSelector.COLORONELASERONE, ballAtLaserAndColor),
-            Map.entry(CommandSelector.COLORONELASERZERO, ballAtColor),
-            Map.entry(CommandSelector.COLORZEROLASERONE, ballAtLaser));
+            Map.entry(CommandSelector.WAITFORBALL, noBall),
+            Map.entry(CommandSelector.MOVEBALLTOLASER, ballAtLaserAndColor),
+            Map.entry(CommandSelector.WAITFORBALLNOLASER, ballAtColor),
+            Map.entry(CommandSelector.INTAKEFILLED, ballAtLaser));
 
     // select command that determines what command needs to be run based on the
     // command selector.
