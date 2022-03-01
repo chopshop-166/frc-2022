@@ -8,6 +8,8 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IEncoder;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.RobotMap.ShooterMap;
 
@@ -40,6 +42,14 @@ public class Shooter extends SmartSubsystemBase {
     shootSpeed = HubSpeed.LOW.get();
   }
 
+  public Command testSpeed(double speed) {
+    return startEnd("Test Speed", () -> {
+      motor.set(speed);
+    }, () -> {
+      motor.set(0.0);
+    });
+  }
+
   public CommandBase setTargetHub(HubSpeed hub) {
     return instant("Set Default Speed", () -> {
       shootSpeed = hub.get();
@@ -47,7 +57,7 @@ public class Shooter extends SmartSubsystemBase {
     });
   }
 
-  public CommandBase stopShooter() {
+  public CommandBase stop() {
     return instant("Stop Shooter", this::safeState);
   }
 
@@ -69,6 +79,8 @@ public class Shooter extends SmartSubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("Error Amount", shootSpeed - encoder.getRate());
+    SmartDashboard.putNumber("Encoder Rate", encoder.getRate());
   }
 
   @Override

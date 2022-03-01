@@ -7,7 +7,10 @@ import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap;
+import frc.robot.subsystems.BallTransport;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Climber.ExtendDirection;
 import frc.robot.subsystems.Drive;
@@ -26,6 +29,8 @@ public class Robot extends CommandRobot {
 
   private final Intake intake = new Intake(map.getIntakeMap());
 
+  private final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
+
   private final Shooter shooter = new Shooter(map.getShooterMap());
   private final Climber leftClimber = new Climber(map.getLeftClimberMap());
   private final Climber rightClimber = new Climber(map.getRightClimberMap());
@@ -42,20 +47,37 @@ public class Robot extends CommandRobot {
 
     // Shooter:
     // Set target hub for shooter
-    copilotController.getPovButton(POVDirection.UP).whenPressed(shooter.setTargetHub(HubSpeed.HIGH));
-    copilotController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setTargetHub(HubSpeed.LOW));
+    driveController.getPovButton(POVDirection.UP).whenPressed(shooter.setTargetHub(HubSpeed.HIGH));
+    driveController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setTargetHub(HubSpeed.LOW));
 
+    driveController.b().whileHeld(shooter.testSpeed(0.4));
+    driveController.y().whenPressed(shooter.stop());
     // Variable speed for shooter (Used for testing?)
-    copilotController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
+    driveController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
 
     // Drive:
     driveController.back().whenPressed(drive.resetCmd());
-    
+
     // Intake:
     // On button press: extend intake and start roller
     // On button release: retract intake and stop roller
-    copilotController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
-        .whenReleased(intake.retract(SpinDirection.COUNTERCLOCKWISE));
+
+    // Soon to be shooter command
+    driveController.x().whenPressed(ballTransport.loadShooter());
+
+    driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
+        .whileHeld(ballTransport.loadCargoWithIntake())
+        .whenReleased(sequence("Ball transport end",
+            race("Finish Transport", new WaitCommand(2.5), ballTransport.loadCargoWithIntake()),
+            parallel("Intake retracted w/ Ball Transport", ballTransport.stopTransport())));
+    driveController.y()
+        .whenPressed(sequence("Remove Wrong Colored Balls",
+            intake.extend(SpinDirection.COUNTERCLOCKWISE),
+            ballTransport.removeCargo(), intake.retract()));
+
+    SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
+    SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
+    SmartDashboard.putData("Only Roll Intake Forwards", intake.rollIntake(SpinDirection.COUNTERCLOCKWISE));
 
     // Climber:
     copilotController.x()
@@ -68,7 +90,8 @@ public class Robot extends CommandRobot {
                 climberJoystickX)));
 
     copilotController.getPovButton(POVDirection.LEFT)
-        .whileHeld(parallel("Rotate CCW", leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
+        .whileHeld(parallel("Rotate CCW",
+            leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
             rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
     copilotController.getPovButton(POVDirection.RIGHT)
         .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
@@ -81,10 +104,9 @@ public class Robot extends CommandRobot {
             rightClimber.extend(ExtendDirection.RETRACT)));
 
     // Stop all subsystems
-    copilotController.back().whenPressed(cmd("Stop All").onInitialize(() -> {
+    driveController.back().whenPressed(cmd("Stop All").onInitialize(() -> {
       safeStateAll();
     }));
-
   }
 
   @Override
@@ -96,6 +118,6 @@ public class Robot extends CommandRobot {
   public void setDefaultCommands() {
     drive.setDefaultCommand(
         drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY, driveController::getRightX));
-
+    ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
   }
 }

@@ -7,16 +7,20 @@ import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.motors.SwPIDMotorController;
 import com.chopshop166.chopshoplib.sensors.IEncoder;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
+import com.chopshop166.chopshoplib.sensors.REVColorSensor;
+import com.chopshop166.chopshoplib.sensors.WDigitalInput;
 import com.chopshop166.chopshoplib.sensors.WEncoder;
 import com.chopshop166.chopshoplib.states.PIDValues;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 @RobotMapFor("00:80:2F:17:62:25")
@@ -36,7 +40,8 @@ public class GastonMap extends RobotMap {
         encoderFL.configMagnetOffset(-195.381);
         encoderFL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule frontLeft = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
-                encoderFL, new PIDSparkMax(2, MotorType.kBrushless), new PIDSparkMax(1, MotorType.kBrushless),
+                encoderFL, new PIDSparkMax(2, MotorType.kBrushless), new PIDSparkMax(1,
+                        MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
         // Front Right Module
@@ -44,7 +49,8 @@ public class GastonMap extends RobotMap {
         encoderFR.configMagnetOffset(-304.189 + 180);
         encoderFR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule frontRight = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
-                encoderFR, new PIDSparkMax(4, MotorType.kBrushless), new PIDSparkMax(3, MotorType.kBrushless),
+                encoderFR, new PIDSparkMax(4, MotorType.kBrushless), new PIDSparkMax(3,
+                        MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
         // Rear Left Module
@@ -52,7 +58,8 @@ public class GastonMap extends RobotMap {
         encoderRL.configMagnetOffset(-298.213);
         encoderRL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule rearLeft = new SDSSwerveModule(new Translation2d(-MODULE_OFFSET_XY, MODULE_OFFSET_XY),
-                encoderRL, new PIDSparkMax(6, MotorType.kBrushless), new PIDSparkMax(5, MotorType.kBrushless),
+                encoderRL, new PIDSparkMax(6, MotorType.kBrushless), new PIDSparkMax(5,
+                        MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
         // Rear Right Module
@@ -60,7 +67,8 @@ public class GastonMap extends RobotMap {
         encoderRR.configMagnetOffset(-168.223 + 180);
         encoderRR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule rearRight = new SDSSwerveModule(new Translation2d(-MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
-                encoderRR, new PIDSparkMax(8, MotorType.kBrushless), new PIDSparkMax(7, MotorType.kBrushless),
+                encoderRR, new PIDSparkMax(8, MotorType.kBrushless), new PIDSparkMax(7,
+                        MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
         final double maxDriveSpeedMetersPerSecond = Units.feetToMeters(10);
@@ -70,26 +78,30 @@ public class GastonMap extends RobotMap {
         // final Gyro gyro = new PigeonGyro(new PigeonIMU(5));
         final Gyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
 
-        return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight, maxDriveSpeedMetersPerSecond,
+        return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
+                maxDriveSpeedMetersPerSecond,
                 maxRotationRadianPerSecond, pigeonGyro);
     }
 
     @Override
     public ShooterMap getShooterMap() {
         // Determine encoder pins
-        final IEncoder encoder = new WEncoder(0, 1);
+        final IEncoder encoder = new WEncoder(1, 2);
         final PIDSparkMax motor = new PIDSparkMax(16, MotorType.kBrushless);
         final PIDSparkMax follower = new PIDSparkMax(15, MotorType.kBrushless);
         PIDController pid = new PIDController(0, 0, 0);
-        SwPIDMotorController motorPid = new SwPIDMotorController(motor, encoder, pid, encoder::getRate);
+        SwPIDMotorController motorPid = new SwPIDMotorController(motor, encoder, pid,
+                encoder::getRate);
 
         // Ks: 0.022734
         // Kv: 0.14846
         // Ka: 0.058402
 
-        motorPid.addDefaultConfiguration(new PIDValues(2.1542, 0, 0, 0.14846));
+        motor.getMotorController().setIdleMode(IdleMode.kCoast);
+        follower.getMotorController().setIdleMode(IdleMode.kCoast);
+        // Kp : 2.1542
+        motorPid.addDefaultConfiguration(new PIDValues(0.72833, 0, 0, 0.52872));
         motor.setControlType(PIDControlType.Velocity);
-        follower.setControlType(PIDControlType.Velocity);
         follower.getMotorController().follow(motor.getMotorController(), true);
 
         return new ShooterMap(motorPid, encoder);
@@ -100,8 +112,10 @@ public class GastonMap extends RobotMap {
         // Current limit in amps
         final int CURRENT_LIMIT = 30;
 
-        final PIDSparkMax deploymentMotor = new PIDSparkMax(11, MotorType.kBrushless);
-        final PIDSparkMax deploymentFollower = new PIDSparkMax(12, MotorType.kBrushless);
+        final PIDSparkMax deploymentMotor = new PIDSparkMax(11,
+                MotorType.kBrushless);
+        final PIDSparkMax deploymentFollower = new PIDSparkMax(12,
+                MotorType.kBrushless);
         final PIDSparkMax rollerMotor = new PIDSparkMax(13, MotorType.kBrushless);
 
         // Use current as a validator along with setting a current limit
@@ -109,7 +123,8 @@ public class GastonMap extends RobotMap {
 
         deploymentMotor.validateCurrent(CURRENT_LIMIT);
 
-        deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(), true);
+        deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(),
+                true);
         deploymentMotor.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
         deploymentFollower.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
         rollerMotor.getMotorController().setInverted(true);
@@ -119,6 +134,17 @@ public class GastonMap extends RobotMap {
     }
 
     @Override
+    public BallTransportMap getBallTransportMap() {
+        final PIDSparkMax topMotor = new PIDSparkMax(14, MotorType.kBrushless);
+        final PIDSparkMax bottomMotor = new PIDSparkMax(17, MotorType.kBrushless);
+
+        final REVColorSensor colorSensor = new REVColorSensor(Port.kMXP);
+
+        final WDigitalInput laserSwitch = new WDigitalInput(0);
+
+        return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
+    }
+
     public ClimberMap getLeftClimberMap() {
         // The current limit for the climber's motors in amps
 
