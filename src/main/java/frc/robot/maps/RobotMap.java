@@ -193,6 +193,7 @@ public class RobotMap {
 
         public ShooterMap() {
             this(new SmartMotorController(), new MockEncoder(), new SimpleMotorFeedforward(0.0, 0.0));
+
         }
 
         public SimpleMotorFeedforward getFeedforward() {

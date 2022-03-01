@@ -8,6 +8,7 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IEncoder;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,6 +24,7 @@ public class Shooter extends SmartSubsystemBase {
   private static final double RPM_BUFFER = 10;
   private double shootSpeed;
 
+  private PIDController pid = new PIDController(2.1542, 0, 0);
   private SimpleMotorFeedforward feedforward;
 
   public enum HubSpeed {
@@ -39,15 +41,15 @@ public class Shooter extends SmartSubsystemBase {
     }
   }
 
-  private void setSetpoint(double speed) {
-    motor.setSetpoint(feedforward.calculate(speed, 200.0));
-  }
-
   public Shooter(ShooterMap map) {
     motor = map.getMotor();
     encoder = map.getEncoder();
     feedforward = map.getFeedforward();
     shootSpeed = HubSpeed.LOW.get();
+  }
+
+  private void setSetpoint(double speed) {
+    motor.setSetpoint(pid.calculate(speed) + feedforward.calculate(speed, 200));
   }
 
   public Command testSpeed(double speed) {
@@ -89,6 +91,7 @@ public class Shooter extends SmartSubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Error Amount", shootSpeed - encoder.getRate());
     SmartDashboard.putNumber("Encoder Rate", encoder.getRate());
+    setSetpoint(shootSpeed);
   }
 
   @Override
