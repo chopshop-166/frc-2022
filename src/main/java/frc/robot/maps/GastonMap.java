@@ -18,6 +18,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.I2C.Port;
@@ -39,7 +40,8 @@ public class GastonMap extends RobotMap {
         final CANCoder encoderFL = new CANCoder(1);
         encoderFL.configMagnetOffset(-195.381);
         encoderFL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-        final SDSSwerveModule frontLeft = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
+        final SDSSwerveModule frontLeft = new SDSSwerveModule(
+                new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
                 encoderFL, new PIDSparkMax(2, MotorType.kBrushless), new PIDSparkMax(1,
                         MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
@@ -48,7 +50,8 @@ public class GastonMap extends RobotMap {
         final CANCoder encoderFR = new CANCoder(2);
         encoderFR.configMagnetOffset(-304.189 + 180);
         encoderFR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-        final SDSSwerveModule frontRight = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
+        final SDSSwerveModule frontRight = new SDSSwerveModule(
+                new Translation2d(MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
                 encoderFR, new PIDSparkMax(4, MotorType.kBrushless), new PIDSparkMax(3,
                         MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
@@ -57,7 +60,8 @@ public class GastonMap extends RobotMap {
         final CANCoder encoderRL = new CANCoder(3);
         encoderRL.configMagnetOffset(-298.213);
         encoderRL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-        final SDSSwerveModule rearLeft = new SDSSwerveModule(new Translation2d(-MODULE_OFFSET_XY, MODULE_OFFSET_XY),
+        final SDSSwerveModule rearLeft = new SDSSwerveModule(
+                new Translation2d(-MODULE_OFFSET_XY, MODULE_OFFSET_XY),
                 encoderRL, new PIDSparkMax(6, MotorType.kBrushless), new PIDSparkMax(5,
                         MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
@@ -66,7 +70,8 @@ public class GastonMap extends RobotMap {
         final CANCoder encoderRR = new CANCoder(4);
         encoderRR.configMagnetOffset(-168.223 + 180);
         encoderRR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-        final SDSSwerveModule rearRight = new SDSSwerveModule(new Translation2d(-MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
+        final SDSSwerveModule rearRight = new SDSSwerveModule(
+                new Translation2d(-MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
                 encoderRR, new PIDSparkMax(8, MotorType.kBrushless), new PIDSparkMax(7,
                         MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
@@ -93,6 +98,8 @@ public class GastonMap extends RobotMap {
         SwPIDMotorController motorPid = new SwPIDMotorController(motor, encoder, pid,
                 encoder::getRate);
 
+        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.022734, 0.14846, 0.058402);
+
         // Ks: 0.022734
         // Kv: 0.14846
         // Ka: 0.058402
@@ -104,7 +111,7 @@ public class GastonMap extends RobotMap {
         motor.setControlType(PIDControlType.Velocity);
         follower.getMotorController().follow(motor.getMotorController(), true);
 
-        return new ShooterMap(motorPid, encoder);
+        return new ShooterMap(motorPid, encoder, ff);
     }
 
     @Override

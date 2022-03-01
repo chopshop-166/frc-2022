@@ -8,6 +8,7 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IEncoder;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -21,6 +22,8 @@ public class Shooter extends SmartSubsystemBase {
   private static final double MAX_RPM = 5300;
   private static final double RPM_BUFFER = 10;
   private double shootSpeed;
+
+  private SimpleMotorFeedforward feedforward;
 
   public enum HubSpeed {
     LOW(1000), HIGH(2650);
@@ -36,9 +39,14 @@ public class Shooter extends SmartSubsystemBase {
     }
   }
 
+  private void setSetpoint(double speed) {
+    motor.setSetpoint(feedforward.calculate(speed, 200.0));
+  }
+
   public Shooter(ShooterMap map) {
     motor = map.getMotor();
     encoder = map.getEncoder();
+    feedforward = map.getFeedforward();
     shootSpeed = HubSpeed.LOW.get();
   }
 
@@ -53,7 +61,7 @@ public class Shooter extends SmartSubsystemBase {
   public CommandBase setTargetHub(HubSpeed hub) {
     return instant("Set Default Speed", () -> {
       shootSpeed = hub.get();
-      motor.setSetpoint(shootSpeed);
+      setSetpoint(shootSpeed);
     });
   }
 
@@ -73,7 +81,7 @@ public class Shooter extends SmartSubsystemBase {
   public CommandBase setSpeed(DoubleSupplier speed) {
     return instant("Set Speed", () -> {
       double speeds = speed.getAsDouble();
-      motor.setSetpoint(speeds * speeds * MAX_RPM);
+      setSetpoint(speeds * speeds * MAX_RPM);
     });
   }
 
