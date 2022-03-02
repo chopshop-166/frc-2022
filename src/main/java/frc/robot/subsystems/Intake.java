@@ -37,10 +37,8 @@ public class Intake extends SmartSubsystemBase {
     // going out
 
     // Extend with the deployment motor and spin roller
-    public CommandBase extend(SpinDirection rollerDirection) {
-        return cmd("Extend Intake").onInitialize(() -> {
-            rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
-        }).onExecute(() -> {
+    public CommandBase extend() {
+        return cmd("Extend Intake").onExecute(() -> {
             // Using validators in a modifier in combination with using it to stop the
             // command
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_EXTEND_SPEED));
@@ -49,10 +47,16 @@ public class Intake extends SmartSubsystemBase {
         });
     }
 
-    public CommandBase rollIntake(SpinDirection rollerDirection) {
-        return startEnd("Start Intake", () -> {
+    public CommandBase startRoller(SpinDirection rollerDirection) {
+        return instant("Start Roller", () -> {
             rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
-        }, () -> rollerMotor.stopMotor());
+        });
+    }
+
+    public CommandBase stopRoller() {
+        return instant("Stop Roller", () -> {
+            rollerMotor.stopMotor();
+        });
     }
 
     // Retract with the deployment motor and stop roller
