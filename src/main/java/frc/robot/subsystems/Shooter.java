@@ -24,11 +24,11 @@ public class Shooter extends SmartSubsystemBase {
   private static final double RPM_BUFFER = 10;
   private double shootSpeed;
 
-  private PIDController pid = new PIDController(2.1542, 0, 0);
+  private PIDController pid = new PIDController(0, 0, 0);
   private SimpleMotorFeedforward feedforward;
 
   public enum HubSpeed {
-    LOW(1000), HIGH(2650);
+    LOW(1000 / 60.0), HIGH(2650 / 60.0);
 
     private double speed;
 
@@ -45,11 +45,18 @@ public class Shooter extends SmartSubsystemBase {
     motor = map.getMotor();
     encoder = map.getEncoder();
     feedforward = map.getFeedforward();
-    shootSpeed = HubSpeed.LOW.get();
+    shootSpeed = 0;
   }
 
-  private void setSetpoint(double speed) {
-    motor.setSetpoint(pid.calculate(speed) + feedforward.calculate(speed, 200));
+  private void calculatePid(double speed) {
+    double pidv = pid.calculate(encoder.getRate());
+
+    // We'll eventually need an acceleration
+    double ffv = feedforward.calculate(speed, (speed == 0) ? 0 : 0.0);
+    SmartDashboard.putNumber("PID Calculation", pidv);
+    SmartDashboard.putNumber("FF Calculation", ffv);
+    SmartDashboard.putNumber("PID + FF", pidv + ffv);
+    motor.setSetpoint(pidv + ffv);
   }
 
   public Command testSpeed(double speed) {
@@ -63,7 +70,7 @@ public class Shooter extends SmartSubsystemBase {
   public CommandBase setTargetHub(HubSpeed hub) {
     return instant("Set Default Speed", () -> {
       shootSpeed = hub.get();
-      setSetpoint(shootSpeed);
+      pid.setSetpoint(shootSpeed);
     });
   }
 
@@ -83,7 +90,7 @@ public class Shooter extends SmartSubsystemBase {
   public CommandBase setSpeed(DoubleSupplier speed) {
     return instant("Set Speed", () -> {
       double speeds = speed.getAsDouble();
-      setSetpoint(speeds * speeds * MAX_RPM);
+      pid.setSetpoint(speeds * speeds * MAX_RPM);
     });
   }
 
@@ -91,7 +98,7 @@ public class Shooter extends SmartSubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Error Amount", shootSpeed - encoder.getRate());
     SmartDashboard.putNumber("Encoder Rate", encoder.getRate());
-    setSetpoint(shootSpeed);
+    calculatePid(shootSpeed);
   }
 
   @Override

@@ -29,158 +29,154 @@ public class GastonMap extends RobotMap {
         final int CLIMBER_EXTEND_LIMIT = 20;
         final int CLIMBER_ROTATE_LIMIT = 20;
 
-        @Override
-        public SwerveDriveMap getSwerveDriveMap() {
-                // Value taken from CAD as offset from center of module base pulley to center of
-                // robot
-                final double MODULE_OFFSET_XY = 0.314325;
+        // @Override
+        // public SwerveDriveMap getSwerveDriveMap() {
+        // // Value taken from CAD as offset from center of module base pulley to center
+        // of
+        // // robot
+        // final double MODULE_OFFSET_XY = 0.314325;
 
-                // All Distances are in Meters
-                // Front Left Module
-                final CANCoder encoderFL = new CANCoder(1);
-                encoderFL.configMagnetOffset(-195.381);
-                encoderFL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-                final SDSSwerveModule frontLeft = new SDSSwerveModule(
-                                new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
-                                encoderFL, new PIDSparkMax(2, MotorType.kBrushless), new PIDSparkMax(1,
-                                                MotorType.kBrushless),
-                                SDSSwerveModule.MK4_V2);
+        // // All Distances are in Meters
+        // // Front Left Module
+        // final CANCoder encoderFL = new CANCoder(1);
+        // encoderFL.configMagnetOffset(-195.381);
+        // encoderFL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
+        // final SDSSwerveModule frontLeft = new SDSSwerveModule(
+        // new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
+        // encoderFL, new PIDSparkMax(2, MotorType.kBrushless), new PIDSparkMax(1,
+        // MotorType.kBrushless),
+        // SDSSwerveModule.MK4_V2);
 
-                // Front Right Module
-                final CANCoder encoderFR = new CANCoder(2);
-                encoderFR.configMagnetOffset(-304.189 + 180);
-                encoderFR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-                final SDSSwerveModule frontRight = new SDSSwerveModule(
-                                new Translation2d(MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
-                                encoderFR, new PIDSparkMax(4, MotorType.kBrushless), new PIDSparkMax(3,
-                                                MotorType.kBrushless),
-                                SDSSwerveModule.MK4_V2);
+        // // Front Right Module
+        // final CANCoder encoderFR = new CANCoder(2);
+        // encoderFR.configMagnetOffset(-304.189 + 180);
+        // encoderFR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
+        // final SDSSwerveModule frontRight = new SDSSwerveModule(
+        // new Translation2d(MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
+        // encoderFR, new PIDSparkMax(4, MotorType.kBrushless), new PIDSparkMax(3,
+        // MotorType.kBrushless),
+        // SDSSwerveModule.MK4_V2);
 
-                // Rear Left Module
-                final CANCoder encoderRL = new CANCoder(3);
-                encoderRL.configMagnetOffset(-298.213);
-                encoderRL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-                final SDSSwerveModule rearLeft = new SDSSwerveModule(
-                                new Translation2d(-MODULE_OFFSET_XY, MODULE_OFFSET_XY),
-                                encoderRL, new PIDSparkMax(6, MotorType.kBrushless), new PIDSparkMax(5,
-                                                MotorType.kBrushless),
-                                SDSSwerveModule.MK4_V2);
+        // // Rear Left Module
+        // final CANCoder encoderRL = new CANCoder(3);
+        // encoderRL.configMagnetOffset(-298.213);
+        // encoderRL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
+        // final SDSSwerveModule rearLeft = new SDSSwerveModule(
+        // new Translation2d(-MODULE_OFFSET_XY, MODULE_OFFSET_XY),
+        // encoderRL, new PIDSparkMax(6, MotorType.kBrushless), new PIDSparkMax(5,
+        // MotorType.kBrushless),
+        // SDSSwerveModule.MK4_V2);
 
-                // Rear Right Module
-                final CANCoder encoderRR = new CANCoder(4);
-                encoderRR.configMagnetOffset(-168.223 + 180);
-                encoderRR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-                final SDSSwerveModule rearRight = new SDSSwerveModule(
-                                new Translation2d(-MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
-                                encoderRR, new PIDSparkMax(8, MotorType.kBrushless), new PIDSparkMax(7,
-                                                MotorType.kBrushless),
-                                SDSSwerveModule.MK4_V2);
+        // // Rear Right Module
+        // final CANCoder encoderRR = new CANCoder(4);
+        // encoderRR.configMagnetOffset(-168.223 + 180);
+        // encoderRR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
+        // final SDSSwerveModule rearRight = new SDSSwerveModule(
+        // new Translation2d(-MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
+        // encoderRR, new PIDSparkMax(8, MotorType.kBrushless), new PIDSparkMax(7,
+        // MotorType.kBrushless),
+        // SDSSwerveModule.MK4_V2);
 
-                final double maxDriveSpeedMetersPerSecond = Units.feetToMeters(10);
+        // final double maxDriveSpeedMetersPerSecond = Units.feetToMeters(10);
 
-                final double maxRotationRadianPerSecond = Math.PI;
+        // final double maxRotationRadianPerSecond = Math.PI;
 
-                // final Gyro gyro = new PigeonGyro(new PigeonIMU(5));
-                final Gyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
+        // // final Gyro gyro = new PigeonGyro(new PigeonIMU(5));
+        // final Gyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
 
-                return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
-                                maxDriveSpeedMetersPerSecond,
-                                maxRotationRadianPerSecond, pigeonGyro);
-        }
+        // return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
+        // maxDriveSpeedMetersPerSecond,
+        // maxRotationRadianPerSecond, pigeonGyro);
+        // }
 
         @Override
         public ShooterMap getShooterMap() {
-                // Determine encoder pins
                 final IEncoder encoder = new WEncoder(1, 2);
                 final PIDSparkMax motor = new PIDSparkMax(16, MotorType.kBrushless);
                 final PIDSparkMax follower = new PIDSparkMax(15, MotorType.kBrushless);
-                PIDController pid = new PIDController(0, 0, 0);
-                SwPIDMotorController motorPid = new SwPIDMotorController(motor, encoder, pid,
-                                encoder::getRate);
 
-                SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.022734, 0.14846, 0.058402);
+                SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.17243, 0.49992 / 4.0, 0.6289);
 
-                // Ks: 0.022734
-                // Kv: 0.14846
-                // Ka: 0.058402
+                // Ks: -0.17243
+                // Kv: 0.49992
+                // Ka: 0.6289
 
                 motor.getMotorController().setIdleMode(IdleMode.kCoast);
                 follower.getMotorController().setIdleMode(IdleMode.kCoast);
-                // Kp : 2.1542
-                motorPid.addDefaultConfiguration(new PIDValues(0.72833, 0, 0, 0.52872));
-                motor.setControlType(PIDControlType.Velocity);
+                // Kp : 0.82212
+                motor.setControlType(PIDControlType.Voltage);
                 follower.getMotorController().follow(motor.getMotorController(), true);
 
-                return new ShooterMap(motorPid, encoder, ff);
+                return new ShooterMap(motor, encoder, ff);
         }
 
-        @Override
-        public IntakeMap getIntakeMap() {
-                // Current limit in amps
-                final int CURRENT_LIMIT = 30;
+        // @Override
+        // public IntakeMap getIntakeMap() {
+        // // Current limit in amps
+        // final int CURRENT_LIMIT = 30;
 
-                final PIDSparkMax deploymentMotor = new PIDSparkMax(11,
-                                MotorType.kBrushless);
-                final PIDSparkMax deploymentFollower = new PIDSparkMax(12,
-                                MotorType.kBrushless);
-                final PIDSparkMax rollerMotor = new PIDSparkMax(13, MotorType.kBrushless);
+        // final PIDSparkMax deploymentMotor = new PIDSparkMax(11,
+        // MotorType.kBrushless);
+        // final PIDSparkMax deploymentFollower = new PIDSparkMax(12,
+        // MotorType.kBrushless);
+        // final PIDSparkMax rollerMotor = new PIDSparkMax(13, MotorType.kBrushless);
 
-                // Use current as a validator along with setting a current limit
-                // on the motor controllers
+        // // Use current as a validator along with setting a current limit
+        // // on the motor controllers
 
-                deploymentMotor.validateCurrent(CURRENT_LIMIT);
+        // deploymentMotor.validateCurrent(CURRENT_LIMIT);
 
-                deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(),
-                                true);
-                deploymentMotor.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
-                deploymentFollower.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
-                rollerMotor.getMotorController().setInverted(true);
+        // deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(),
+        // true);
+        // deploymentMotor.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
+        // deploymentFollower.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
+        // rollerMotor.getMotorController().setInverted(true);
 
-                return new IntakeMap(deploymentMotor, rollerMotor);
+        // return new IntakeMap(deploymentMotor, rollerMotor);
 
-        }
+        // }
 
-        @Override
-        public BallTransportMap getBallTransportMap() {
-                final PIDSparkMax topMotor = new PIDSparkMax(14, MotorType.kBrushless);
-                final PIDSparkMax bottomMotor = new PIDSparkMax(17, MotorType.kBrushless);
+        // @Override
+        // public BallTransportMap getBallTransportMap() {
+        // final PIDSparkMax topMotor = new PIDSparkMax(14, MotorType.kBrushless);
+        // final PIDSparkMax bottomMotor = new PIDSparkMax(17, MotorType.kBrushless);
 
-                final REVColorSensor colorSensor = new REVColorSensor(Port.kMXP);
+        // final REVColorSensor colorSensor = new REVColorSensor(Port.kMXP);
 
-                final WDigitalInput laserSwitch = new WDigitalInput(0);
+        // final WDigitalInput laserSwitch = new WDigitalInput(0);
 
-                return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
-        }
+        // return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
+        // }
 
-        public ClimberMap getLeftClimberMap() {
-                // The current limit for the climber's motors in amps
+        // public ClimberMap getLeftClimberMap() {
+        // // The current limit for the climber's motors in amps
 
-                final PIDSparkMax extendMotor = new PIDSparkMax(9, MotorType.kBrushless);
+        // final PIDSparkMax extendMotor = new PIDSparkMax(9, MotorType.kBrushless);
 
-                final PIDSparkMax rotateMotor = new PIDSparkMax(18, MotorType.kBrushless);
+        // final PIDSparkMax rotateMotor = new PIDSparkMax(18, MotorType.kBrushless);
 
-                // Setting the current limits on both the validators and motor controllers
-                extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
-                extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
-                rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
-                rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
+        // // Setting the current limits on both the validators and motor controllers
+        // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        // extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
+        // rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
+        // rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
-                return new ClimberMap(extendMotor, rotateMotor);
-        }
+        // return new ClimberMap(extendMotor, rotateMotor);
+        // }
 
-        @Override
-        public ClimberMap getRightClimberMap() {
-                // The current limit for the climber's motors in amps
-                final PIDSparkMax extendMotor = new PIDSparkMax(10, MotorType.kBrushless);
+        // @Override
+        // public ClimberMap getRightClimberMap() {
+        // // The current limit for the climber's motors in amps
+        // final PIDSparkMax extendMotor = new PIDSparkMax(10, MotorType.kBrushless);
 
-                final PIDSparkMax rotateMotor = new PIDSparkMax(19, MotorType.kBrushless);
+        // final PIDSparkMax rotateMotor = new PIDSparkMax(19, MotorType.kBrushless);
 
-                // Setting the current limits on both the validators and motor controllers
-                extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
-                extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
-                rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
-                rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
+        // // Setting the current limits on both the validators and motor controllers
+        // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        // extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
+        // rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
+        // rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
-                return new ClimberMap(extendMotor, rotateMotor);
-        }
+        // return new ClimberMap(extendMotor, rotateMotor);
+        // }
 }
