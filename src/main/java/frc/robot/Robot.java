@@ -56,30 +56,30 @@ public class Robot extends CommandRobot {
     driveController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
 
     // Drive:
-    // driveController.back().whenPressed(drive.resetCmd());
+    driveController.back().whenPressed(drive.resetCmd());
 
     // Intake:
     // On button press: extend intake and start roller
     // On button release: retract intake and stop roller
 
     // Soon to be shooter command
-    // driveController.x().whenPressed(ballTransport.loadShooter());
+    driveController.x().whenPressed(ballTransport.loadShooter());
 
-    // driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
-    // .whileHeld(ballTransport.loadCargoWithIntake())
-    // .whenReleased(sequence("Ball transport end",
-    // race("Finish Transport", new WaitCommand(2.5),
-    // ballTransport.loadCargoWithIntake()),
-    // parallel("Intake retracted w/ Ball Transport",
-    // ballTransport.stopTransport())));
-    // driveController.y()
-    // .whenPressed(sequence("Remove Wrong Colored Balls",
-    // intake.extend(SpinDirection.COUNTERCLOCKWISE),
-    // ballTransport.removeCargo(), intake.retract()));
+    driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
+        .whileHeld(ballTransport.loadCargoWithIntake())
+        .whenReleased(sequence("Ball transport end",
+            race("Finish Transport", new WaitCommand(2.5),
+                ballTransport.loadCargoWithIntake()),
+            parallel("Intake retracted w/ Ball Transport",
+                ballTransport.stopTransport())));
+    driveController.y()
+        .whenPressed(sequence("Remove Wrong Colored Balls",
+            intake.extend(SpinDirection.COUNTERCLOCKWISE),
+            ballTransport.removeCargo(), intake.retract()));
 
-    // SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
-    // SmartDashboard.putData("Run Bottom Backwards",
-    // ballTransport.runBottomBackwards());
+    SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
+    SmartDashboard.putData("Run Bottom Backwards",
+        ballTransport.runBottomBackwards());
     SmartDashboard.putData("Only Roll Intake Forwards", intake.rollIntake(SpinDirection.COUNTERCLOCKWISE));
 
     // Climber:
