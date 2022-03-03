@@ -28,7 +28,7 @@ public class Shooter extends SmartSubsystemBase {
   private SimpleMotorFeedforward feedforward;
 
   public enum HubSpeed {
-    LOW(1000 / 60.0), HIGH(2650 / 60.0);
+    LOW(1500 / 60.0), HIGH(2650 / 60.0);
 
     private double speed;
 
@@ -56,7 +56,9 @@ public class Shooter extends SmartSubsystemBase {
     SmartDashboard.putNumber("PID Calculation", pidv);
     SmartDashboard.putNumber("FF Calculation", ffv);
     SmartDashboard.putNumber("PID + FF", pidv + ffv);
-    motor.setSetpoint(pidv + ffv);
+    if (speed != 0) {
+      motor.setSetpoint(pidv + ffv);
+    }
   }
 
   public Command testSpeed(double speed) {
@@ -105,5 +107,7 @@ public class Shooter extends SmartSubsystemBase {
   @Override
   public void safeState() {
     motor.stopMotor();
+    shootSpeed = 0.0;
+    pid.setSetpoint(0.0);
   }
 }

@@ -56,7 +56,7 @@ public class Robot extends CommandRobot {
         driveController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
 
         // Drive:
-        driveController.back().whenPressed(drive.resetCmd());
+        // driveController.back().whenPressed(drive.resetCmd());
 
         // Intake:
         // On button press: extend intake and start roller
@@ -71,7 +71,7 @@ public class Robot extends CommandRobot {
                         race("Finish Transport", new WaitCommand(2.5),
                                 ballTransport.loadCargoWithIntake()),
                         parallel("Intake retracted w/ Ball Transport",
-                                ballTransport.stopTransport())));
+                                ballTransport.stopTransport(), intake.retract())));
         driveController.y()
                 .whenPressed(sequence("Remove Wrong Colored Balls",
                         intake.extend(SpinDirection.COUNTERCLOCKWISE),

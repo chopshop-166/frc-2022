@@ -34,14 +34,14 @@ public class Intake extends SmartSubsystemBase {
 
     // Extend with the deployment motor and spin roller
     public CommandBase extend(SpinDirection rollerDirection) {
-        return cmd("Extend Intake").onInitialize(() -> {
-            rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
-        }).onExecute(() -> {
+        return cmd("Extend Intake").onExecute(() -> {
             // Using validators in a modifier in combination with using it to stop the
             // command
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_EXTEND_SPEED));
         }).until(deploymentMotor::errored).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
+            rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
+
         });
     }
 

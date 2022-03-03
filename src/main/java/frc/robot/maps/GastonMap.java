@@ -112,7 +112,8 @@ public class GastonMap extends RobotMap {
     @Override
     public IntakeMap getIntakeMap() {
         // Current limit in amps
-        final int CURRENT_LIMIT = 30;
+        final int CURRENT_LIMIT = 32;
+        final int CONTROLLER_LIMIT = 30;
 
         final PIDSparkMax deploymentMotor = new PIDSparkMax(11,
                 MotorType.kBrushless);
@@ -127,8 +128,8 @@ public class GastonMap extends RobotMap {
 
         deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(),
                 true);
-        deploymentMotor.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
-        deploymentFollower.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
+        deploymentMotor.getMotorController().setSmartCurrentLimit(CONTROLLER_LIMIT);
+        deploymentFollower.getMotorController().setSmartCurrentLimit(CONTROLLER_LIMIT);
         rollerMotor.getMotorController().setInverted(true);
 
         return new IntakeMap(deploymentMotor, rollerMotor);

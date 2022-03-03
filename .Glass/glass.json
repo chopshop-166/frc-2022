@@ -8,10 +8,14 @@
       "/LiveWindow/BallTransport": "Subsystem",
       "/LiveWindow/Climber": "Subsystem",
       "/LiveWindow/Drive": "Subsystem",
+      "/LiveWindow/Shooter": "Subsystem",
+      "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
       "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/Shuffleboard/Shuffleboard/Autonomous": "String Chooser",
-      "/SmartDashboard/Only Roll Intake Forwards": "Command"
+      "/SmartDashboard/Only Roll Intake Forwards": "Command",
+      "/SmartDashboard/Run Bottom Backwards": "Command",
+      "/SmartDashboard/Run Top Backwards": "Command"
     }
   },
   "NetworkTables Settings": {
