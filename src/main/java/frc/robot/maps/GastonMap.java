@@ -28,8 +28,8 @@ public class GastonMap extends RobotMap {
 
     @Override
     public SwerveDriveMap getSwerveDriveMap() {
-        // Value taken from CAD as offset from center of module base pulley to center of
-        // the robot
+        // Value taken from CAD as offset from center of module base pulley to center
+        // of the robot
         final double MODULE_OFFSET_XY = 0.314325;
 
         // All Distances are in Meters
@@ -90,7 +90,7 @@ public class GastonMap extends RobotMap {
         final PIDSparkMax motor = new PIDSparkMax(16, MotorType.kBrushless);
         final PIDSparkMax follower = new PIDSparkMax(15, MotorType.kBrushless);
 
-        final WEncoder encoder = new WEncoder(1, 2, false, EncodingType.k1X);
+        final WEncoder encoder = new WEncoder(1, 2, true, EncodingType.k1X);
 
         SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.17243, 0.49992 / 4.0, 0.6289);
 

@@ -24,7 +24,7 @@ public class Shooter extends SmartSubsystemBase {
   private static final double RPM_BUFFER = 10;
   private double shootSpeed;
 
-  private PIDController pid = new PIDController(0, 0, 0);
+  private PIDController pid = new PIDController(0.82212 / 4.0, 0, 0);
   private SimpleMotorFeedforward feedforward;
 
   public enum HubSpeed {
@@ -96,8 +96,9 @@ public class Shooter extends SmartSubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Error Amount", shootSpeed - encoder.getRate());
-    SmartDashboard.putNumber("Encoder Rate", encoder.getRate());
+    SmartDashboard.putNumber("Error Amount (RPM)", shootSpeed * 60.0 - encoder.getRate() * 60.0);
+    SmartDashboard.putNumber("Target Speed (RPM)", shootSpeed * 60.0);
+    SmartDashboard.putNumber("Encoder Rate (RPM)", encoder.getRate() * 60.0);
     calculatePid(shootSpeed);
   }
 

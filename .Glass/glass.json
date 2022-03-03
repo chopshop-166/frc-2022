@@ -7,6 +7,7 @@
       "/FMSInfo": "FMSInfo",
       "/LiveWindow/BallTransport": "Subsystem",
       "/LiveWindow/Climber": "Subsystem",
+      "/LiveWindow/Drive": "Subsystem",
       "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/Shuffleboard/Shuffleboard/Autonomous": "String Chooser",
@@ -30,7 +31,16 @@
                 0.6901960968971252,
                 1.0
               ],
-              "id": "NT:/SmartDashboard/Encoder Rate"
+              "id": "NT:/SmartDashboard/Error Amount (RPM)"
+            },
+            {
+              "color": [
+                0.8666667342185974,
+                0.5176470875740051,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/Encoder Rate (RPM)"
             }
           ]
         }
