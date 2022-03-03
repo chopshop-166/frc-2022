@@ -21,6 +21,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
@@ -91,15 +92,18 @@ public class GastonMap extends RobotMap {
 
         @Override
         public ShooterMap getShooterMap() {
-                final IEncoder encoder = new WEncoder(1, 2);
                 final PIDSparkMax motor = new PIDSparkMax(16, MotorType.kBrushless);
                 final PIDSparkMax follower = new PIDSparkMax(15, MotorType.kBrushless);
+
+                final WEncoder encoder = new WEncoder(1, 2, false, EncodingType.k4X);
 
                 SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.17243, 0.49992 / 4.0, 0.6289);
 
                 // Ks: -0.17243
                 // Kv: 0.49992
                 // Ka: 0.6289
+
+                encoder.setDistancePerPulse(1.0 / 2048.0);
 
                 motor.getMotorController().setIdleMode(IdleMode.kCoast);
                 follower.getMotorController().setIdleMode(IdleMode.kCoast);
