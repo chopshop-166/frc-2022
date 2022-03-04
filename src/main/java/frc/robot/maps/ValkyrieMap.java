@@ -2,17 +2,22 @@ package frc.robot.maps;
 
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
+import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
 import com.chopshop166.chopshoplib.sensors.REVColorSensor;
 import com.chopshop166.chopshoplib.sensors.WDigitalInput;
+import com.chopshop166.chopshoplib.sensors.WEncoder;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
@@ -69,6 +74,30 @@ public class ValkyrieMap extends RobotMap {
 
         return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight, maxDriveSpeedMetersPerSecond,
                 maxRotationRadianPerSecond, pigeonGyro);
+    }
+
+    @Override
+    public ShooterMap getShooterMap() {
+        final PIDSparkMax motor = new PIDSparkMax(16, MotorType.kBrushless);
+        final PIDSparkMax follower = new PIDSparkMax(15, MotorType.kBrushless);
+
+        final WEncoder encoder = new WEncoder(1, 2, true, EncodingType.k1X);
+
+        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.17243, 0.49992 / 4.0, 0.6289);
+
+        // Ks: -0.17243
+        // Kv: 0.49992
+        // Ka: 0.6289
+
+        encoder.setDistancePerPulse(1.0 / 2048.0);
+
+        motor.getMotorController().setIdleMode(IdleMode.kCoast);
+        follower.getMotorController().setIdleMode(IdleMode.kCoast);
+        // Kp : 0.82212
+        motor.setControlType(PIDControlType.Voltage);
+        follower.getMotorController().follow(motor.getMotorController(), true);
+
+        return new ShooterMap(motor, encoder, ff);
     }
 
     @Override

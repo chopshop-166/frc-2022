@@ -45,6 +45,12 @@ public class Intake extends SmartSubsystemBase {
         });
     }
 
+    public CommandBase rollIntake(SpinDirection rollerDirection) {
+        return startEnd("Start Intake", () -> {
+            rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
+        }, () -> rollerMotor.stopMotor());
+    }
+
     public CommandBase startRoller(SpinDirection rollerDirection) {
         return instant("Start Roller", () -> {
             rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
