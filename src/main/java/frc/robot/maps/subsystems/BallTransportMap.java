@@ -2,10 +2,10 @@ package frc.robot.maps.subsystems;
 
 import java.util.function.BooleanSupplier;
 
+import com.chopshop166.chopshoplib.digital.MockDigitalInput;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IColorSensor;
 import com.chopshop166.chopshoplib.sensors.MockColorSensor;
-import com.chopshop166.chopshoplib.sensors.MockDigitalInput;
 
 public class BallTransportMap {
     private final SmartMotorController bottomMotor;

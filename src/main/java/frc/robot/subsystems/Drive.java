@@ -76,13 +76,13 @@ public class Drive extends SmartSubsystemBase {
     }
 
     public CommandBase driveDistanceY(final double distance) {
-        return functional("Drive Distance Y", () -> {
+        return cmd("Drive Distance Y").onInitialize(() -> {
             frontLeft.resetDistance();
-        }, () -> {
+        }).onExecute(() -> {
             updateSwerveSpeedAngle(() -> 0, () -> Math.signum(distance) * 0.2, () -> 0);
-        }, (interrupted) -> {
+        }).onEnd(interrupted -> {
             updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
-        }, () -> {
+        }).runsUntil(() -> {
             return Math.abs(frontLeft.getDistance()) >= Math.abs(distance);
         });
     }

@@ -51,7 +51,7 @@ public class Climber extends SmartSubsystemBase {
         return cmd("Extend Speed").onExecute(() -> {
             extendMotor.set(extendLimit.applyAsDouble(speed.getAsDouble()));
             SmartDashboard.putNumber("Climber Speed", extendMotor.get());
-        }).until(extendMotor::errored).onEnd((interrupted) -> {
+        }).runsUntil(extendMotor::errored).onEnd((interrupted) -> {
             extendMotor.set(0.0);
         });
     }
@@ -60,15 +60,15 @@ public class Climber extends SmartSubsystemBase {
         return cmd("Rotate Speed").onExecute(() -> {
             rotateMotor.set(rotateLimit.applyAsDouble(speed.getAsDouble()));
             SmartDashboard.putNumber("Rotate Speed", rotateMotor.get());
-        }).until(rotateMotor::errored).onEnd((interrupted) -> {
+        }).runsUntil(rotateMotor::errored).onEnd((interrupted) -> {
             rotateMotor.set(0.0);
         });
     }
 
     public CommandBase rotate(SpinDirection direction) {
         return cmd("Rotate").onExecute(() -> {
-            rotateMotor.set(rotateLimit.applyAsDouble(direction.get(ROTATE_SPEED)));
-        }).until(rotateMotor::errored).onEnd((interrupted) -> {
+            rotateMotor.set(rotateLimit.applyAsDouble(direction.apply(ROTATE_SPEED)));
+        }).runsUntil(rotateMotor::errored).onEnd((interrupted) -> {
             rotateMotor.set(0.0);
         });
     }
@@ -76,7 +76,7 @@ public class Climber extends SmartSubsystemBase {
     public CommandBase extend(ExtendDirection direction) {
         return cmd("Extend").onExecute(() -> {
             extendMotor.set(extendLimit.applyAsDouble(direction.get()));
-        }).until(extendMotor::errored).onEnd((interrupted) -> {
+        }).runsUntil(extendMotor::errored).onEnd((interrupted) -> {
             extendMotor.set(0.0);
         });
     }
