@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 @RobotMapFor("00:80:2F:17:62:25")
-public class GastonMap extends RobotMap {
+public class ValkyrieMap extends RobotMap {
     final int CLIMBER_EXTEND_LIMIT = 20;
     final int CLIMBER_ROTATE_LIMIT = 20;
 
