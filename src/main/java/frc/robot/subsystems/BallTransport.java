@@ -132,6 +132,20 @@ public class BallTransport extends SmartSubsystemBase {
         });
     }
 
+    public CommandBase moveBothMotorsToLaser() {
+        return cmd("Move ball from color sensor to laser").onExecute(() -> {
+            if (colorSensorBallLimit()) {
+                seenBall = true;
+            }
+            if (!laserSwitch.getAsBoolean() && seenBall) {
+                bottomMotor.set(TRANSPORT_SPEED);
+                topMotor.set(TRANSPORT_SPEED);
+            } else {
+                seenBall = false;
+            }
+        }).until(() -> !seenBall).onEnd(this::stop);
+    }
+
     public CommandBase runTopBackwards() {
         return startEnd("Run Top Transport Backwards", () -> {
             topMotor.set(REMOVE_SPEED);

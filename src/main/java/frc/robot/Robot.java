@@ -50,15 +50,18 @@ public class Robot extends CommandRobot {
         driveController.getPovButton(POVDirection.UP).whenPressed(shooter.setTargetHub(HubSpeed.HIGH));
         driveController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setTargetHub(HubSpeed.LOW));
 
-        driveController.b().whileHeld(shooter.testSpeed(0.4));
-        driveController.y().whenPressed(shooter.stop());
+        // driveController.b().whileHeld(shooter.testSpeed(0.4));
+        driveController.b().whenPressed(shooter.stop());
         // Variable speed for shooter (Used for testing?)
         driveController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
 
         // Drive:
         driveController.back().whenPressed(drive.resetCmd());
 
-        driveController.x().whenPressed(ballTransport.loadShooter());
+        driveController.x()
+                .whileHeld(sequence("Shoot", shooter.setTargetHub(HubSpeed.LOW), shooter.waitUntilSpeedUp(),
+                        ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser()))
+                .whenReleased(shooter.stop());
 
         SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
         SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
@@ -73,6 +76,7 @@ public class Robot extends CommandRobot {
                                 ballTransport.loadCargoWithIntake()),
                         parallel("Intake retracted w/ Ball Transport",
                                 ballTransport.stopTransport(), intake.retract())));
+
         driveController.y()
                 .whenPressed(sequence("Remove Wrong Colored Balls",
                         intake.extend(SpinDirection.COUNTERCLOCKWISE),
@@ -115,9 +119,9 @@ public class Robot extends CommandRobot {
 
     @Override
     public void setDefaultCommands() {
-        drive.setDefaultCommand(
-                drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY,
-                        driveController::getRightX));
+        // drive.setDefaultCommand(
+        // drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY,
+        // driveController::getRightX));
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
     }
 }

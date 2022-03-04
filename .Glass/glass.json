@@ -11,11 +11,16 @@
       "/LiveWindow/Shooter": "Subsystem",
       "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
       "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[2]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[3]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[4]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[5]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/Shuffleboard/Shuffleboard/Autonomous": "String Chooser",
       "/SmartDashboard/Only Roll Intake Forwards": "Command",
       "/SmartDashboard/Run Bottom Backwards": "Command",
-      "/SmartDashboard/Run Top Backwards": "Command"
+      "/SmartDashboard/Run Top Backwards": "Command",
+      "/SmartDashboard/Stop Intake": "Command"
     }
   },
   "NetworkTables Settings": {
