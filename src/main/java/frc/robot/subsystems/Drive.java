@@ -14,6 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -30,10 +31,13 @@ public class Drive extends SmartSubsystemBase {
     private final double maxRotationRadiansPerSecond;
     private final Gyro gyro;
 
+    private Field2d field = new Field2d();
+
     private Pose2d pose = new Pose2d();
 
     public Drive(final SwerveDriveMap map) {
         super();
+        SmartDashboard.putData("Field", field);
 
         frontLeft = map.getFrontLeft();
         frontRight = map.getFrontRight();
@@ -51,6 +55,10 @@ public class Drive extends SmartSubsystemBase {
     public CommandBase fieldCentricDrive(final DoubleSupplier translateX, final DoubleSupplier translateY,
             final DoubleSupplier rotation) {
         return running("Field Centric Drive", () -> updateSwerveSpeedAngle(translateX, translateY, rotation));
+    }
+
+    public Pose2d getPose() {
+        return pose;
     }
 
     private void updateSwerveSpeedAngle(final DoubleSupplier translateX, final DoubleSupplier translateY,
@@ -122,6 +130,7 @@ public class Drive extends SmartSubsystemBase {
     public void periodic() {
         pose = odometry.update(gyro.getRotation2d(), frontLeft.getState(), frontRight.getState(), rearLeft.getState(),
                 rearRight.getState());
+        field.setRobotPose(pose);
     }
 
     @Override
@@ -140,5 +149,6 @@ public class Drive extends SmartSubsystemBase {
         frontRight.setDesiredState(stop);
         rearLeft.setDesiredState(stop);
         rearRight.setDesiredState(stop);
+
     }
 }

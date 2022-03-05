@@ -73,11 +73,6 @@ public class Robot extends CommandRobot {
                         ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser()))
                 .whenReleased(shooter.stop());
 
-        SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
-        SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
-        SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
-        SmartDashboard.putData("Stop Intake", intake.stopRoller());
-
         // Intake:
         driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
                 .whileHeld(ballTransport.loadCargoWithIntake())
@@ -124,6 +119,10 @@ public class Robot extends CommandRobot {
 
     @Override
     public void populateDashboard() {
+        SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
+        SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
+        SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
+        SmartDashboard.putData("Stop Intake", intake.stopRoller());
 
     }
 
