@@ -4,7 +4,6 @@ import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
-import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -52,20 +51,7 @@ public class Robot extends CommandRobot {
         DoubleSupplier climberTrigger = copilotController::getTriggers;
         DoubleSupplier climberJoystickX = copilotController::getLeftX;
 
-        // Shooter:
-        // Set target hub for shooter
-        driveController.getPovButton(POVDirection.UP)
-                .whenPressed(shooter.setTargetAndStartShooter(HubSpeed.HIGH));
-        driveController.getPovButton(POVDirection.DOWN)
-                .whenPressed(shooter.setTargetAndStartShooter(HubSpeed.LOW));
-
-        // driveController.b().whileHeld(shooter.testSpeed(0.4));
-        driveController.b().whenPressed(shooter.stop());
-        // Variable speed for shooter (Used for testing?)
-        driveController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
-
         // Drive:
-        driveController.back().whenPressed(drive.resetCmd());
 
         driveController.x()
                 .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW),
@@ -83,38 +69,49 @@ public class Robot extends CommandRobot {
                         ballTransport.stopTransport()));
 
         driveController.y()
-                .whenPressed(sequence("Remove Wrong Colored Balls",
-                        intake.extend(SpinDirection.COUNTERCLOCKWISE),
-                        ballTransport.removeCargo(), intake.retract()));
+                .whenPressed(intake.extend(SpinDirection.CLOCKWISE))
+                .whenReleased(intake.retract());
+
+        copilotController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
+                .whileHeld(ballTransport.loadCargoWithIntake())
+                .whenReleased(sequence("Ball transport end",
+                        intake.retract(),
+                        race("Finish Transport", new WaitCommand(2.5),
+                                ballTransport.loadCargoWithIntake()),
+                        ballTransport.stopTransport()));
+
+        copilotController.y()
+                .whenPressed(intake.extend(SpinDirection.CLOCKWISE))
+                .whenReleased(intake.retract());
 
         // Climber:
-        copilotController.x()
-                .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
-                        climberTrigger), rightClimber.extendSpeed(climberTrigger)));
-        copilotController.y()
-                .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(
-                        climberJoystickX),
-                        rightClimber.rotateSpeed(
-                                climberJoystickX)));
+        // copilotController.x()
+        // .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
+        // climberTrigger), rightClimber.extendSpeed(climberTrigger)));
+        // copilotController.y()
+        // .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(
+        // climberJoystickX),
+        // rightClimber.rotateSpeed(
+        // climberJoystickX)));
 
-        copilotController.getPovButton(POVDirection.LEFT)
-                .whileHeld(parallel("Rotate CCW",
-                        leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
-                        rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
-        copilotController.getPovButton(POVDirection.RIGHT)
-                .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
-                        rightClimber.rotate(SpinDirection.CLOCKWISE)));
-        copilotController.a()
-                .whileHeld(parallel("Extend", leftClimber.extend(ExtendDirection.EXTEND),
-                        rightClimber.extend(ExtendDirection.EXTEND)));
-        copilotController.b()
-                .whileHeld(parallel("Retract", leftClimber.extend(ExtendDirection.RETRACT),
-                        rightClimber.extend(ExtendDirection.RETRACT)));
+        // copilotController.getPovButton(POVDirection.LEFT)
+        // .whileHeld(parallel("Rotate CCW",
+        // leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
+        // rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
+        // copilotController.getPovButton(POVDirection.RIGHT)
+        // .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
+        // rightClimber.rotate(SpinDirection.CLOCKWISE)));
+        // copilotController.a()
+        // .whileHeld(parallel("Extend", leftClimber.extend(ExtendDirection.EXTEND),
+        // rightClimber.extend(ExtendDirection.EXTEND)));
+        // copilotController.b()
+        // .whileHeld(parallel("Retract", leftClimber.extend(ExtendDirection.RETRACT),
+        // rightClimber.extend(ExtendDirection.RETRACT)));
 
         // Stop all subsystems
-        driveController.back().whenPressed(cmd("Stop All").onInitialize(() -> {
+        driveController.back().whenPressed(parallel("Reset All", cmd("Stop All").onInitialize(() -> {
             safeStateAll();
-        }));
+        }), drive.resetCmd()));
     }
 
     @Override
