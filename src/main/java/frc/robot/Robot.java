@@ -13,10 +13,12 @@ import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Climber.ExtendDirection;
+import frc.robot.util.LightAnimation;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.HubSpeed;
+import frc.robot.subsystems.Led;
 
 public class Robot extends CommandRobot {
 
@@ -30,10 +32,15 @@ public class Robot extends CommandRobot {
     private final Intake intake = new Intake(map.getIntakeMap());
 
     private final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
+    private final Led led = new Led(map.getLedMap());
 
     private final Shooter shooter = new Shooter(map.getShooterMap());
     private final Climber leftClimber = new Climber(map.getLeftClimberMap());
     private final Climber rightClimber = new Climber(map.getRightClimberMap());
+
+    private final LightAnimation rainbowAnimation = new LightAnimation("rainbow.json", "Rainbow");
+    private final LightAnimation redAnimation = new LightAnimation("redfade.json", "Red Fade");
+    private final LightAnimation blueAnimation = new LightAnimation("bluefade.json", "Blue Fade");
 
     @Override
     public void robotInit() {
@@ -126,5 +133,6 @@ public class Robot extends CommandRobot {
                 drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY,
                         driveController::getRightX));
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
+        led.setDefaultCommand(led.animate(rainbowAnimation, 0.1));
     }
 }
