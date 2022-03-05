@@ -9,7 +9,7 @@ import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.maps.RobotMap.ClimberMap;
+import frc.robot.maps.subsystems.ClimberMap;
 
 public class Climber extends SmartSubsystemBase {
 

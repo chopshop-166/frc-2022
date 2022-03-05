@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
-import frc.robot.maps.RobotMap.BallTransportMap;
+import frc.robot.maps.subsystems.BallTransportMap;
 
 public class BallTransport extends SmartSubsystemBase {
     private final SmartMotorController bottomMotor;

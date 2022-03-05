@@ -7,7 +7,7 @@ import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.maps.RobotMap.IntakeMap;
+import frc.robot.maps.subsystems.IntakeMap;
 
 public class Intake extends SmartSubsystemBase {
 

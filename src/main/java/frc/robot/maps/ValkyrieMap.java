@@ -1,6 +1,7 @@
 package frc.robot.maps;
 
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
+import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
@@ -21,6 +22,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import frc.robot.maps.subsystems.BallTransportMap;
+import frc.robot.maps.subsystems.ClimberMap;
+import frc.robot.maps.subsystems.IntakeMap;
+import frc.robot.maps.subsystems.ShooterMap;
 
 @RobotMapFor("00:80:2F:17:62:25")
 public class ValkyrieMap extends RobotMap {
