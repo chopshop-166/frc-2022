@@ -1,6 +1,7 @@
 package frc.robot;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
@@ -44,6 +45,21 @@ public class Robot extends CommandRobot {
     private final LightAnimation rainbowAnimation = new LightAnimation("rainbow.json", "Rainbow");
     private final LightAnimation redAnimation = new LightAnimation("redfade.json", "Red Fade");
     private final LightAnimation blueAnimation = new LightAnimation("bluefade.json", "Blue Fade");
+
+    public DoubleUnaryOperator scalingDeadband(double range) {
+        return speed -> {
+            if (Math.abs(speed) < range) {
+                return 0.0;
+            } else {
+                return (speed - (Math.signum(speed) * range)) / (1.0 - range);
+            }
+        };
+    }
+
+    public DoubleSupplier deadbandAxis(double range, DoubleSupplier axis) {
+        DoubleUnaryOperator deadband = scalingDeadband(range);
+        return () -> deadband.applyAsDouble(axis.getAsDouble());
+    }
 
     @Override
     public void robotInit() {
@@ -132,9 +148,11 @@ public class Robot extends CommandRobot {
 
     @Override
     public void setDefaultCommands() {
-        drive.setDefaultCommand(
-                drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY,
-                        driveController::getRightX));
+        final DoubleSupplier deadbandLeftX = deadbandAxis(0.15, driveController::getLeftX);
+        final DoubleSupplier deadbandLeftY = deadbandAxis(0.15, driveController::getLeftY);
+        final DoubleSupplier deadbandRightX = deadbandAxis(0.15, driveController::getRightX);
+        drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
+
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
         led.setDefaultCommand(led.animate(rainbowAnimation, 0.1));
     }
