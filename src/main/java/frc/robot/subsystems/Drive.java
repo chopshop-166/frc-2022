@@ -130,6 +130,7 @@ public class Drive extends SmartSubsystemBase {
     public void periodic() {
         pose = odometry.update(gyro.getRotation2d(), frontLeft.getState(), frontRight.getState(), rearLeft.getState(),
                 rearRight.getState());
+
         field.setRobotPose(pose);
     }
 
