@@ -228,4 +228,9 @@ public class SDSSwerveModule implements SwerveModule {
         builder.addDoubleProperty("Angle", () -> getAngle().getDegrees(), null);
         builder.addDoubleProperty("Speed", () -> driveController.getEncoder().getRate(), null);
     }
+
+    @Override
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(driveController.getEncoder().getRate(), getAngle());
+    }
 }

@@ -7,9 +7,11 @@ import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,10 +24,13 @@ public class Drive extends SmartSubsystemBase {
     private final SwerveModule frontRight;
     private final SwerveModule rearLeft;
     private final SwerveModule rearRight;
+    private final SwerveDriveOdometry odometry;
 
     private final double maxDriveSpeedMetersPerSecond;
     private final double maxRotationRadiansPerSecond;
     private final Gyro gyro;
+
+    private Pose2d pose = new Pose2d();
 
     public Drive(final SwerveDriveMap map) {
         super();
@@ -39,6 +44,8 @@ public class Drive extends SmartSubsystemBase {
         gyro = map.getGyro();
         maxDriveSpeedMetersPerSecond = map.getMaxDriveSpeedMetersPerSecond();
         maxRotationRadiansPerSecond = map.getMaxRotationRadianPerSecond();
+
+        odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d());
     }
 
     public CommandBase fieldCentricDrive(final DoubleSupplier translateX, final DoubleSupplier translateY,
@@ -89,7 +96,8 @@ public class Drive extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
+        pose = odometry.update(gyro.getRotation2d(), frontLeft.getState(), frontRight.getState(), rearLeft.getState(),
+                rearRight.getState());
     }
 
     @Override

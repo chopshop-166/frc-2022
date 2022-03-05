@@ -33,4 +33,11 @@ public interface SwerveModule extends Sendable {
      */
     void setDesiredState(final SwerveModuleState desiredState);
 
+    /**
+     * Get the current state of the module.
+     * 
+     * @return A SwerveModuleState object with the module's current state
+     */
+    SwerveModuleState getState();
+
 }
