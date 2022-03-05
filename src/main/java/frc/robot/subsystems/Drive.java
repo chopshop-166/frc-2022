@@ -2,6 +2,9 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import javax.naming.directory.InitialDirContext;
+import javax.security.auth.login.FailedLoginException;
+
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
@@ -9,6 +12,7 @@ import com.chopshop166.chopshoplib.motors.Modifier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -82,16 +86,40 @@ public class Drive extends SmartSubsystemBase {
         rearRight.setDesiredState(moduleStates[3]);
     }
 
-    public CommandBase driveDistanceY(final double distance) {
-        return cmd("Drive Distance Y").onInitialize(() -> {
-            frontLeft.resetDistance();
-        }).onExecute(() -> {
-            updateSwerveSpeedAngle(() -> 0, () -> Math.signum(distance) * 0.2, () -> 0);
-        }).onEnd(interrupted -> {
-            updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
-        }).runsUntil(() -> {
-            return Math.abs(frontLeft.getDistance()) >= Math.abs(distance);
-        });
+    public CommandBase driveDistance(final double distance, final double direction, final double speed) {
+
+        Rotation2d rotation = Rotation2d.fromDegrees(direction);
+        Drive thisDrive = this;
+
+        return new CommandBase() {
+            {
+                addRequirements(thisDrive);
+                setName("Drive Distance");
+            }
+
+            private Pose2d initialPose;
+
+            @Override
+            public void initialize() {
+                initialPose = new Pose2d(pose.getTranslation().times(1), pose.getRotation().times(1));
+            }
+
+            @Override
+            public void execute() {
+                updateSwerveSpeedAngle(() -> rotation.getSin() * speed, () -> rotation.getCos() * speed, () -> 0);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return initialPose.getTranslation().getDistance(pose.getTranslation()) >= distance;
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
+            }
+
+        };
     }
 
     @Override
