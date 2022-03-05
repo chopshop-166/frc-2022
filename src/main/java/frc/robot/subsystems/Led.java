@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.maps.RobotMap.LedMap;
+import frc.robot.maps.subsystems.LedMap;
 import frc.robot.util.LightAnimation;
 
 public class Led extends SmartSubsystemBase {

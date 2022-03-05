@@ -19,14 +19,15 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import frc.robot.maps.subsystems.BallTransportMap;
 import frc.robot.maps.subsystems.ClimberMap;
 import frc.robot.maps.subsystems.IntakeMap;
+import frc.robot.maps.subsystems.LedMap;
 import frc.robot.maps.subsystems.ShooterMap;
 
 @RobotMapFor("00:80:2F:17:62:25")
@@ -154,6 +155,7 @@ public class ValkyrieMap extends RobotMap {
         return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
     }
 
+    @Override
     public ClimberMap getLeftClimberMap() {
         // The current limit for the climber's motors in amps
 
