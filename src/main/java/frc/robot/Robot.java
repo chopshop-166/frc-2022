@@ -77,10 +77,10 @@ public class Robot extends CommandRobot {
         driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
                 .whileHeld(ballTransport.loadCargoWithIntake())
                 .whenReleased(sequence("Ball transport end",
+                        intake.retract(),
                         race("Finish Transport", new WaitCommand(2.5),
                                 ballTransport.loadCargoWithIntake()),
-                        parallel("Intake retracted w/ Ball Transport",
-                                ballTransport.stopTransport(), intake.retract())));
+                        ballTransport.stopTransport()));
 
         driveController.y()
                 .whenPressed(sequence("Remove Wrong Colored Balls",
