@@ -70,7 +70,7 @@ public class Shooter extends SmartSubsystemBase {
         });
     }
 
-    public CommandBase setTargetHub(HubSpeed hub) {
+    public CommandBase setTargetAndStartShooter(HubSpeed hub) {
         return instant("Set Default Speed", () -> {
             shootSpeed = hub.get();
             pid.setSetpoint(shootSpeed);

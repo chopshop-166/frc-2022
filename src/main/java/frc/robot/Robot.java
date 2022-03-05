@@ -47,8 +47,10 @@ public class Robot extends CommandRobot {
 
         // Shooter:
         // Set target hub for shooter
-        driveController.getPovButton(POVDirection.UP).whenPressed(shooter.setTargetHub(HubSpeed.HIGH));
-        driveController.getPovButton(POVDirection.DOWN).whenPressed(shooter.setTargetHub(HubSpeed.LOW));
+        driveController.getPovButton(POVDirection.UP)
+                .whenPressed(shooter.setTargetAndStartShooter(HubSpeed.HIGH));
+        driveController.getPovButton(POVDirection.DOWN)
+                .whenPressed(shooter.setTargetAndStartShooter(HubSpeed.LOW));
 
         // driveController.b().whileHeld(shooter.testSpeed(0.4));
         driveController.b().whenPressed(shooter.stop());
@@ -59,7 +61,7 @@ public class Robot extends CommandRobot {
         driveController.back().whenPressed(drive.resetCmd());
 
         driveController.x()
-                .whileHeld(sequence("Shoot", shooter.setTargetHub(HubSpeed.LOW),
+                .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW),
                         shooter.waitUntilSpeedUp(),
                         ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser()))
                 .whenReleased(shooter.stop());
