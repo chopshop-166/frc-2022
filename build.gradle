@@ -80,8 +80,10 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
+    implementation 'org.json:json:20211205'
     implementation 'com.google.guava:guava:30.1-jre'
     testImplementation 'junit:junit:4.12'
+    
 
     implementation chopshop.deps()
 }
