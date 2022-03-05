@@ -16,6 +16,8 @@ import frc.robot.subsystems.Climber.ExtendDirection;
 import frc.robot.util.LightAnimation;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.HubSpeed;
 import frc.robot.subsystems.Led;
 
 public class Robot extends CommandRobot {
@@ -29,62 +31,67 @@ public class Robot extends CommandRobot {
 
     private final Intake intake = new Intake(map.getIntakeMap());
 
+    private final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
     private final Led led = new Led(map.getLedMap());
 
-    private final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
-
+    private final Shooter shooter = new Shooter(map.getShooterMap());
     private final Climber leftClimber = new Climber(map.getLeftClimberMap());
     private final Climber rightClimber = new Climber(map.getRightClimberMap());
-
-    private final LightAnimation rainbowAnimation = new LightAnimation("rainbow.json", "Rainbow");
-    private final LightAnimation redAnimation = new LightAnimation("redfade.json", "Red Fade");
-    private final LightAnimation blueAnimation = new LightAnimation("bluefade.json", "Blue Fade");
 
     @Override
     public void robotInit() {
         super.robotInit();
     }
 
+    private final LightAnimation rainbowAnimation = new LightAnimation("rainbow.json", "Rainbow");
+    private final LightAnimation redAnimation = new LightAnimation("redfade.json", "Red Fade");
+    private final LightAnimation blueAnimation = new LightAnimation("bluefade.json", "Blue Fade");
     @Override
     public void configureButtonBindings() {
         DoubleSupplier climberTrigger = copilotController::getTriggers;
         DoubleSupplier climberJoystickX = copilotController::getLeftX;
 
+        // Shooter:
+        // Set target hub for shooter
+        driveController.getPovButton(POVDirection.UP)
+                .whenPressed(shooter.setTargetAndStartShooter(HubSpeed.HIGH));
+        driveController.getPovButton(POVDirection.DOWN)
+                .whenPressed(shooter.setTargetAndStartShooter(HubSpeed.LOW));
+
+        // driveController.b().whileHeld(shooter.testSpeed(0.4));
+        driveController.b().whenPressed(shooter.stop());
+        // Variable speed for shooter (Used for testing?)
+        driveController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
+
+        // Drive:
         driveController.back().whenPressed(drive.resetCmd());
 
-        // Intake:
-        // On button press: extend intake and start roller
-        // On button release: retract intake and stop roller
-
-        // Soon to be shooter command
-        driveController.x().whenPressed(ballTransport.loadShooter());
-
-        driveController.a().whenPressed(intake.extend())
-                .whileHeld(
-                        sequence("Start Intake and Transporter",
-                                intake.startRoller(SpinDirection.COUNTERCLOCKWISE),
-                                ballTransport.loadCargoWithIntake()))
-                .whenReleased(sequence("Ball transport end",
-                        race("Finish Transport", new WaitCommand(2), ballTransport
-                                .loadCargoWithIntake()),
-                        parallel("Intake retracted w/ Ball Transport",
-                                ballTransport.stopTransport(),
-                                intake.retract())));
-
-        driveController.y()
-                .whenPressed(
-                        sequence("Remove Wrong Colored Balls", intake.extend(),
-                                intake.startRoller(SpinDirection.CLOCKWISE),
-                                ballTransport.removeCargo(), intake.retract()));
+        driveController.x()
+                .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+                        shooter.waitUntilSpeedUp(),
+                        ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser()))
+                .whenReleased(shooter.stop());
 
         SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
-        SmartDashboard.putData("Run Bottom Backwards",
-                ballTransport.runBottomBackwards());
-        SmartDashboard.putData("Only Roll Intake Forwards",
-                intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
+        SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
+        SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
         SmartDashboard.putData("Stop Intake", intake.stopRoller());
 
-        // // Climber:
+        // Intake:
+        driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
+                .whileHeld(ballTransport.loadCargoWithIntake())
+                .whenReleased(sequence("Ball transport end",
+                        race("Finish Transport", new WaitCommand(2.5),
+                                ballTransport.loadCargoWithIntake()),
+                        parallel("Intake retracted w/ Ball Transport",
+                                ballTransport.stopTransport(), intake.retract())));
+
+        driveController.y()
+                .whenPressed(sequence("Remove Wrong Colored Balls",
+                        intake.extend(SpinDirection.COUNTERCLOCKWISE),
+                        ballTransport.removeCargo(), intake.retract()));
+
+        // Climber:
         copilotController.x()
                 .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
                         climberTrigger), rightClimber.extendSpeed(climberTrigger)));
@@ -109,14 +116,14 @@ public class Robot extends CommandRobot {
                         rightClimber.extend(ExtendDirection.RETRACT)));
 
         // Stop all subsystems
-        copilotController.back().whenPressed(cmd("Stop All").onInitialize(() -> {
+        driveController.back().whenPressed(cmd("Stop All").onInitialize(() -> {
             safeStateAll();
         }));
     }
 
     @Override
     public void populateDashboard() {
-        // TODO Auto-generated method stub
+
     }
 
     @Override
@@ -125,7 +132,6 @@ public class Robot extends CommandRobot {
                 drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY,
                         driveController::getRightX));
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
-
-        led.setDefaultCommand(led.animate(rainbowAnimation));
     }
+        led.setDefaultCommand(led.animate(rainbowAnimation));
 }

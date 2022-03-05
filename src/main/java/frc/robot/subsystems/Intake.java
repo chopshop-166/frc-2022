@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
@@ -11,7 +7,7 @@ import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.maps.RobotMap.IntakeMap;
+import frc.robot.maps.subsystems.IntakeMap;
 
 public class Intake extends SmartSubsystemBase {
 
@@ -37,14 +33,22 @@ public class Intake extends SmartSubsystemBase {
     // going out
 
     // Extend with the deployment motor and spin roller
-    public CommandBase extend() {
+    public CommandBase extend(SpinDirection rollerDirection) {
         return cmd("Extend Intake").onExecute(() -> {
             // Using validators in a modifier in combination with using it to stop the
             // command
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_EXTEND_SPEED));
         }).until(deploymentMotor::errored).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
+            rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
+
         });
+    }
+
+    public CommandBase rollIntake(SpinDirection rollerDirection) {
+        return startEnd("Start Intake", () -> {
+            rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
+        }, () -> rollerMotor.stopMotor());
     }
 
     public CommandBase startRoller(SpinDirection rollerDirection) {
