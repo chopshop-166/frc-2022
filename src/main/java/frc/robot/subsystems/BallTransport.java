@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.Map;
 import java.util.function.BooleanSupplier;
+
 import com.chopshop166.chopshoplib.SampleBuffer;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
@@ -25,7 +26,7 @@ public class BallTransport extends SmartSubsystemBase {
     // "random values that get bigger when it's closer"
     static private final int BALL_DETECTION_LIMIT = 160;
     static private final double REMOVE_SPEED = -0.25;
-    static private final double TRANSPORT_SPEED = 0.5;
+    static private final double TRANSPORT_SPEED = 0.6;
 
     boolean seenBall = false;
 
@@ -82,8 +83,8 @@ public class BallTransport extends SmartSubsystemBase {
             }
         }).until(() -> {
             return !laserSwitch.getAsBoolean();
-        }).onEnd((interrupted) -> {
-            if (!interrupted) {
+        }).onEnd(() -> {
+            if (!colorBuffer.isEmpty()) {
                 colorBuffer.pop();
             }
             topMotor.stopMotor();
@@ -129,6 +130,20 @@ public class BallTransport extends SmartSubsystemBase {
                 safeState();
             }
         });
+    }
+
+    public CommandBase moveBothMotorsToLaser() {
+        return cmd("Move ball from color sensor to laser").onExecute(() -> {
+            if (colorSensorBallLimit()) {
+                seenBall = true;
+            }
+            if (!laserSwitch.getAsBoolean() && seenBall) {
+                bottomMotor.set(TRANSPORT_SPEED);
+                topMotor.set(TRANSPORT_SPEED);
+            } else {
+                seenBall = false;
+            }
+        }).until(() -> !seenBall).onEnd(this::stop);
     }
 
     public CommandBase runTopBackwards() {
