@@ -13,6 +13,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
@@ -136,5 +138,13 @@ public class ValkyrieMap extends RobotMap {
         rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
         return new ClimberMap(extendMotor, rotateMotor);
+    }
+
+    @Override
+    public LedMap getLedMap() {
+        AddressableLED led = new AddressableLED(0);
+        AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(30);
+
+        return new LedMap(led, ledBuffer);
     }
 }
