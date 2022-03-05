@@ -98,7 +98,8 @@ public class ValkyrieMap extends RobotMap {
 
         final PIDController pid = new PIDController(0.82212 / 4.0, 0, 0);
 
-        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.17243, 0.49992 / 4.0, 0.6289);
+        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.17243, 0.49992 /
+                4.0, 0.6289);
 
         // Ks: -0.17243
         // Kv: 0.49992
