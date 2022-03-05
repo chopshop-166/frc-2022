@@ -146,6 +146,8 @@ public class SDSSwerveModule implements SwerveModule {
         final double angleOutput = steeringPID.calculate(getAngle().getDegrees(), state.angle.getDegrees());
         if (state.speedMetersPerSecond != 0) {
             steeringController.set(angleOutput);
+        } else {
+            steeringController.set(0);
         }
 
         // Set the drive motor output speed
@@ -227,5 +229,10 @@ public class SDSSwerveModule implements SwerveModule {
         builder.addDoubleProperty("Speed Error", () -> speedError, null);
         builder.addDoubleProperty("Angle", () -> getAngle().getDegrees(), null);
         builder.addDoubleProperty("Speed", () -> driveController.getEncoder().getRate(), null);
+    }
+
+    @Override
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(-driveController.getEncoder().getRate(), getAngle());
     }
 }

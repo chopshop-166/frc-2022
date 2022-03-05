@@ -17,10 +17,18 @@
       "/LiveWindow/Ungrouped/PIDController[5]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/Shuffleboard/Shuffleboard/Autonomous": "String Chooser",
+      "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Only Roll Intake Forwards": "Command",
       "/SmartDashboard/Run Bottom Backwards": "Command",
       "/SmartDashboard/Run Top Backwards": "Command",
       "/SmartDashboard/Stop Intake": "Command"
+    },
+    "windows": {
+      "/SmartDashboard/Field": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables Settings": {

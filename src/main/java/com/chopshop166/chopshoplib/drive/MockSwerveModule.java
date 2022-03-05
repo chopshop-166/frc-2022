@@ -57,4 +57,9 @@ public class MockSwerveModule implements SwerveModule {
     public Rotation2d getAngle() {
         return desiredState.angle;
     }
+
+    @Override
+    public SwerveModuleState getState() {
+        return new SwerveModuleState();
+    }
 }
