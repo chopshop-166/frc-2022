@@ -24,7 +24,7 @@ public class Shooter extends SmartSubsystemBase {
     private static final double RPM_BUFFER = 10;
     private double shootSpeed;
 
-    private PIDController pid = new PIDController(0.82212 / 4.0, 0, 0);
+    private PIDController pid;
     private SimpleMotorFeedforward feedforward;
 
     public enum HubSpeed {
@@ -46,6 +46,7 @@ public class Shooter extends SmartSubsystemBase {
         encoder = map.getEncoder();
         feedforward = map.getFeedforward();
         shootSpeed = 0;
+        pid = map.getPid();
     }
 
     private void calculatePid(double speed) {

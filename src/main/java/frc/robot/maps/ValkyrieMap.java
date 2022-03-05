@@ -14,6 +14,7 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
@@ -83,6 +84,8 @@ public class ValkyrieMap extends RobotMap {
 
         final WEncoder encoder = new WEncoder(1, 2, true, EncodingType.k1X);
 
+        final PIDController pid = new PIDController(0.82212 / 4.0, 0, 0);
+
         SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.17243, 0.49992 / 4.0, 0.6289);
 
         // Ks: -0.17243
@@ -97,7 +100,7 @@ public class ValkyrieMap extends RobotMap {
         motor.setControlType(PIDControlType.Voltage);
         follower.getMotorController().follow(motor.getMotorController(), true);
 
-        return new ShooterMap(motor, encoder, ff);
+        return new ShooterMap(motor, encoder, ff, pid);
     }
 
     @Override

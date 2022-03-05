@@ -13,6 +13,7 @@ import com.chopshop166.chopshoplib.sensors.IEncoder;
 import com.chopshop166.chopshoplib.sensors.MockEncoder;
 import com.chopshop166.chopshoplib.sensors.MockGyro;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
@@ -184,15 +185,19 @@ public class RobotMap {
         private SmartMotorController motor;
         private IEncoder encoder;
         private SimpleMotorFeedforward feedforward;
+        private PIDController pid;
 
-        public ShooterMap(SmartMotorController motor, IEncoder encoder, SimpleMotorFeedforward feedforward) {
+        public ShooterMap(SmartMotorController motor, IEncoder encoder, SimpleMotorFeedforward feedforward,
+                PIDController pid) {
             this.motor = motor;
             this.encoder = encoder;
             this.feedforward = feedforward;
+            this.pid = pid;
         }
 
         public ShooterMap() {
-            this(new SmartMotorController(), new MockEncoder(), new SimpleMotorFeedforward(0.0, 0.0));
+            this(new SmartMotorController(), new MockEncoder(), new SimpleMotorFeedforward(0.0, 0.0),
+                    new PIDController(0, 0, 0));
 
         }
 
@@ -206,6 +211,10 @@ public class RobotMap {
 
         public IEncoder getEncoder() {
             return encoder;
+        }
+
+        public PIDController getPid() {
+            return pid;
         }
 
     }
