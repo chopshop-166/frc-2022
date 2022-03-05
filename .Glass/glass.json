@@ -1,0 +1,22 @@
+{
+  "NetworkTables": {
+    "SmartDashboard": {
+      "open": true
+    },
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/BallTransport": "Subsystem",
+      "/LiveWindow/Intake": "Subsystem",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/Shuffleboard/Shuffleboard/Autonomous": "String Chooser",
+      "/SmartDashboard/Only Roll Intake Forwards": "Command",
+      "/SmartDashboard/Run Bottom Backwards": "Command",
+      "/SmartDashboard/Run Top Backwards": "Command",
+      "/SmartDashboard/Stop Intake": "Command"
+    }
+  },
+  "NetworkTables Settings": {
+    "mode": "Client",
+    "serverTeam": "166"
+  }
+}

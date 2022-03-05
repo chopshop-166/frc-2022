@@ -25,8 +25,8 @@ public class ValkyrieMap extends RobotMap {
 
     @Override
     public SwerveDriveMap getSwerveDriveMap() {
-        // Value taken from CAD as offset from center of module base pulley to center of
-        // robot
+        // Value taken from CAD as offset from center of module base pulley to center
+        // of the robot
         final double MODULE_OFFSET_XY = 0.314325;
 
         // All Distances are in Meters
@@ -35,7 +35,8 @@ public class ValkyrieMap extends RobotMap {
         encoderFL.configMagnetOffset(-195.381);
         encoderFL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule frontLeft = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
-                encoderFL, new PIDSparkMax(2, MotorType.kBrushless), new PIDSparkMax(1, MotorType.kBrushless),
+                encoderFL, new PIDSparkMax(2, MotorType.kBrushless), new PIDSparkMax(1,
+                        MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
         // Front Right Module
@@ -43,7 +44,8 @@ public class ValkyrieMap extends RobotMap {
         encoderFR.configMagnetOffset(-304.189 + 180);
         encoderFR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule frontRight = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
-                encoderFR, new PIDSparkMax(4, MotorType.kBrushless), new PIDSparkMax(3, MotorType.kBrushless),
+                encoderFR, new PIDSparkMax(4, MotorType.kBrushless), new PIDSparkMax(3,
+                        MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
         // Rear Left Module
@@ -51,7 +53,8 @@ public class ValkyrieMap extends RobotMap {
         encoderRL.configMagnetOffset(-298.213);
         encoderRL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule rearLeft = new SDSSwerveModule(new Translation2d(-MODULE_OFFSET_XY, MODULE_OFFSET_XY),
-                encoderRL, new PIDSparkMax(6, MotorType.kBrushless), new PIDSparkMax(5, MotorType.kBrushless),
+                encoderRL, new PIDSparkMax(6, MotorType.kBrushless), new PIDSparkMax(5,
+                        MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
         // Rear Right Module
@@ -59,7 +62,8 @@ public class ValkyrieMap extends RobotMap {
         encoderRR.configMagnetOffset(-168.223 + 180);
         encoderRR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule rearRight = new SDSSwerveModule(new Translation2d(-MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
-                encoderRR, new PIDSparkMax(8, MotorType.kBrushless), new PIDSparkMax(7, MotorType.kBrushless),
+                encoderRR, new PIDSparkMax(8, MotorType.kBrushless), new PIDSparkMax(7,
+                        MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
         final double maxDriveSpeedMetersPerSecond = Units.feetToMeters(10);
@@ -69,7 +73,8 @@ public class ValkyrieMap extends RobotMap {
         // final Gyro gyro = new PigeonGyro(new PigeonIMU(5));
         final Gyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
 
-        return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight, maxDriveSpeedMetersPerSecond,
+        return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
+                maxDriveSpeedMetersPerSecond,
                 maxRotationRadianPerSecond, pigeonGyro);
     }
 
@@ -78,8 +83,10 @@ public class ValkyrieMap extends RobotMap {
         // Current limit in amps
         final int CURRENT_LIMIT = 30;
 
-        final PIDSparkMax deploymentMotor = new PIDSparkMax(11, MotorType.kBrushless);
-        final PIDSparkMax deploymentFollower = new PIDSparkMax(12, MotorType.kBrushless);
+        final PIDSparkMax deploymentMotor = new PIDSparkMax(11,
+                MotorType.kBrushless);
+        final PIDSparkMax deploymentFollower = new PIDSparkMax(12,
+                MotorType.kBrushless);
         final PIDSparkMax rollerMotor = new PIDSparkMax(13, MotorType.kBrushless);
 
         // Use current as a validator along with setting a current limit
@@ -87,7 +94,8 @@ public class ValkyrieMap extends RobotMap {
 
         deploymentMotor.validateCurrent(CURRENT_LIMIT);
 
-        deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(), true);
+        deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(),
+                true);
         deploymentMotor.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
         deploymentFollower.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
         rollerMotor.getMotorController().setInverted(true);
@@ -143,7 +151,8 @@ public class ValkyrieMap extends RobotMap {
     @Override
     public LedMap getLedMap() {
         AddressableLED led = new AddressableLED(0);
-        AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(30);
+        // Best if this is a multiple of 10
+        AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(100);
 
         return new LedMap(led, ledBuffer);
     }

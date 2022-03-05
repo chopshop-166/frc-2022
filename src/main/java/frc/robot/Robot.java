@@ -36,7 +36,9 @@ public class Robot extends CommandRobot {
     private final Climber leftClimber = new Climber(map.getLeftClimberMap());
     private final Climber rightClimber = new Climber(map.getRightClimberMap());
 
-    private final LightAnimation rainbowAnimation = new LightAnimation("rainbow.json");
+    private final LightAnimation rainbowAnimation = new LightAnimation("rainbow.json", "Rainbow");
+    private final LightAnimation redAnimation = new LightAnimation("redfade.json", "Red Fade");
+    private final LightAnimation blueAnimation = new LightAnimation("bluefade.json", "Blue Fade");
 
     @Override
     public void robotInit() {
@@ -59,12 +61,16 @@ public class Robot extends CommandRobot {
 
         driveController.a().whenPressed(intake.extend())
                 .whileHeld(
-                        sequence("Start Intake and Transporter", intake.startRoller(SpinDirection.COUNTERCLOCKWISE),
+                        sequence("Start Intake and Transporter",
+                                intake.startRoller(SpinDirection.COUNTERCLOCKWISE),
                                 ballTransport.loadCargoWithIntake()))
-                .whenReleased(sequence("Ball transport end", race("Finish Transport", new WaitCommand(2), ballTransport
-                        .loadCargoWithIntake()),
-                        parallel("Intake retracted w/ Ball Transport", ballTransport.stopTransport(),
+                .whenReleased(sequence("Ball transport end",
+                        race("Finish Transport", new WaitCommand(2), ballTransport
+                                .loadCargoWithIntake()),
+                        parallel("Intake retracted w/ Ball Transport",
+                                ballTransport.stopTransport(),
                                 intake.retract())));
+
         driveController.y()
                 .whenPressed(
                         sequence("Remove Wrong Colored Balls", intake.extend(),
@@ -72,11 +78,13 @@ public class Robot extends CommandRobot {
                                 ballTransport.removeCargo(), intake.retract()));
 
         SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
-        SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
-        SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
+        SmartDashboard.putData("Run Bottom Backwards",
+                ballTransport.runBottomBackwards());
+        SmartDashboard.putData("Only Roll Intake Forwards",
+                intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
         SmartDashboard.putData("Stop Intake", intake.stopRoller());
 
-        // Climber:
+        // // Climber:
         copilotController.x()
                 .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
                         climberTrigger), rightClimber.extendSpeed(climberTrigger)));
@@ -87,7 +95,8 @@ public class Robot extends CommandRobot {
                                 climberJoystickX)));
 
         copilotController.getPovButton(POVDirection.LEFT)
-                .whileHeld(parallel("Rotate CCW", leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
+                .whileHeld(parallel("Rotate CCW",
+                        leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
                         rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
         copilotController.getPovButton(POVDirection.RIGHT)
                 .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
@@ -107,7 +116,6 @@ public class Robot extends CommandRobot {
 
     @Override
     public void populateDashboard() {
-
         // TODO Auto-generated method stub
     }
 

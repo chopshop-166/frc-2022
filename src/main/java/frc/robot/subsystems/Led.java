@@ -19,14 +19,18 @@ public class Led extends SmartSubsystemBase {
     public Led(final LedMap map) {
         led = map.getLed();
         ledBuffer = map.getLedBuffer();
+        led.setLength(ledBuffer.getLength());
+        led.start();
     }
 
     public CommandBase animate(LightAnimation animation) {
         return running("Animate", () -> {
-            if (timer % 3 == 0) {
+            if (timer % 5 == 0) {
                 for (int i = 0; i < ledBuffer.getLength(); i++) {
-                    ledBuffer.setLED(i, animation.getColor(frame / (ledBuffer.getLength() / 10), i));
+                    ledBuffer.setLED(i, animation.getColor(frame,
+                            i / (ledBuffer.getLength() / 10)));
                 }
+                led.setData(ledBuffer);
                 frame++;
             }
             timer++;
