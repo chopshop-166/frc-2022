@@ -38,14 +38,15 @@ public class Robot extends CommandRobot {
     private final Climber leftClimber = new Climber(map.getLeftClimberMap());
     private final Climber rightClimber = new Climber(map.getRightClimberMap());
 
+    private final LightAnimation rainbowAnimation = new LightAnimation("rainbow.json", "Rainbow");
+    private final LightAnimation redAnimation = new LightAnimation("redfade.json", "Red Fade");
+    private final LightAnimation blueAnimation = new LightAnimation("bluefade.json", "Blue Fade");
+    
     @Override
     public void robotInit() {
         super.robotInit();
     }
 
-    private final LightAnimation rainbowAnimation = new LightAnimation("rainbow.json", "Rainbow");
-    private final LightAnimation redAnimation = new LightAnimation("redfade.json", "Red Fade");
-    private final LightAnimation blueAnimation = new LightAnimation("bluefade.json", "Blue Fade");
     @Override
     public void configureButtonBindings() {
         DoubleSupplier climberTrigger = copilotController::getTriggers;
@@ -132,6 +133,6 @@ public class Robot extends CommandRobot {
                 drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY,
                         driveController::getRightX));
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
-    }
         led.setDefaultCommand(led.animate(rainbowAnimation));
+    }
 }
