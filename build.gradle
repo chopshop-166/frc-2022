@@ -2,8 +2,6 @@ import edu.wpi.first.gradlerio.deploy.roborio.RoboRIO
 
 plugins {
     id "java"
-    id "com.github.spotbugs" version "5.0.4"
-    id "pmd"
     id "edu.wpi.first.GradleRIO" version "2022.4.1"
     id "com.chopshop166.plugin" version "0.8"
 }
@@ -104,27 +102,3 @@ jar {
 deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)
-
-tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
-    reports {
-        xml {
-            enabled = false
-        }
-        html {
-            enabled = true
-            stylesheet = 'fancy-hist.xsl'
-        }
-    }
-}
-
-spotbugs {
-    ignoreFailures = true
-    excludeFilter = file("$rootProject.projectDir/config/findbugs-ignore.xml")
-}
-
-pmd {
-    toolVersion = "6.43.0"
-    ignoreFailures = true
-    ruleSets = []
-    ruleSetFiles = files("$rootProject.projectDir/config/pmd-ruleset.xml")
-}
