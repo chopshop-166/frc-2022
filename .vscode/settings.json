@@ -1,33 +1,40 @@
 {
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "java.server.launchMode": "Standard",
-  "editor.formatOnSave": true,
-  "editor.formatOnPaste": true,
-  "files.exclude": {
-    "**/build/": true,
-    "**/.gradle/": true,
-    "**/.git": true,
-    "**/.svn": true,
-    "**/.hg": true,
-    "**/CVS": true,
-    "**/.DS_Store": true,
-    "bin/": true,
-    "**/.classpath": true,
-    "**/.project": true,
-    "**/.settings": true,
-    "**/.factorypath": true,
-    "**/*~": true
-  },
-  "java.test.config": [
-    {
-      "name": "WPIlibUnitTests",
-      "workingDirectory": "${workspaceFolder}/build/jni/release",
-      "vmargs": [ "-Djava.library.path=${workspaceFolder}/build/jni/release" ],
-      "env": {
-        "LD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release" ,
-        "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release"
-      }
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.server.launchMode": "Standard",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "[java]": {
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": false,
+        "editor.tabSize": 4
     },
-  ],
-  "java.test.defaultConfig": "WPIlibUnitTests"
+    "files.exclude": {
+        "**/build/": true,
+        "**/.gradle/": true,
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "bin/": true,
+        "**/.classpath": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.factorypath": true,
+        "**/*~": true
+    },
+    "java.test.config": [
+        {
+            "name": "WPIlibUnitTests",
+            "workingDirectory": "${workspaceFolder}/build/jni/release",
+            "vmargs": [
+                "-Djava.library.path=${workspaceFolder}/build/jni/release"
+            ],
+            "env": {
+                "LD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release",
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release"
+            }
+        },
+    ],
+    "java.test.defaultConfig": "WPIlibUnitTests"
 }
