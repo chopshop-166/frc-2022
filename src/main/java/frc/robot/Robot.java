@@ -1,12 +1,17 @@
 package frc.robot;
 
 import java.util.function.DoubleSupplier;
+import java.util.stream.Stream;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
+import com.chopshop166.chopshoplib.commands.SmartSubsystem;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
+import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
@@ -51,7 +56,17 @@ public class Robot extends CommandRobot {
         DoubleSupplier climberTrigger = copilotController::getTriggers;
         DoubleSupplier climberJoystickX = copilotController::getLeftX;
 
+        driveController.start().whenPressed(drive.resetGyro());
+
+        copilotController.getPovButton(POVDirection.UP).whileHeld(ballTransport.runForwards());
+        copilotController.getPovButton(POVDirection.DOWN).whileHeld(ballTransport.runBackwards());
+        copilotController.getPovButton(POVDirection.RIGHT).whenPressed(ballTransport.moveBothMotorsToLaser());
+
+        driveController.getPovButton(POVDirection.UP).whenPressed(drive.driveDistance(1, 0, 0.2));
+
         // Drive:
+
+        driveController.b().whenPressed(drive.setSpeedCoef(0.5)).whenReleased(drive.setSpeedCoef(1.0));
 
         driveController.x()
                 .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW),
@@ -64,7 +79,7 @@ public class Robot extends CommandRobot {
                 .whileHeld(ballTransport.loadCargoWithIntake())
                 .whenReleased(sequence("Ball transport end",
                         intake.retract(),
-                        race("Finish Transport", new WaitCommand(2.5),
+                        race("Finish Transport", new WaitCommand(0.5),
                                 ballTransport.loadCargoWithIntake()),
                         ballTransport.stopTransport()));
 
@@ -76,7 +91,7 @@ public class Robot extends CommandRobot {
                 .whileHeld(ballTransport.loadCargoWithIntake())
                 .whenReleased(sequence("Ball transport end",
                         intake.retract(),
-                        race("Finish Transport", new WaitCommand(2.5),
+                        race("Finish Transport", new WaitCommand(0.5),
                                 ballTransport.loadCargoWithIntake()),
                         ballTransport.stopTransport()));
 
@@ -109,9 +124,10 @@ public class Robot extends CommandRobot {
         // rightClimber.extend(ExtendDirection.RETRACT)));
 
         // Stop all subsystems
-        driveController.back().whenPressed(parallel("Reset All", cmd("Stop All").onInitialize(() -> {
-            safeStateAll();
-        }), drive.resetCmd()));
+        driveController.back()
+                .whenPressed(
+                        sequence("Stop All", safeStateSubsystems(ballTransport, drive, intake, shooter),
+                                drive.resetCmd()));
     }
 
     @Override
@@ -121,6 +137,11 @@ public class Robot extends CommandRobot {
         SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
         SmartDashboard.putData("Stop Intake", intake.stopRoller());
 
+    }
+
+    public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {
+        return parallel("Reset Subsystems",
+                Stream.of(subsystems).map(SmartSubsystem::safeStateCmd).toArray(CommandBase[]::new));
     }
 
     @Override

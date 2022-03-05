@@ -15,7 +15,7 @@ public class Climber extends SmartSubsystemBase {
 
     // Constants:
 
-    private final double ROTATE_SPEED = 0.2;
+    private static final double ROTATE_SPEED = 0.2;
 
     private final SmartMotorController extendMotor;
     private final SmartMotorController rotateMotor;

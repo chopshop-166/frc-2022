@@ -26,7 +26,7 @@ public class BallTransport extends SmartSubsystemBase {
     // "random values that get bigger when it's closer"
     static private final int BALL_DETECTION_LIMIT = 160;
     static private final double REMOVE_SPEED = -0.25;
-    static private final double TRANSPORT_SPEED = 0.6;
+    static private final double TRANSPORT_SPEED = 1.0;
 
     boolean seenBall = false;
 
@@ -154,6 +154,42 @@ public class BallTransport extends SmartSubsystemBase {
         });
     }
 
+    public CommandBase runTopForwards() {
+        return startEnd("Run Top Transport Forwards", () -> {
+            topMotor.set(TRANSPORT_SPEED);
+        }, () -> {
+            topMotor.stopMotor();
+        });
+    }
+
+    public CommandBase runBackwards() {
+        return startEnd("Run Transport Backwards", () -> {
+            topMotor.set(REMOVE_SPEED);
+            bottomMotor.set(REMOVE_SPEED);
+        }, () -> {
+            topMotor.stopMotor();
+            bottomMotor.stopMotor();
+        });
+    }
+
+    public CommandBase runForwards() {
+        return startEnd("Run Transport Forwards", () -> {
+            topMotor.set(TRANSPORT_SPEED * 0.5);
+            bottomMotor.set(TRANSPORT_SPEED * 0.5);
+        }, () -> {
+            topMotor.stopMotor();
+            bottomMotor.stopMotor();
+        });
+    }
+
+    public CommandBase runBottomForwards() {
+        return startEnd("Run Bottom Transport FORWARDS", () -> {
+            bottomMotor.set(TRANSPORT_SPEED);
+        }, () -> {
+            bottomMotor.stopMotor();
+        });
+    }
+
     public CommandBase runBottomBackwards() {
         return startEnd("Run Bottom Transport Backwards", () -> {
             bottomMotor.set(REMOVE_SPEED);
@@ -221,5 +257,7 @@ public class BallTransport extends SmartSubsystemBase {
     public void safeState() {
         bottomMotor.stopMotor();
         topMotor.stopMotor();
+        seenBall = false;
+        System.out.println("SIDJAKDHSAJKD");
     }
 }

@@ -17,9 +17,11 @@ public class Intake extends SmartSubsystemBase {
     private final SmartMotorController deploymentMotor;
     private final SmartMotorController rollerMotor;
 
-    private static final double ROLLER_SPEED = 0.5;
+    private static final double ROLLER_SPEED = 0.75;
     private static final double DEPLOY_EXTEND_SPEED = 0.3;
     private static final double DEPLOY_RETRACT_SPEED = -0.3;
+
+    private static final double ROLLER_THRESHOLD = 10.0;
 
     private final Modifier limit;
 
@@ -43,14 +45,18 @@ public class Intake extends SmartSubsystemBase {
 
     // Extend with the deployment motor and spin roller
     public CommandBase extend(SpinDirection rollerDirection) {
-        return cmd("Extend Intake").onExecute(() -> {
+        return cmd("Extend Intake").onInitialize(() -> {
+            deploymentMotor.getEncoder().reset();
+        }).onExecute(() -> {
             // Using validators in a modifier in combination with using it to stop the
             // command
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_EXTEND_SPEED));
+            // if (deploymentMotor.getEncoder().getDistance() >= ROLLER_THRESHOLD) {
+            // rollerMotor.set(rollerDirection.apply(ROLLER_SPEED));
+            // }
         }).runsUntil(deploymentMotor::errored).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
             rollerMotor.set(rollerDirection.apply(ROLLER_SPEED));
-
         });
     }
 

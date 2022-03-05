@@ -28,7 +28,7 @@ public class Shooter extends SmartSubsystemBase {
     private SimpleMotorFeedforward feedforward;
 
     public enum HubSpeed {
-        LOW(1500 / 60.0), HIGH(2650 / 60.0);
+        LOW(1800 / 60.0), HIGH(2650 / 60.0);
 
         private double speed;
 
