@@ -6,9 +6,8 @@ import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import frc.robot.maps.subsystems.BallTransportMap;
 import frc.robot.maps.subsystems.ClimberMap;
 import frc.robot.maps.subsystems.IntakeMap;
+import frc.robot.maps.subsystems.LedMap;
 import frc.robot.maps.subsystems.ShooterMap;
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 
 @RobotMapFor("Default")
 public class RobotMap {
@@ -35,29 +34,6 @@ public class RobotMap {
 
     public ClimberMap getRightClimberMap() {
         return new ClimberMap();
-    }
-
-    public static class LedMap {
-        private final AddressableLED led;
-        private final AddressableLEDBuffer ledBuffer;
-
-        public LedMap(AddressableLED led, AddressableLEDBuffer ledBuffer) {
-            this.led = led;
-            this.ledBuffer = ledBuffer;
-        }
-
-        public LedMap() {
-            this(new AddressableLED(0), new AddressableLEDBuffer(0));
-        }
-
-        public AddressableLED getLed() {
-            return led;
-        }
-
-        public AddressableLEDBuffer getLedBuffer() {
-            return ledBuffer;
-        }
-
     }
 
     public LedMap getLedMap() {
