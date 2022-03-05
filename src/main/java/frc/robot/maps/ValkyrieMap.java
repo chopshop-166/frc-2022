@@ -1,17 +1,17 @@
 package frc.robot.maps;
 
+import com.chopshop166.chopshoplib.digital.WDigitalInput;
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
-import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.PigeonGyro;
 import com.chopshop166.chopshoplib.sensors.REVColorSensor;
-import com.chopshop166.chopshoplib.sensors.WDigitalInput;
 import com.chopshop166.chopshoplib.sensors.WEncoder;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -110,7 +110,7 @@ public class ValkyrieMap extends RobotMap {
         motor.getMotorController().setIdleMode(IdleMode.kCoast);
         follower.getMotorController().setIdleMode(IdleMode.kCoast);
         // Kp : 0.82212
-        motor.setControlType(PIDControlType.Voltage);
+        motor.setControlType(CANSparkMax.ControlType.kVoltage);
         follower.getMotorController().follow(motor.getMotorController(), true);
 
         return new ShooterMap(motor, encoder, ff, pid);

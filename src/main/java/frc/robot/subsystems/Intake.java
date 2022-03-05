@@ -38,22 +38,22 @@ public class Intake extends SmartSubsystemBase {
             // Using validators in a modifier in combination with using it to stop the
             // command
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_EXTEND_SPEED));
-        }).until(deploymentMotor::errored).onEnd((interrupted) -> {
+        }).runsUntil(deploymentMotor::errored).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
-            rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
+            rollerMotor.set(rollerDirection.apply(ROLLER_SPEED));
 
         });
     }
 
     public CommandBase rollIntake(SpinDirection rollerDirection) {
         return startEnd("Start Intake", () -> {
-            rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
+            rollerMotor.set(rollerDirection.apply(ROLLER_SPEED));
         }, () -> rollerMotor.stopMotor());
     }
 
     public CommandBase startRoller(SpinDirection rollerDirection) {
         return instant("Start Roller", () -> {
-            rollerMotor.set(rollerDirection.get(ROLLER_SPEED));
+            rollerMotor.set(rollerDirection.apply(ROLLER_SPEED));
         });
     }
 
@@ -69,7 +69,7 @@ public class Intake extends SmartSubsystemBase {
             rollerMotor.set(0.0);
         }).onExecute(() -> {
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_RETRACT_SPEED));
-        }).until(deploymentMotor::errored).onEnd((interrupted) -> {
+        }).runsUntil(deploymentMotor::errored).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
         });
     }
