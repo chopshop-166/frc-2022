@@ -11,7 +11,6 @@ import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
@@ -75,25 +74,26 @@ public class Robot extends CommandRobot {
                 .whenReleased(shooter.stop());
 
         // Intake:
-        driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
-                .whileHeld(ballTransport.loadCargoWithIntake())
-                .whenReleased(sequence("Ball transport end",
-                        intake.retract(),
-                        race("Finish Transport", new WaitCommand(0.5),
-                                ballTransport.loadCargoWithIntake()),
-                        ballTransport.stopTransport()));
+        // These commands are duplicated for both the drive and copilot controllers.
+        final CommandBase intakeExtend = intake.extend(SpinDirection.COUNTERCLOCKWISE);
+        final CommandBase loadBall = ballTransport.loadCargoWithIntake();
+        final CommandBase intakeRetract = sequence("Ball transport end",
+                intake.retract(),
+                race("Finish Transport", new WaitCommand(0.5),
+                        ballTransport.loadCargoWithIntake()),
+                ballTransport.stopTransport());
+
+        driveController.a().whenPressed(intakeExtend)
+                .whileHeld(loadBall)
+                .whenReleased(intakeRetract);
 
         driveController.y()
                 .whenPressed(intake.extend(SpinDirection.CLOCKWISE))
                 .whenReleased(intake.retract());
 
-        copilotController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
-                .whileHeld(ballTransport.loadCargoWithIntake())
-                .whenReleased(sequence("Ball transport end",
-                        intake.retract(),
-                        race("Finish Transport", new WaitCommand(0.5),
-                                ballTransport.loadCargoWithIntake()),
-                        ballTransport.stopTransport()));
+        copilotController.a().whenPressed(intakeExtend)
+                .whileHeld(loadBall)
+                .whenReleased(intakeRetract);
 
         copilotController.y()
                 .whenPressed(intake.extend(SpinDirection.CLOCKWISE))
@@ -139,11 +139,6 @@ public class Robot extends CommandRobot {
 
     }
 
-    public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {
-        return parallel("Reset Subsystems",
-                Stream.of(subsystems).map(SmartSubsystem::safeStateCmd).toArray(CommandBase[]::new));
-    }
-
     @Override
     public void setDefaultCommands() {
         drive.setDefaultCommand(
@@ -151,5 +146,10 @@ public class Robot extends CommandRobot {
                         driveController::getRightX));
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
         led.setDefaultCommand(led.animate(rainbowAnimation, 0.1));
+    }
+
+    public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {
+        return parallel("Reset Subsystems",
+                Stream.of(subsystems).map(SmartSubsystem::safeStateCmd).toArray(CommandBase[]::new));
     }
 }
