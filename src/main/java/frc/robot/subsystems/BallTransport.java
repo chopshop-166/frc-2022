@@ -258,6 +258,5 @@ public class BallTransport extends SmartSubsystemBase {
         bottomMotor.stopMotor();
         topMotor.stopMotor();
         seenBall = false;
-        System.out.println("SIDJAKDHSAJKD");
     }
 }
