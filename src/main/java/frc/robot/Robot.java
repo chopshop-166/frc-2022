@@ -89,31 +89,31 @@ public class Robot extends CommandRobot {
         driveController.y().or(copilotController.y())
                 .whenActive(intake.extend(SpinDirection.CLOCKWISE))
                 .whenInactive(intake.retract());
+        boolean climberActive = false;
+        if (climberActive) { // Climber:
+            copilotController.x()
+                    .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
+                            climberTrigger), rightClimber.extendSpeed(climberTrigger)));
+            copilotController.y()
+                    .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(
+                            climberJoystickX),
+                            rightClimber.rotateSpeed(
+                                    climberJoystickX)));
 
-        // Climber:
-        // copilotController.x()
-        // .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
-        // climberTrigger), rightClimber.extendSpeed(climberTrigger)));
-        // copilotController.y()
-        // .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(
-        // climberJoystickX),
-        // rightClimber.rotateSpeed(
-        // climberJoystickX)));
-
-        // copilotController.getPovButton(POVDirection.LEFT)
-        // .whileHeld(parallel("Rotate CCW",
-        // leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
-        // rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
-        // copilotController.getPovButton(POVDirection.RIGHT)
-        // .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
-        // rightClimber.rotate(SpinDirection.CLOCKWISE)));
-        // copilotController.a()
-        // .whileHeld(parallel("Extend", leftClimber.extend(ExtendDirection.EXTEND),
-        // rightClimber.extend(ExtendDirection.EXTEND)));
-        // copilotController.b()
-        // .whileHeld(parallel("Retract", leftClimber.extend(ExtendDirection.RETRACT),
-        // rightClimber.extend(ExtendDirection.RETRACT)));
-
+            copilotController.getPovButton(POVDirection.LEFT)
+                    .whileHeld(parallel("Rotate CCW",
+                            leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
+                            rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
+            copilotController.getPovButton(POVDirection.RIGHT)
+                    .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
+                            rightClimber.rotate(SpinDirection.CLOCKWISE)));
+            copilotController.a()
+                    .whileHeld(parallel("Extend", leftClimber.extend(ExtendDirection.EXTEND),
+                            rightClimber.extend(ExtendDirection.EXTEND)));
+            copilotController.b()
+                    .whileHeld(parallel("Retract", leftClimber.extend(ExtendDirection.RETRACT),
+                            rightClimber.extend(ExtendDirection.RETRACT)));
+        }
         // Stop all subsystems
         driveController.back()
                 .whenPressed(
