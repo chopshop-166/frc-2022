@@ -75,29 +75,20 @@ public class Robot extends CommandRobot {
 
         // Intake:
         // These commands are duplicated for both the drive and copilot controllers.
-        final CommandBase intakeExtend = intake.extend(SpinDirection.COUNTERCLOCKWISE);
-        final CommandBase loadBall = ballTransport.loadCargoWithIntake();
-        final CommandBase intakeRetract = sequence("Ball transport end",
-                intake.retract(),
-                race("Finish Transport", new WaitCommand(0.5),
-                        ballTransport.loadCargoWithIntake()),
-                ballTransport.stopTransport());
 
-        driveController.a().whenPressed(intakeExtend)
-                .whileHeld(loadBall)
-                .whenReleased(intakeRetract);
+        driveController.a().or(copilotController.a()).whenActive(intake.extend(
+                SpinDirection.COUNTERCLOCKWISE))
+                .whileActiveContinuous(ballTransport
+                        .loadCargoWithIntake())
+                .whenInactive(sequence("Ball transport end",
+                        intake.retract(),
+                        race("Finish Transport", new WaitCommand(0.5),
+                                ballTransport.loadCargoWithIntake()),
+                        ballTransport.stopTransport()));
 
-        driveController.y()
-                .whenPressed(intake.extend(SpinDirection.CLOCKWISE))
-                .whenReleased(intake.retract());
-
-        copilotController.a().whenPressed(intakeExtend)
-                .whileHeld(loadBall)
-                .whenReleased(intakeRetract);
-
-        copilotController.y()
-                .whenPressed(intake.extend(SpinDirection.CLOCKWISE))
-                .whenReleased(intake.retract());
+        driveController.y().or(copilotController.y())
+                .whenActive(intake.extend(SpinDirection.CLOCKWISE))
+                .whenInactive(intake.retract());
 
         // Climber:
         // copilotController.x()
