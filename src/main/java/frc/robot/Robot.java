@@ -75,7 +75,8 @@ public class Robot extends CommandRobot {
 
         // Intake:
         // These commands are duplicated for both the drive and copilot controllers.
-
+        copilotController.lbumper().whenPressed(sequence("Remove Wrong Colored Balls",
+                intake.extend(SpinDirection.CLOCKWISE), ballTransport.removeCargo(), intake.retract()));
         driveController.a().or(copilotController.a()).whenActive(intake.extend(
                 SpinDirection.COUNTERCLOCKWISE))
                 .whileActiveContinuous(ballTransport
