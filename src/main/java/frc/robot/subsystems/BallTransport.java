@@ -270,8 +270,14 @@ public class BallTransport extends SmartSubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Color Sensor Proximity", colorSensor.getProximity());
-        SmartDashboard.putString("Color Buffer #1", colorBufferConvertor(colorBuffer.peekFirst()));
-        SmartDashboard.putString("Color Buffer #2", colorBufferConvertor(colorBuffer.peekLast()));
+        SmartDashboard.putString("Color Buffer #1", colorBufferConvertor(colorBuffer.peekLast()));
+        SmartDashboard.putNumber("Color Buffer #1 Red Value", colorBuffer.peekLast().red);
+        SmartDashboard.putNumber("Color Buffer #1 Green Value", colorBuffer.peekLast().green);
+        SmartDashboard.putNumber("Color Buffer #1 Blue Value", colorBuffer.peekLast().blue);
+        SmartDashboard.putString("Color Buffer #2", colorBufferConvertor(colorBuffer.peekFirst()));
+        SmartDashboard.putNumber("Color Buffer #2 Red Value", colorBuffer.peekFirst().red);
+        SmartDashboard.putNumber("Color Buffer #2 Green Value", colorBuffer.peekFirst().green);
+        SmartDashboard.putNumber("Color Buffer #2 Blue Value", colorBuffer.peekFirst().blue);
         SmartDashboard.putBoolean("Laser Switch Activated", laserSwitch.getAsBoolean());
         SmartDashboard.putBoolean("Cargo in Color Sensor", colorSensorBallLimit());
     }
