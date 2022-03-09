@@ -1,13 +1,16 @@
 package frc.robot;
 
 import java.util.function.DoubleSupplier;
+import java.util.stream.Stream;
 
 import com.chopshop166.chopshoplib.commands.CommandRobot;
+import com.chopshop166.chopshoplib.commands.SmartSubsystem;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
@@ -52,20 +55,17 @@ public class Robot extends CommandRobot {
         DoubleSupplier climberTrigger = copilotController::getTriggers;
         DoubleSupplier climberJoystickX = copilotController::getLeftX;
 
-        // Shooter:
-        // Set target hub for shooter
-        driveController.getPovButton(POVDirection.UP)
-                .whenPressed(shooter.setTargetAndStartShooter(HubSpeed.HIGH));
-        driveController.getPovButton(POVDirection.DOWN)
-                .whenPressed(shooter.setTargetAndStartShooter(HubSpeed.LOW));
+        driveController.start().whenPressed(drive.resetGyro());
 
-        // driveController.b().whileHeld(shooter.testSpeed(0.4));
-        driveController.b().whenPressed(shooter.stop());
-        // Variable speed for shooter (Used for testing?)
-        driveController.lbumper().whileHeld(shooter.setSpeed(copilotController::getLeftTriggerAxis));
+        copilotController.getPovButton(POVDirection.UP).whileHeld(ballTransport.runForwards());
+        copilotController.getPovButton(POVDirection.DOWN).whileHeld(ballTransport.runBackwards());
+        copilotController.getPovButton(POVDirection.RIGHT).whenPressed(ballTransport.moveBothMotorsToLaser());
+
+        driveController.getPovButton(POVDirection.UP).whenPressed(drive.driveDistance(1, 0, 0.2));
 
         // Drive:
-        driveController.back().whenPressed(drive.resetCmd());
+
+        driveController.b().whenPressed(drive.setSpeedCoef(0.5)).whenReleased(drive.setSpeedCoef(1.0));
 
         driveController.x()
                 .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW),
@@ -74,47 +74,51 @@ public class Robot extends CommandRobot {
                 .whenReleased(shooter.stop());
 
         // Intake:
-        driveController.a().whenPressed(intake.extend(SpinDirection.COUNTERCLOCKWISE))
-                .whileHeld(ballTransport.loadCargoWithIntake())
-                .whenReleased(sequence("Ball transport end",
-                        race("Finish Transport", new WaitCommand(2.5),
+        // These commands are duplicated for both the drive and copilot controllers.
+
+        driveController.a().or(copilotController.a()).whenActive(intake.extend(
+                SpinDirection.COUNTERCLOCKWISE))
+                .whileActiveContinuous(ballTransport
+                        .loadCargoWithIntake())
+                .whenInactive(sequence("Ball transport end",
+                        intake.retract(),
+                        race("Finish Transport", new WaitCommand(0.5),
                                 ballTransport.loadCargoWithIntake()),
-                        parallel("Intake retracted w/ Ball Transport",
-                                ballTransport.stopTransport(), intake.retract())));
+                        ballTransport.stopTransport()));
 
-        driveController.y()
-                .whenPressed(sequence("Remove Wrong Colored Balls",
-                        intake.extend(SpinDirection.COUNTERCLOCKWISE),
-                        ballTransport.removeCargo(), intake.retract()));
+        driveController.y().or(copilotController.y())
+                .whenActive(intake.extend(SpinDirection.CLOCKWISE))
+                .whenInactive(intake.retract());
+        boolean climberActive = false;
+        if (climberActive) { // Climber:
+            copilotController.x()
+                    .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
+                            climberTrigger), rightClimber.extendSpeed(climberTrigger)));
+            copilotController.y()
+                    .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(
+                            climberJoystickX),
+                            rightClimber.rotateSpeed(
+                                    climberJoystickX)));
 
-        // Climber:
-        copilotController.x()
-                .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
-                        climberTrigger), rightClimber.extendSpeed(climberTrigger)));
-        copilotController.y()
-                .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(
-                        climberJoystickX),
-                        rightClimber.rotateSpeed(
-                                climberJoystickX)));
-
-        copilotController.getPovButton(POVDirection.LEFT)
-                .whileHeld(parallel("Rotate CCW",
-                        leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
-                        rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
-        copilotController.getPovButton(POVDirection.RIGHT)
-                .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
-                        rightClimber.rotate(SpinDirection.CLOCKWISE)));
-        copilotController.a()
-                .whileHeld(parallel("Extend", leftClimber.extend(ExtendDirection.EXTEND),
-                        rightClimber.extend(ExtendDirection.EXTEND)));
-        copilotController.b()
-                .whileHeld(parallel("Retract", leftClimber.extend(ExtendDirection.RETRACT),
-                        rightClimber.extend(ExtendDirection.RETRACT)));
-
+            copilotController.getPovButton(POVDirection.LEFT)
+                    .whileHeld(parallel("Rotate CCW",
+                            leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
+                            rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
+            copilotController.getPovButton(POVDirection.RIGHT)
+                    .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
+                            rightClimber.rotate(SpinDirection.CLOCKWISE)));
+            copilotController.a()
+                    .whileHeld(parallel("Extend", leftClimber.extend(ExtendDirection.EXTEND),
+                            rightClimber.extend(ExtendDirection.EXTEND)));
+            copilotController.b()
+                    .whileHeld(parallel("Retract", leftClimber.extend(ExtendDirection.RETRACT),
+                            rightClimber.extend(ExtendDirection.RETRACT)));
+        }
         // Stop all subsystems
-        driveController.back().whenPressed(cmd("Stop All").onInitialize(() -> {
-            safeStateAll();
-        }));
+        driveController.back()
+                .whenPressed(
+                        sequence("Stop All", safeStateSubsystems(ballTransport, drive, intake, shooter),
+                                drive.resetCmd()));
     }
 
     @Override
@@ -133,5 +137,10 @@ public class Robot extends CommandRobot {
                         driveController::getRightX));
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
         led.setDefaultCommand(led.animate(rainbowAnimation, 0.1));
+    }
+
+    public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {
+        return parallel("Reset Subsystems",
+                Stream.of(subsystems).map(SmartSubsystem::safeStateCmd).toArray(CommandBase[]::new));
     }
 }

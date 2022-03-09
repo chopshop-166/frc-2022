@@ -2,10 +2,13 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import javax.xml.stream.events.Comment;
+
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
+import com.google.common.math.DoubleMath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -31,6 +34,8 @@ public class Drive extends SmartSubsystemBase {
     private final double maxRotationRadiansPerSecond;
     private final Gyro gyro;
 
+    private double speedCoef = 1.0;
+
     private Field2d field = new Field2d();
 
     private Pose2d pose = new Pose2d();
@@ -52,6 +57,13 @@ public class Drive extends SmartSubsystemBase {
         odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d());
     }
 
+    public CommandBase setSpeedCoef(double fac) {
+
+        return instant("Set speedCoef", () -> {
+            speedCoef = fac;
+        });
+    }
+
     public CommandBase fieldCentricDrive(final DoubleSupplier translateX, final DoubleSupplier translateY,
             final DoubleSupplier rotation) {
         return running("Field Centric Drive", () -> updateSwerveSpeedAngle(translateX, translateY, rotation));
@@ -64,15 +76,17 @@ public class Drive extends SmartSubsystemBase {
     private void updateSwerveSpeedAngle(final DoubleSupplier translateX, final DoubleSupplier translateY,
             final DoubleSupplier rotation) {
         // Need to convert inputs from -1..1 scale to m/s
-        final Modifier deadband = Modifier.deadband(0.12);
-        final double translateXSpeed = deadband.applyAsDouble(translateX.getAsDouble()) * maxDriveSpeedMetersPerSecond;
-        final double translateYSpeed = deadband.applyAsDouble(translateY.getAsDouble()) * maxDriveSpeedMetersPerSecond;
+        final Modifier deadband = Modifier.deadband(0.15);
+        final double translateXSpeed = deadband.applyAsDouble(translateX.getAsDouble()) * maxDriveSpeedMetersPerSecond
+                * speedCoef;
+        final double translateYSpeed = deadband.applyAsDouble(translateY.getAsDouble()) * maxDriveSpeedMetersPerSecond
+                * speedCoef;
         final double rotationSpeed = deadband.applyAsDouble(rotation.getAsDouble()) * maxRotationRadiansPerSecond;
         SmartDashboard.putNumber("Translate Y", translateYSpeed);
         SmartDashboard.putNumber("Translate X", translateXSpeed);
         SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
         final ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(translateYSpeed, translateXSpeed,
-                rotationSpeed, Rotation2d.fromDegrees(-gyro.getAngle()));
+                rotationSpeed, Rotation2d.fromDegrees(gyro.getAngle()));
 
         // Now use this in our kinematics
         final SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
@@ -90,7 +104,13 @@ public class Drive extends SmartSubsystemBase {
         rearRight.setDesiredState(moduleStates[3]);
     }
 
-    public CommandBase driveDistance(final double distance, final double direction, final double speed) {
+    public CommandBase resetGyro() {
+        return instant("Reset Gyro", () -> {
+            gyro.reset();
+        });
+    }
+
+    public CommandBase driveDistance(final double distanceMeters, final double direction, final double speed) {
 
         Rotation2d rotation = Rotation2d.fromDegrees(direction);
         Drive thisDrive = this;
@@ -115,7 +135,7 @@ public class Drive extends SmartSubsystemBase {
 
             @Override
             public boolean isFinished() {
-                return initialPose.getTranslation().getDistance(pose.getTranslation()) >= distance;
+                return initialPose.getTranslation().getDistance(pose.getTranslation()) >= distanceMeters;
             }
 
             @Override

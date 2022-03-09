@@ -120,13 +120,15 @@ public class ValkyrieMap extends RobotMap {
     @Override
     public IntakeMap getIntakeMap() {
         // Current limit in amps
-        final int CURRENT_LIMIT = 30;
+        final int CURRENT_LIMIT = 40;
 
         final PIDSparkMax deploymentMotor = new PIDSparkMax(11,
                 MotorType.kBrushless);
         final PIDSparkMax deploymentFollower = new PIDSparkMax(12,
                 MotorType.kBrushless);
         final PIDSparkMax rollerMotor = new PIDSparkMax(13, MotorType.kBrushless);
+        CANSparkMax deploymentController = deploymentMotor.getMotorController();
+        CANSparkMax followerController = deploymentFollower.getMotorController();
 
         // Use current as a validator along with setting a current limit
         // on the motor controllers
@@ -139,7 +141,8 @@ public class ValkyrieMap extends RobotMap {
         deploymentFollower.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
         rollerMotor.getMotorController().setInverted(true);
 
-        return new IntakeMap(deploymentMotor, rollerMotor);
+        return new IntakeMap(deploymentMotor, rollerMotor, deploymentController::getOutputCurrent,
+                followerController::getOutputCurrent);
 
     }
 
