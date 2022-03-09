@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.chopshop166.chopshoplib.SampleBuffer;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -7,6 +8,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.subsystems.LedMap;
+import frc.robot.subsystems.BallTransport.ColorBufferSupplier;
 import frc.robot.util.LightAnimation;
 
 public class Led extends SmartSubsystemBase {
@@ -56,19 +58,28 @@ public class Led extends SmartSubsystemBase {
         });
     }
 
-    public CommandBase showBallColors() {
+    private BallColor matchColor(Color c) {
+        if (c.red > c.green && c.red > c.blue) {
+            return BallColor.RED;
+        }
+        if (c.blue > c.green && c.blue > c.red) {
+            return BallColor.BLUE;
+        }
+        return BallColor.NONE;
+    }
+
+    public CommandBase showBallColors(ColorBufferSupplier colorBuffer) {
         return running("Show Ball Colors", () -> {
+            SampleBuffer<Color> colors = colorBuffer.getAsColorBuffer();
             for (int i = 0; i < ledBuffer.getLength(); i++) {
                 double sin = (Math.sin(timer) + 1.0) / 2.0;
-
                 Color c;
                 if (i < ledBuffer.getLength() / 2) {
                     // Check ball color at the bottom;
-                    c = BallColor.NONE.get();
+                    c = matchColor(colors.getFirst()).get();
                 } else {
                     // Check ball color at the top
-                    c = BallColor.NONE.get();
-
+                    c = matchColor(colors.getLast()).get();
                     // Invert the sine wave
                     sin = 1.0 - sin;
                 }
