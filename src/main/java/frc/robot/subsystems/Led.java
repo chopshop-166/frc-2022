@@ -17,6 +17,20 @@ public class Led extends SmartSubsystemBase {
     private int frame = 0;
     private int timer = 0;
 
+    public enum BallColor {
+        RED(new Color(1, 0, 0)), BLUE(new Color(0, 0, 1)), NONE(new Color(0, 0, 0));
+
+        private final Color color;
+
+        private BallColor(Color color) {
+            this.color = color;
+        }
+
+        public Color get() {
+            return color;
+        }
+    }
+
     public Led(final LedMap map) {
         led = map.getLed();
         ledBuffer = map.getLedBuffer();
@@ -37,6 +51,35 @@ public class Led extends SmartSubsystemBase {
                 }
                 led.setData(ledBuffer);
                 frame++;
+            }
+            timer++;
+        });
+    }
+
+    public CommandBase showBallColors() {
+        return running("Show Ball Colors", () -> {
+            boolean isRed = false;
+            boolean isBlue = false;
+            for (int i = 0; i < ledBuffer.getLength(); i++) {
+                double sin = (Math.sin(timer) + 1.0) / 2.0;
+
+                Color c;
+                if (i < ledBuffer.getLength() / 2) {
+                    // Check ball color at the bottom;
+                    c = BallColor.NONE.get();
+                } else {
+                    // Check ball color at the top
+                    c = BallColor.NONE.get();
+
+                    // Invert the sine wave
+                    sin = 1.0 - sin;
+                }
+
+                ledBuffer.setLED(i, new Color(
+                        c.red * sin,
+                        c.green * sin,
+                        c.blue * sin));
+
             }
             timer++;
         });
