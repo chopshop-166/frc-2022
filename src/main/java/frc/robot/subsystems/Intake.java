@@ -31,11 +31,7 @@ public class Intake extends SmartSubsystemBase {
     private final DoubleSupplier current;
     private final DoubleSupplier current2;
 
-<<<<<<< HEAD
-    PersistenceCheck pCheck;
-=======
     private final PersistenceCheck pCheck;
->>>>>>> removeball
 
     public Intake(final IntakeMap map) {
         this.deploymentMotor = map.getDeploy();
@@ -47,12 +43,9 @@ public class Intake extends SmartSubsystemBase {
 
         current = map.getCurrent();
         current2 = map.getCurrent2();
-<<<<<<< HEAD
 
-        pCheck = new PersistenceCheck(2, deploymentMotor::errored);
-=======
         pCheck = new PersistenceCheck(3, () -> deploymentMotor.getEncoder().getRate() < ENCODER_THRESHOLD);
->>>>>>> removeball
+
     }
 
     // rollerDirection is CLOCKWISE for the ball to go in, and COUNTERCLOCKWISE for

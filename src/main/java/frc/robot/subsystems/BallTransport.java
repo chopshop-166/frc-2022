@@ -29,8 +29,8 @@ public class BallTransport extends SmartSubsystemBase {
     static private final double TRANSPORT_SPEED = 1.0;
 
     boolean seenBall = false;
-    boolean bottomFlag = false;
-    boolean topFlag = false;
+    boolean sawBottomBall = false;
+    boolean sawTopBall = false;
 
     // creates a color sample buffer.
     private SampleBuffer<Color> colorBuffer = new SampleBuffer<>(2);
@@ -207,7 +207,21 @@ public class BallTransport extends SmartSubsystemBase {
         // point
         return cmd("Remove \"Wrong Colored\" Cargo").onExecute(() -> {
             final Alliance allianceColor = DriverStation.getAlliance();
+            final int colorThreshold = 155;
             Color oppositeAllianceBallColor;
+            Color firstBallColor;
+            Color secondBallColor;
+
+            if (colorBuffer.getLast().red > colorThreshold) {
+                firstBallColor = Color.kFirstRed;
+            } else {
+                firstBallColor = Color.kFirstBlue;
+            }
+            if (colorBuffer.getFirst().red > colorThreshold) {
+                secondBallColor = Color.kFirstRed;
+            } else {
+                secondBallColor = Color.kFirstBlue;
+            }
 
             if (allianceColor == Alliance.Blue) {
                 oppositeAllianceBallColor = Color.kFirstRed;
@@ -219,34 +233,27 @@ public class BallTransport extends SmartSubsystemBase {
                 // this accounts for if there's only one ball in the color buffer
                 // in this case the intake doesn't need to be deployed because it can just go
                 // out shooter end
-                if (colorBuffer.peekFirst() == oppositeAllianceBallColor) {
+                if (firstBallColor == oppositeAllianceBallColor) {
                     topMotor.set(REMOVE_SPEED);
                     bottomMotor.set(REMOVE_SPEED);
                     colorBuffer.clear();
-                    topFlag = true;
-                    bottomFlag = true;
+                    sawTopBall = true;
+                    sawBottomBall = true;
                 }
             } else {
-                if (colorBuffer.peekLast() == oppositeAllianceBallColor) {
+                if (firstBallColor == oppositeAllianceBallColor) {
                     topMotor.set(REMOVE_SPEED);
                     colorBuffer.removeLast();
-                    bottomFlag = true;
+                    sawBottomBall = true;
                 }
-                if (colorBuffer.peekFirst() == oppositeAllianceBallColor) {
+                if (secondBallColor == oppositeAllianceBallColor) {
                     bottomMotor.set(-REMOVE_SPEED);
                     colorBuffer.removeFirst();
-                    topFlag = true;
+                    sawTopBall = true;
                 }
             }
         }).until(() -> {
-            if (bottomFlag && topFlag) {
-                return colorSensorBallLimit() && !laserSwitch.getAsBoolean();
-            } else if (topFlag) {
-                return !laserSwitch.getAsBoolean();
-            } else if (bottomFlag) {
-                return colorSensorBallLimit();
-            } else
-                return false;
+            return (sawBottomBall && !colorSensorBallLimit()) || (sawTopBall && !laserSwitch.getAsBoolean());
         });
     }
 
