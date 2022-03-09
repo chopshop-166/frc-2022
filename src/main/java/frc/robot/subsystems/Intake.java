@@ -22,6 +22,8 @@ public class Intake extends SmartSubsystemBase {
     private static final double DEPLOY_EXTEND_SPEED = 0.3;
     private static final double DEPLOY_RETRACT_SPEED = -0.3;
 
+    private static final double ENCODER_THRESHOLD = 10.0;
+
     private static final double ROLLER_THRESHOLD = 10.0;
 
     private final Modifier limit;
@@ -29,7 +31,11 @@ public class Intake extends SmartSubsystemBase {
     private final DoubleSupplier current;
     private final DoubleSupplier current2;
 
+<<<<<<< HEAD
     PersistenceCheck pCheck;
+=======
+    private final PersistenceCheck pCheck;
+>>>>>>> removeball
 
     public Intake(final IntakeMap map) {
         this.deploymentMotor = map.getDeploy();
@@ -41,8 +47,12 @@ public class Intake extends SmartSubsystemBase {
 
         current = map.getCurrent();
         current2 = map.getCurrent2();
+<<<<<<< HEAD
 
         pCheck = new PersistenceCheck(2, deploymentMotor::errored);
+=======
+        pCheck = new PersistenceCheck(3, () -> deploymentMotor.getEncoder().getRate() < ENCODER_THRESHOLD);
+>>>>>>> removeball
     }
 
     // rollerDirection is CLOCKWISE for the ball to go in, and COUNTERCLOCKWISE for
@@ -59,7 +69,7 @@ public class Intake extends SmartSubsystemBase {
             // if (deploymentMotor.getEncoder().getDistance() >= ROLLER_THRESHOLD) {
             // rollerMotor.set(rollerDirection.apply(ROLLER_SPEED));
             // }
-        }).runsUntil(deploymentMotor::errored).onEnd((interrupted) -> {
+        }).runsUntil(() -> deploymentMotor.errored() && pCheck.getAsBoolean()).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
             rollerMotor.set(rollerDirection.apply(ROLLER_SPEED));
         });
