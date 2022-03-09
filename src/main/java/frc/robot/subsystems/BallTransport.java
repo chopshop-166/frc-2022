@@ -207,7 +207,7 @@ public class BallTransport extends SmartSubsystemBase {
         // point
         return cmd("Remove \"Wrong Colored\" Cargo").onExecute(() -> {
             final Alliance allianceColor = DriverStation.getAlliance();
-            final int colorThreshold = 155;
+            final Double colorThreshold = 155.0;
             Color oppositeAllianceBallColor;
             Color firstBallColor;
             Color secondBallColor;
