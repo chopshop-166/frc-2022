@@ -29,6 +29,8 @@ public class BallTransport extends SmartSubsystemBase {
     static private final double TRANSPORT_SPEED = 1.0;
 
     boolean seenBall = false;
+    boolean bottomFlag = false;
+    boolean topFlag = false;
 
     // creates a color sample buffer.
     private SampleBuffer<Color> colorBuffer = new SampleBuffer<>(2);
@@ -206,6 +208,7 @@ public class BallTransport extends SmartSubsystemBase {
         return cmd("Remove \"Wrong Colored\" Cargo").onExecute(() -> {
             final Alliance allianceColor = DriverStation.getAlliance();
             Color oppositeAllianceBallColor;
+
             if (allianceColor == Alliance.Blue) {
                 oppositeAllianceBallColor = Color.kFirstRed;
             } else {
@@ -220,18 +223,31 @@ public class BallTransport extends SmartSubsystemBase {
                     topMotor.set(REMOVE_SPEED);
                     bottomMotor.set(REMOVE_SPEED);
                     colorBuffer.clear();
+                    topFlag = true;
+                    bottomFlag = true;
                 }
             } else {
                 if (colorBuffer.peekLast() == oppositeAllianceBallColor) {
                     topMotor.set(REMOVE_SPEED);
                     colorBuffer.removeLast();
+                    bottomFlag = true;
                 }
                 if (colorBuffer.peekFirst() == oppositeAllianceBallColor) {
                     bottomMotor.set(-REMOVE_SPEED);
                     colorBuffer.removeFirst();
+                    topFlag = true;
                 }
             }
-        }).onEnd(this::stop);
+        }).until(() -> {
+            if (bottomFlag && topFlag) {
+                return colorSensorBallLimit() && !laserSwitch.getAsBoolean();
+            } else if (topFlag) {
+                return !laserSwitch.getAsBoolean();
+            } else if (bottomFlag) {
+                return colorSensorBallLimit();
+            } else
+                return false;
+        });
     }
 
     private String colorBufferConvertor(Color color) {

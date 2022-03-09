@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import com.chopshop166.chopshoplib.PersistenceCheck;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.motors.PIDControlType;
@@ -28,6 +29,8 @@ public class Intake extends SmartSubsystemBase {
     private final DoubleSupplier current;
     private final DoubleSupplier current2;
 
+    PersistenceCheck pCheck;
+
     public Intake(final IntakeMap map) {
         this.deploymentMotor = map.getDeploy();
         this.rollerMotor = map.getRoller();
@@ -38,6 +41,8 @@ public class Intake extends SmartSubsystemBase {
 
         current = map.getCurrent();
         current2 = map.getCurrent2();
+
+        pCheck = new PersistenceCheck(2, deploymentMotor::errored);
     }
 
     // rollerDirection is CLOCKWISE for the ball to go in, and COUNTERCLOCKWISE for
@@ -84,7 +89,7 @@ public class Intake extends SmartSubsystemBase {
             rollerMotor.set(0.0);
         }).onExecute(() -> {
             deploymentMotor.set(limit.applyAsDouble(DEPLOY_RETRACT_SPEED));
-        }).runsUntil(deploymentMotor::errored).onEnd((interrupted) -> {
+        }).runsUntil(pCheck).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
         });
     }
