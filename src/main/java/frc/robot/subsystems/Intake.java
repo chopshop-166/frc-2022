@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import com.chopshop166.chopshoplib.PersistenceCheck;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.motors.PIDControlType;
@@ -21,12 +22,16 @@ public class Intake extends SmartSubsystemBase {
     private static final double DEPLOY_EXTEND_SPEED = 0.3;
     private static final double DEPLOY_RETRACT_SPEED = -0.3;
 
+    private static final double ENCODER_THRESHOLD = 10.0;
+
     private static final double ROLLER_THRESHOLD = 10.0;
 
     private final Modifier limit;
 
     private final DoubleSupplier current;
     private final DoubleSupplier current2;
+
+    private final PersistenceCheck pCheck;
 
     public Intake(final IntakeMap map) {
         this.deploymentMotor = map.getDeploy();
@@ -38,6 +43,7 @@ public class Intake extends SmartSubsystemBase {
 
         current = map.getCurrent();
         current2 = map.getCurrent2();
+        pCheck = new PersistenceCheck(3, () -> deploymentMotor.getEncoder().getRate() < ENCODER_THRESHOLD);
     }
 
     // rollerDirection is CLOCKWISE for the ball to go in, and COUNTERCLOCKWISE for
@@ -54,7 +60,7 @@ public class Intake extends SmartSubsystemBase {
             // if (deploymentMotor.getEncoder().getDistance() >= ROLLER_THRESHOLD) {
             // rollerMotor.set(rollerDirection.apply(ROLLER_SPEED));
             // }
-        }).runsUntil(deploymentMotor::errored).onEnd((interrupted) -> {
+        }).runsUntil(() -> deploymentMotor.errored() && pCheck.getAsBoolean()).onEnd((interrupted) -> {
             deploymentMotor.set(0.0);
             rollerMotor.set(rollerDirection.apply(ROLLER_SPEED));
         });
