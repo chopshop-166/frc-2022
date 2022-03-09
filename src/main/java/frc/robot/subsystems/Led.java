@@ -58,8 +58,6 @@ public class Led extends SmartSubsystemBase {
 
     public CommandBase showBallColors() {
         return running("Show Ball Colors", () -> {
-            boolean isRed = false;
-            boolean isBlue = false;
             for (int i = 0; i < ledBuffer.getLength(); i++) {
                 double sin = (Math.sin(timer) + 1.0) / 2.0;
 
