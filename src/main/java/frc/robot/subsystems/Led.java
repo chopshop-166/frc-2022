@@ -20,7 +20,7 @@ public class Led extends SmartSubsystemBase {
     private int timer = 0;
 
     public enum BallColor {
-        RED(new Color(1, 0, 0)), BLUE(new Color(0, 0, 1)), NONE(new Color(0, 0, 0));
+        RED(Color.kFirstRed), BLUE(Color.kFirstBlue), NONE(new Color(0, 0, 0));
 
         private final Color color;
 
@@ -76,10 +76,10 @@ public class Led extends SmartSubsystemBase {
                 Color c;
                 if (i < ledBuffer.getLength() / 2) {
                     // Check ball color at the bottom;
-                    c = matchColor(colors.getFirst()).get();
+                    c = matchColor(colors.peekFirst()).get();
                 } else {
                     // Check ball color at the top
-                    c = matchColor(colors.getLast()).get();
+                    c = matchColor(colors.peekLast()).get();
                     // Invert the sine wave
                     sin = 1.0 - sin;
                 }
