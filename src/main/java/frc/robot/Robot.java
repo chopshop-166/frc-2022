@@ -21,7 +21,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.HubSpeed;
-import frc.robot.util.LightAnimation;
 
 public class Robot extends CommandRobot {
 
@@ -40,10 +39,6 @@ public class Robot extends CommandRobot {
     private final Shooter shooter = new Shooter(map.getShooterMap());
     private final Climber leftClimber = new Climber(map.getLeftClimberMap());
     private final Climber rightClimber = new Climber(map.getRightClimberMap());
-
-    private final LightAnimation rainbowAnimation = new LightAnimation("rainbow.json", "Rainbow");
-    private final LightAnimation redAnimation = new LightAnimation("redfade.json", "Red Fade");
-    private final LightAnimation blueAnimation = new LightAnimation("bluefade.json", "Blue Fade");
 
     @Override
     public void robotInit() {

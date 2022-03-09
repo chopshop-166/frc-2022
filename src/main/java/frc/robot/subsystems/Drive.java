@@ -2,13 +2,10 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
-import javax.xml.stream.events.Comment;
-
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
-import com.google.common.math.DoubleMath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
