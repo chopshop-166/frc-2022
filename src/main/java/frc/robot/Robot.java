@@ -136,7 +136,7 @@ public class Robot extends CommandRobot {
                 drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY,
                         driveController::getRightX));
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
-        led.setDefaultCommand(led.animate(rainbowAnimation, 0.1));
+        led.setDefaultCommand(led.showBallColors(ballTransport.getColorBuffer()));
     }
 
     public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {
