@@ -253,8 +253,7 @@ public class BallTransport extends SmartSubsystemBase {
                 }
             }
         }).until(() -> {
-            return ((sawBottomBall && !colorSensorBallLimit()) || (sawTopBall && !laserSwitch.getAsBoolean()))
-                    || ((sawBottomBall && !colorSensorBallLimit()) && (sawTopBall && !laserSwitch.getAsBoolean()));
+            return ((sawBottomBall && !colorSensorBallLimit()) || (sawTopBall && !laserSwitch.getAsBoolean()));
         });
     }
 
