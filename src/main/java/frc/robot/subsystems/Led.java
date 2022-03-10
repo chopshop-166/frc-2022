@@ -40,20 +40,24 @@ public class Led extends SmartSubsystemBase {
         led.start();
     }
 
+    private void runAnimation(LightAnimation animation, double brightness) {
+        if (timer % 5 == 0) {
+            for (int i = 0; i < ledBuffer.getLength(); i++) {
+                Color c = animation.getColor(frame,
+                        i / (ledBuffer.getLength() / 10));
+                ledBuffer.setLED(i, new Color(
+                        c.red * brightness,
+                        c.green * brightness,
+                        c.blue * brightness));
+            }
+            led.setData(ledBuffer);
+            frame++;
+        }
+    }
+
     public CommandBase animate(LightAnimation animation, double brightness) {
         return running("Animate", () -> {
-            if (timer % 5 == 0) {
-                for (int i = 0; i < ledBuffer.getLength(); i++) {
-                    Color c = animation.getColor(frame,
-                            i / (ledBuffer.getLength() / 10));
-                    ledBuffer.setLED(i, new Color(
-                            c.red * brightness,
-                            c.green * brightness,
-                            c.blue * brightness));
-                }
-                led.setData(ledBuffer);
-                frame++;
-            }
+            runAnimation(animation, brightness);
             timer++;
         });
     }
@@ -68,27 +72,35 @@ public class Led extends SmartSubsystemBase {
         return BallColor.NONE;
     }
 
-    public CommandBase showBallColors(ColorBufferSupplier colorBuffer) {
+    public CommandBase showBallColors(ColorBufferSupplier colorBuffer, LightAnimation defaultAnimation,
+            double brightness) {
         return running("Show Ball Colors", () -> {
             SampleBuffer<Color> colors = colorBuffer.getAsColorBuffer();
-            for (int i = 0; i < ledBuffer.getLength(); i++) {
-                double sin = (Math.sin(timer) + 1.0) / 2.0;
-                Color c;
-                if (i < ledBuffer.getLength() / 2) {
-                    // Check ball color at the bottom;
-                    c = matchColor(colors.peekFirst()).get();
-                } else {
-                    // Check ball color at the top
-                    c = matchColor(colors.peekLast()).get();
-                    // Invert the sine wave
-                    sin = 1.0 - sin;
+            if (colors.size() == 0) {
+                runAnimation(defaultAnimation, brightness);
+            } else {
+                for (int i = 0; i < ledBuffer.getLength(); i++) {
+                    double sin = (Math.sin(timer / 10.0) + 1.0) / 2.0;
+                    Color c;
+
+                    if (i < ledBuffer.getLength() / 2) {
+                        // Check ball color at the bottom;
+                        c = matchColor(colors.peekFirst()).get();
+                    } else {
+                        // Check ball color at the top
+
+                        c = (colors.size() == 1) ? (BallColor.NONE.get()) : (matchColor(colors.peekLast()).get());
+                        // Invert the sine wave
+                        sin = 1.0 - sin;
+                    }
+
+                    sin *= brightness;
+                    ledBuffer.setLED(i, new Color(
+                            c.red * sin,
+                            c.green * sin,
+                            c.blue * sin));
+
                 }
-
-                ledBuffer.setLED(i, new Color(
-                        c.red * sin,
-                        c.green * sin,
-                        c.blue * sin));
-
             }
             timer++;
         });

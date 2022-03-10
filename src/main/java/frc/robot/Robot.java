@@ -21,6 +21,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.HubSpeed;
+import frc.robot.util.LightAnimation;
 
 public class Robot extends CommandRobot {
 
@@ -39,6 +40,8 @@ public class Robot extends CommandRobot {
     private final Shooter shooter = new Shooter(map.getShooterMap());
     private final Climber leftClimber = new Climber(map.getLeftClimberMap());
     private final Climber rightClimber = new Climber(map.getRightClimberMap());
+
+    private final LightAnimation defaultAnimation = new LightAnimation("team_colors.json", "Team Colors");
 
     @Override
     public void robotInit() {
@@ -131,7 +134,7 @@ public class Robot extends CommandRobot {
                 drive.fieldCentricDrive(driveController::getLeftX, driveController::getLeftY,
                         driveController::getRightX));
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
-        led.setDefaultCommand(led.showBallColors(ballTransport.getColorBuffer()));
+        led.setDefaultCommand(led.showBallColors(ballTransport.getColorBuffer(), defaultAnimation, 1.0));
     }
 
     public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {
