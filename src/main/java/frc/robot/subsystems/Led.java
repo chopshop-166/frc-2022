@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import com.chopshop166.chopshoplib.SampleBuffer;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -80,26 +81,19 @@ public class Led extends SmartSubsystemBase {
             if (colors.size() == 0) {
                 runAnimation(defaultAnimation, brightness);
             } else {
+                Color bottomColor = matchColor(colors.peekFirst()).get();
+                Color topColor = (colors.size() == 1) ? (BallColor.NONE.get()) : (matchColor(colors.peekLast()).get());
+
+                double sin = (Math.sin(timer / 10.0) + 1.0) / 2.0;
                 for (int i = 0; i < ledBuffer.getLength(); i++) {
-                    double sin = (Math.sin(timer / 10.0) + 1.0) / 2.0;
-                    Color c;
+                    boolean isBottom = i < ledBuffer.getLength() / 2;
+                    Color c = isBottom ? bottomColor : topColor;
+                    double flash = isBottom ? sin : 1.0 - sin;
 
-                    if (i < ledBuffer.getLength() / 2) {
-                        // Check ball color at the bottom;
-                        c = matchColor(colors.peekFirst()).get();
-                    } else {
-                        // Check ball color at the top
-
-                        c = (colors.size() == 1) ? (BallColor.NONE.get()) : (matchColor(colors.peekLast()).get());
-                        // Invert the sine wave
-                        sin = 1.0 - sin;
-                    }
-
-                    sin *= brightness;
                     ledBuffer.setLED(i, new Color(
-                            c.red * sin,
-                            c.green * sin,
-                            c.blue * sin));
+                            c.red * flash * brightness,
+                            c.green * flash * brightness,
+                            c.blue * flash * brightness));
 
                 }
             }
