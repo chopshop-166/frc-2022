@@ -115,18 +115,11 @@ public class Drive extends SmartSubsystemBase {
     public CommandBase driveDistance(final double distanceMeters, final Rotation2d direction, final double speed) {
 
         Drive thisDrive = this;
-
+        Pose2d initialPose = pose;
         return new CommandBase() {
             {
                 addRequirements(thisDrive);
                 setName("Drive Distance");
-            }
-
-            private Pose2d initialPose;
-
-            @Override
-            public void initialize() {
-                initialPose = new Pose2d(pose.getTranslation().times(1), pose.getRotation().times(1));
             }
 
             @Override
@@ -147,30 +140,27 @@ public class Drive extends SmartSubsystemBase {
         };
     }
 
-    public CommandBase setAbsoluteAngle(final Rotation2d angle, final double speed) {
+    public CommandBase driveDirectionDistance(final double distanceMeters, final Rotation2d direction,
+            final double speed) {
 
+        Rotation2d setRotation = new Rotation2d(pose.getRotation().getDegrees() + direction.getDegrees());
         Drive thisDrive = this;
+        Pose2d initialPose = pose;
 
         return new CommandBase() {
             {
                 addRequirements(thisDrive);
-                setName("Absolute angle");
-            }
-            private double speed2 = speed;
-
-            @Override
-            public void initialize() {
-                speed2 *= Math.signum(angle.getDegrees() - pose.getRotation().times(1).getDegrees());
+                setName("Drive Direction Distance");
             }
 
             @Override
             public void execute() {
-                updateSwerveSpeedAngle(() -> 0., () -> 0., () -> speed2);
+                updateSwerveSpeedAngle(() -> setRotation.getSin() * speed, () -> setRotation.getCos() * speed, () -> 0);
             }
 
             @Override
             public boolean isFinished() {
-                return Math.abs(pose.getRotation().times(1).getDegrees() - angle.getDegrees()) <= ROTATION_BUFFER;
+                return initialPose.getTranslation().getDistance(pose.getTranslation()) >= distanceMeters;
             }
 
             @Override
@@ -181,33 +171,55 @@ public class Drive extends SmartSubsystemBase {
         };
     }
 
-    public CommandBase setRelitiveAngle(final Rotation2d angle, final double speed) {
+    public CommandBase setAbsoluteAngle(final Rotation2d angle, final double inputSpeed) {
 
         Drive thisDrive = this;
+        double speed = Math.copySign(inputSpeed, angle.getDegrees() - pose.getRotation().getDegrees());
 
         return new CommandBase() {
             {
                 addRequirements(thisDrive);
-                setName("Relitive Angle");
-            }
-            private double speed2 = speed;
-            private Rotation2d targetRotation;
-
-            @Override
-            public void initialize() {
-                targetRotation = new Rotation2d(pose.getRotation().times(1).getDegrees() + angle.getDegrees());
-                speed2 *= Math.signum(angle.getDegrees());
+                setName("Absolute angle");
             }
 
             @Override
             public void execute() {
-                updateSwerveSpeedAngle(() -> 0., () -> 0., () -> speed2);
+                updateSwerveSpeedAngle(() -> 0., () -> 0., () -> speed);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return Math.abs(pose.getRotation().getDegrees() - angle.getDegrees()) <= ROTATION_BUFFER;
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
+            }
+
+        };
+    }
+
+    public CommandBase setRelativeAngle(final Rotation2d angle, final double inputSpeed) {
+
+        Drive thisDrive = this;
+        double speed = Math.copySign(inputSpeed, angle.getDegrees());
+        Rotation2d targetRotation = new Rotation2d(pose.getRotation().getDegrees() + angle.getDegrees());
+        return new CommandBase() {
+            {
+                addRequirements(thisDrive);
+                setName("Relative Angle");
+            }
+
+            @Override
+            public void execute() {
+                updateSwerveSpeedAngle(() -> 0., () -> 0., () -> speed);
             }
 
             @Override
             public boolean isFinished() {
                 return Math
-                        .abs(pose.getRotation().times(1).getDegrees() - targetRotation.getDegrees()) <= ROTATION_BUFFER;
+                        .abs(pose.getRotation().getDegrees() - targetRotation.getDegrees()) <= ROTATION_BUFFER;
             }
 
             @Override
