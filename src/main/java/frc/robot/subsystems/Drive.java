@@ -157,12 +157,10 @@ public class Drive extends SmartSubsystemBase {
                 setName("Absolute angle");
             }
             private double speed2 = speed;
-            private Rotation2d initialRotation;
 
             @Override
             public void initialize() {
-                initialRotation = pose.getRotation().times(1);
-                speed2 *= Math.signum(angle.getDegrees() - initialRotation.getDegrees());
+                speed2 *= Math.signum(angle.getDegrees() - pose.getRotation().times(1).getDegrees());
             }
 
             @Override
@@ -172,7 +170,7 @@ public class Drive extends SmartSubsystemBase {
 
             @Override
             public boolean isFinished() {
-                return Math.abs(gyro.getRotation2d().getDegrees() - angle.getDegrees()) <= ROTATION_BUFFER;
+                return Math.abs(pose.getRotation().times(1).getDegrees() - angle.getDegrees()) <= ROTATION_BUFFER;
             }
 
             @Override
@@ -193,13 +191,11 @@ public class Drive extends SmartSubsystemBase {
                 setName("Relitive Angle");
             }
             private double speed2 = speed;
-            private Rotation2d initialRotation;
             private Rotation2d targetRotation;
 
             @Override
             public void initialize() {
-                initialRotation = pose.getRotation().times(1);
-                targetRotation = new Rotation2d(initialRotation.getDegrees() + angle.getDegrees());
+                targetRotation = new Rotation2d(pose.getRotation().times(1).getDegrees() + angle.getDegrees());
                 speed2 *= Math.signum(angle.getDegrees());
             }
 
