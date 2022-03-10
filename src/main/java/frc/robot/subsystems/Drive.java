@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class Drive extends SmartSubsystemBase {
 
-    private final double ROTATION_BUFFER = 5; 
+    private final double ROTATION_BUFFER = 5;
 
     private final SwerveDriveKinematics kinematics;
     private final SwerveModule frontLeft;
@@ -147,32 +147,71 @@ public class Drive extends SmartSubsystemBase {
         };
     }
 
-    public CommandBase setAbsoluteAngle(final Rotation2d angle, final double speed){
+    public CommandBase setAbsoluteAngle(final Rotation2d angle, final double speed) {
 
         Drive thisDrive = this;
-        
+
         return new CommandBase() {
             {
                 addRequirements(thisDrive);
-                setName("Drive Distance");
+                setName("Absolute angle");
             }
-            private double speed2 = speed; 
+            private double speed2 = speed;
             private Rotation2d initialRotation;
 
             @Override
             public void initialize() {
                 initialRotation = pose.getRotation().times(1);
-                speed2 *= Math.signum(initialRotation.getDegrees() - angle.getDegrees());
+                speed2 *= Math.signum(angle.getDegrees() - initialRotation.getDegrees());
             }
 
             @Override
             public void execute() {
-                updateSwerveSpeedAngle(()->0., ()->0., ()->speed2);
+                updateSwerveSpeedAngle(() -> 0., () -> 0., () -> speed2);
             }
 
             @Override
             public boolean isFinished() {
-                return Math.abs(initialRotation.getDegrees()-angle.getDegrees()) <= ROTATION_BUFFER;
+                return Math.abs(gyro.getRotation2d().getDegrees() - angle.getDegrees()) <= ROTATION_BUFFER;
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
+            }
+
+        };
+    }
+
+    public CommandBase setRelitiveAngle(final Rotation2d angle, final double speed) {
+
+        Drive thisDrive = this;
+
+        return new CommandBase() {
+            {
+                addRequirements(thisDrive);
+                setName("Relitive Angle");
+            }
+            private double speed2 = speed;
+            private Rotation2d initialRotation;
+            private Rotation2d targetRotation;
+
+            @Override
+            public void initialize() {
+                initialRotation = pose.getRotation().times(1);
+                targetRotation = new Rotation2d(initialRotation.getDegrees() + angle.getDegrees());
+                speed2 *= Math.signum(angle.getDegrees());
+            }
+
+            @Override
+            public void execute() {
+                updateSwerveSpeedAngle(() -> 0., () -> 0., () -> speed2);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return Math
+                        .abs(pose.getRotation().times(1).getDegrees() - targetRotation.getDegrees()) <= ROTATION_BUFFER;
             }
 
             @Override
