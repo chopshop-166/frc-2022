@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class Drive extends SmartSubsystemBase {
 
+    private final double ROTATION_BUFFER = 5; 
+
     private final SwerveDriveKinematics kinematics;
     private final SwerveModule frontLeft;
     private final SwerveModule frontRight;
@@ -110,9 +112,8 @@ public class Drive extends SmartSubsystemBase {
         });
     }
 
-    public CommandBase driveDistance(final double distanceMeters, final double direction, final double speed) {
+    public CommandBase driveDistance(final double distanceMeters, final Rotation2d direction, final double speed) {
 
-        Rotation2d rotation = Rotation2d.fromDegrees(direction);
         Drive thisDrive = this;
 
         return new CommandBase() {
@@ -130,12 +131,48 @@ public class Drive extends SmartSubsystemBase {
 
             @Override
             public void execute() {
-                updateSwerveSpeedAngle(() -> rotation.getSin() * speed, () -> rotation.getCos() * speed, () -> 0);
+                updateSwerveSpeedAngle(() -> direction.getSin() * speed, () -> direction.getCos() * speed, () -> 0);
             }
 
             @Override
             public boolean isFinished() {
                 return initialPose.getTranslation().getDistance(pose.getTranslation()) >= distanceMeters;
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
+            }
+
+        };
+    }
+
+    public CommandBase setAbsoluteAngle(final Rotation2d angle, final double speed){
+
+        Drive thisDrive = this;
+        
+        return new CommandBase() {
+            {
+                addRequirements(thisDrive);
+                setName("Drive Distance");
+            }
+            private double speed2 = speed; 
+            private Rotation2d initialRotation;
+
+            @Override
+            public void initialize() {
+                initialRotation = pose.getRotation().times(1);
+                speed2 *= Math.signum(initialRotation.getDegrees() - angle.getDegrees());
+            }
+
+            @Override
+            public void execute() {
+                updateSwerveSpeedAngle(()->0., ()->0., ()->speed2);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return Math.abs(initialRotation.getDegrees()-angle.getDegrees()) <= ROTATION_BUFFER;
             }
 
             @Override

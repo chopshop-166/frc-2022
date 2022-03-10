@@ -10,6 +10,7 @@ import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -77,7 +78,7 @@ public class Robot extends CommandRobot {
         copilotController.getPovButton(POVDirection.DOWN).whileHeld(ballTransport.runBackwards());
         copilotController.getPovButton(POVDirection.RIGHT).whenPressed(ballTransport.moveBothMotorsToLaser());
 
-        driveController.getPovButton(POVDirection.UP).whenPressed(drive.driveDistance(1, 0, 0.2));
+        driveController.getPovButton(POVDirection.UP).whenPressed(drive.driveDistance(1, new Rotation2d(), 0.2));
 
         // Drive:
 
