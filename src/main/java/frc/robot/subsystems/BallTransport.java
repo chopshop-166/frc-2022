@@ -30,10 +30,6 @@ public class BallTransport extends SmartSubsystemBase {
 
     boolean seenBall = false;
 
-    public static interface ColorBufferSupplier {
-        public SampleBuffer<Color> getAsColorBuffer();
-    }
-
     // creates a color sample buffer.
     private SampleBuffer<Color> colorBuffer = new SampleBuffer<>(2);
 
@@ -51,8 +47,8 @@ public class BallTransport extends SmartSubsystemBase {
         this.laserSwitch = map.getLaserSwitch();
     }
 
-    public ColorBufferSupplier getColorBuffer() {
-        return () -> colorBuffer;
+    public SampleBuffer<Color> getColorBuffer() {
+        return colorBuffer;
     }
 
     private boolean colorSensorBallLimit() {

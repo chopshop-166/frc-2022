@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.chopshop166.chopshoplib.SampleBuffer;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 
@@ -8,7 +10,6 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.subsystems.LedMap;
-import frc.robot.subsystems.BallTransport.ColorBufferSupplier;
 import frc.robot.util.LightAnimation;
 
 public class Led extends SmartSubsystemBase {
@@ -72,10 +73,10 @@ public class Led extends SmartSubsystemBase {
         return BallColor.NONE;
     }
 
-    public CommandBase showBallColors(ColorBufferSupplier colorBuffer, LightAnimation defaultAnimation,
+    public CommandBase showBallColors(Supplier<SampleBuffer<Color>> colorBuffer, LightAnimation defaultAnimation,
             double brightness) {
         return running("Show Ball Colors", () -> {
-            SampleBuffer<Color> colors = colorBuffer.getAsColorBuffer();
+            SampleBuffer<Color> colors = colorBuffer.get();
             if (colors.size() == 0) {
                 runAnimation(defaultAnimation, brightness);
             } else {
