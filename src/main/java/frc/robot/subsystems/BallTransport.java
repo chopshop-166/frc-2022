@@ -238,12 +238,12 @@ public class BallTransport extends SmartSubsystemBase {
                 }
             } else {
                 if (firstBallColor.equals(oppositeAllianceBallColor)) {
-                    topMotor.set(REMOVE_SPEED);
+                    topMotor.set(-REMOVE_SPEED);
                     colorBuffer.removeLast();
                     sawBottomBall = true;
                 }
                 if (secondBallColor.equals(oppositeAllianceBallColor)) {
-                    bottomMotor.set(-REMOVE_SPEED);
+                    bottomMotor.set(REMOVE_SPEED);
                     colorBuffer.removeFirst();
                     sawTopBall = true;
                 }
