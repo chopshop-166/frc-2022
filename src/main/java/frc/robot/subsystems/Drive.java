@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import javax.xml.stream.events.Comment;
 
+import com.chopshop166.chopshoplib.PersistenceCheck;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
@@ -37,6 +38,7 @@ public class Drive extends SmartSubsystemBase {
     private final Gyro gyro;
 
     private double speedCoef = 1.0;
+    private double nearTargetAngle = 10;
 
     private Field2d field = new Field2d();
 
@@ -143,7 +145,7 @@ public class Drive extends SmartSubsystemBase {
     public CommandBase driveDirectionDistance(final double distanceMeters, final Rotation2d direction,
             final double speed) {
 
-        Rotation2d setRotation = new Rotation2d(pose.getRotation().getDegrees() + direction.getDegrees());
+        Rotation2d setRotation = new Rotation2d(pose.getRotation().getRadians() + direction.getRadians());
         Drive thisDrive = this;
         Pose2d initialPose = pose;
 
@@ -184,12 +186,17 @@ public class Drive extends SmartSubsystemBase {
 
             @Override
             public void execute() {
-                updateSwerveSpeedAngle(() -> 0., () -> 0., () -> speed);
+                double spinSpeed = speed * Math.max(-1, Math.min(1,
+                        (pose.getRotation().getDegrees() - angle.getDegrees()) / nearTargetAngle));
+                updateSwerveSpeedAngle(() -> 0., () -> 0., () -> spinSpeed);
             }
 
             @Override
             public boolean isFinished() {
-                return Math.abs(pose.getRotation().getDegrees() - angle.getDegrees()) <= ROTATION_BUFFER;
+
+                PersistenceCheck check = new PersistenceCheck(5, () -> Math
+                        .abs(pose.getRotation().getDegrees() - angle.getDegrees()) <= ROTATION_BUFFER);
+                return check.getAsBoolean();
             }
 
             @Override
@@ -200,11 +207,11 @@ public class Drive extends SmartSubsystemBase {
         };
     }
 
-    public CommandBase setRelativeAngle(final Rotation2d angle, final double inputSpeed) {
+    public CommandBase setRelativeAngle(final Rotation2d inputAngle, final double inputSpeed) {
 
         Drive thisDrive = this;
-        double speed = Math.copySign(inputSpeed, angle.getDegrees());
-        Rotation2d targetRotation = new Rotation2d(pose.getRotation().getDegrees() + angle.getDegrees());
+        double speed = Math.copySign(inputSpeed, inputAngle.getDegrees());
+        Rotation2d targetRotation = new Rotation2d(pose.getRotation().getRadians() + inputAngle.getRadians());
         return new CommandBase() {
             {
                 addRequirements(thisDrive);
@@ -213,13 +220,16 @@ public class Drive extends SmartSubsystemBase {
 
             @Override
             public void execute() {
-                updateSwerveSpeedAngle(() -> 0., () -> 0., () -> speed);
+                double rotationSpeed = speed * Math.max(-1, Math.min(1,
+                        (pose.getRotation().getDegrees() - inputAngle.getDegrees()) / nearTargetAngle));
+                updateSwerveSpeedAngle(() -> 0., () -> 0., () -> rotationSpeed);
             }
 
             @Override
             public boolean isFinished() {
-                return Math
-                        .abs(pose.getRotation().getDegrees() - targetRotation.getDegrees()) <= ROTATION_BUFFER;
+                PersistenceCheck check = new PersistenceCheck(5, () -> Math
+                        .abs(pose.getRotation().getDegrees() - targetRotation.getDegrees()) <= ROTATION_BUFFER);
+                return check.getAsBoolean();
             }
 
             @Override
