@@ -229,7 +229,7 @@ public class BallTransport extends SmartSubsystemBase {
                 // this accounts for if there's only one ball in the color buffer
                 // in this case the intake doesn't need to be deployed because it can just go
                 // out shooter end
-                if (firstBallColor == oppositeAllianceBallColor) {
+                if (firstBallColor.equals(oppositeAllianceBallColor)) {
                     topMotor.set(REMOVE_SPEED);
                     bottomMotor.set(REMOVE_SPEED);
                     colorBuffer.clear();
@@ -237,12 +237,12 @@ public class BallTransport extends SmartSubsystemBase {
                     sawBottomBall = true;
                 }
             } else {
-                if (firstBallColor == oppositeAllianceBallColor) {
+                if (firstBallColor.equals(oppositeAllianceBallColor)) {
                     topMotor.set(REMOVE_SPEED);
                     colorBuffer.removeLast();
                     sawBottomBall = true;
                 }
-                if (secondBallColor == oppositeAllianceBallColor) {
+                if (secondBallColor.equals(oppositeAllianceBallColor)) {
                     bottomMotor.set(-REMOVE_SPEED);
                     colorBuffer.removeFirst();
                     sawTopBall = true;
