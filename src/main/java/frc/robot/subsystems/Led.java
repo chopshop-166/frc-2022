@@ -54,6 +54,8 @@ public class Led extends SmartSubsystemBase {
             led.setData(ledBuffer);
             frame++;
         }
+        // timer does not get incremented here because this function is not always
+        // called in showBallColors, but timer is always used
     }
 
     public CommandBase animate(LightAnimation animation, double brightness) {
@@ -96,6 +98,7 @@ public class Led extends SmartSubsystemBase {
 
                 }
             }
+            // Timer gets used in both cases, so it should be incremented here
             timer++;
         });
     }
