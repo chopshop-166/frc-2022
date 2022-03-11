@@ -81,8 +81,8 @@ public class Led extends SmartSubsystemBase {
             if (colors.size() == 0) {
                 runAnimation(defaultAnimation, brightness);
             } else {
-                Color bottomColor = matchColor(colors.peekFirst()).get();
-                Color topColor = (colors.size() == 1) ? (BallColor.NONE.get()) : (matchColor(colors.peekLast()).get());
+                Color bottomColor = matchColor(colors.peekLast()).get();
+                Color topColor = (colors.size() == 1) ? (BallColor.NONE.get()) : (matchColor(colors.peekFirst()).get());
 
                 double sin = (Math.sin(timer / 10.0) + 1.0) / 2.0;
                 for (int i = 0; i < ledBuffer.getLength(); i++) {
