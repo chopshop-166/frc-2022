@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 public class Drive extends SmartSubsystemBase {
 
     private final double ROTATION_BUFFER = 5;
+    private final double NEAR_TARGET_ANGLE = 10;
 
     private final SwerveDriveKinematics kinematics;
     private final SwerveModule frontLeft;
@@ -38,7 +39,6 @@ public class Drive extends SmartSubsystemBase {
     private final Gyro gyro;
 
     private double speedCoef = 1.0;
-    private double nearTargetAngle = 10;
 
     private Field2d field = new Field2d();
 
@@ -117,11 +117,16 @@ public class Drive extends SmartSubsystemBase {
     public CommandBase driveDistance(final double distanceMeters, final Rotation2d direction, final double speed) {
 
         Drive thisDrive = this;
-        Pose2d initialPose = pose;
         return new CommandBase() {
             {
                 addRequirements(thisDrive);
                 setName("Drive Distance");
+            }
+            Pose2d initialPose;
+
+            @Override
+            public void initialize() {
+                initialPose = pose;
             }
 
             @Override
@@ -145,14 +150,21 @@ public class Drive extends SmartSubsystemBase {
     public CommandBase driveDirectionDistance(final double distanceMeters, final Rotation2d direction,
             final double speed) {
 
-        Rotation2d setRotation = new Rotation2d(pose.getRotation().getRadians() + direction.getRadians());
         Drive thisDrive = this;
-        Pose2d initialPose = pose;
 
         return new CommandBase() {
             {
                 addRequirements(thisDrive);
                 setName("Drive Direction Distance");
+            }
+
+            Rotation2d setRotation;
+            Pose2d initialPose;
+
+            @Override
+            public void initialize() {
+                setRotation = new Rotation2d(pose.getRotation().getRadians() + direction.getRadians());
+                initialPose = pose;
             }
 
             @Override
@@ -176,7 +188,6 @@ public class Drive extends SmartSubsystemBase {
     public CommandBase setAbsoluteAngle(final Rotation2d angle, final double inputSpeed) {
 
         Drive thisDrive = this;
-        double speed = Math.copySign(inputSpeed, angle.getDegrees() - pose.getRotation().getDegrees());
 
         return new CommandBase() {
             {
@@ -184,10 +195,17 @@ public class Drive extends SmartSubsystemBase {
                 setName("Absolute angle");
             }
 
+            double speed;
+
+            @Override
+            public void initialize() {
+                speed = Math.copySign(inputSpeed, angle.getDegrees() - pose.getRotation().getDegrees());
+            }
+
             @Override
             public void execute() {
                 double spinSpeed = speed * Math.max(-1, Math.min(1,
-                        (pose.getRotation().getDegrees() - angle.getDegrees()) / nearTargetAngle));
+                        (pose.getRotation().getDegrees() - angle.getDegrees()) / NEAR_TARGET_ANGLE));
                 updateSwerveSpeedAngle(() -> 0., () -> 0., () -> spinSpeed);
             }
 
@@ -210,18 +228,24 @@ public class Drive extends SmartSubsystemBase {
     public CommandBase setRelativeAngle(final Rotation2d inputAngle, final double inputSpeed) {
 
         Drive thisDrive = this;
-        double speed = Math.copySign(inputSpeed, inputAngle.getDegrees());
-        Rotation2d targetRotation = new Rotation2d(pose.getRotation().getRadians() + inputAngle.getRadians());
         return new CommandBase() {
             {
                 addRequirements(thisDrive);
                 setName("Relative Angle");
             }
+            double speed;
+            Rotation2d targetRotation;
+
+            @Override
+            public void initialize() {
+                speed = Math.copySign(inputSpeed, inputAngle.getDegrees());
+                targetRotation = new Rotation2d(pose.getRotation().getRadians() + inputAngle.getRadians());
+            }
 
             @Override
             public void execute() {
                 double rotationSpeed = speed * Math.max(-1, Math.min(1,
-                        (pose.getRotation().getDegrees() - inputAngle.getDegrees()) / nearTargetAngle));
+                        (pose.getRotation().getDegrees() - inputAngle.getDegrees()) / NEAR_TARGET_ANGLE));
                 updateSwerveSpeedAngle(() -> 0., () -> 0., () -> rotationSpeed);
             }
 
