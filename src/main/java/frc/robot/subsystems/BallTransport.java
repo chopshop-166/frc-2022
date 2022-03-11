@@ -73,10 +73,6 @@ public class BallTransport extends SmartSubsystemBase {
         }).onEnd(this::stop);
     }
 
-    public CommandBase stopTransport() {
-        return instant("Stop Ball Transport", this::safeState);
-    }
-
     // Shooter should reach top speed before this is run
     public CommandBase loadShooter() {
         return cmd("Load Ball Into Shooter").onExecute(() -> {
@@ -114,7 +110,7 @@ public class BallTransport extends SmartSubsystemBase {
         // Creates a map of entries for the command selector to use.
         final Map<Object, Command> selectCommandMap = Map.ofEntries(
                 Map.entry(CommandSelector.LOWER_TO_COLOR, moveLowerToColor()),
-                Map.entry(CommandSelector.STOP, stopTransport()),
+                Map.entry(CommandSelector.STOP, safeStateCmd()),
                 Map.entry(CommandSelector.MOVE_BOTH_TO_LASER, moveBothToLaser()));
         return new SelectCommand(selectCommandMap, this::commandSelector);
     }

@@ -79,7 +79,7 @@ public class Robot extends CommandRobot {
                 intake.extend(SpinDirection.COUNTERCLOCKWISE),
                 ballTransport.removeCargo(),
                 new WaitCommand(0.5),
-                ballTransport.stopTransport(),
+                ballTransport.safeStateCmd(),
                 intake.retract()));
         driveController.a().or(copilotController.a()).whenActive(intake.extend(
                 SpinDirection.COUNTERCLOCKWISE))
@@ -89,7 +89,7 @@ public class Robot extends CommandRobot {
                         intake.retract(),
                         race("Finish Transport", new WaitCommand(0.5),
                                 ballTransport.loadCargoWithIntake()),
-                        ballTransport.stopTransport()));
+                        ballTransport.safeStateCmd()));
 
         driveController.y().or(copilotController.y())
                 .whenActive(intake.extend(SpinDirection.CLOCKWISE))
