@@ -196,9 +196,12 @@ public class Drive extends SmartSubsystemBase {
             }
 
             double speed;
+            PersistenceCheck check;
 
             @Override
             public void initialize() {
+                check = new PersistenceCheck(5, () -> Math
+                        .abs(pose.getRotation().getDegrees() - angle.getDegrees()) <= ROTATION_BUFFER);
                 speed = Math.copySign(inputSpeed, angle.getDegrees() - pose.getRotation().getDegrees());
             }
 
@@ -211,9 +214,6 @@ public class Drive extends SmartSubsystemBase {
 
             @Override
             public boolean isFinished() {
-
-                PersistenceCheck check = new PersistenceCheck(5, () -> Math
-                        .abs(pose.getRotation().getDegrees() - angle.getDegrees()) <= ROTATION_BUFFER);
                 return check.getAsBoolean();
             }
 
@@ -233,11 +233,15 @@ public class Drive extends SmartSubsystemBase {
                 addRequirements(thisDrive);
                 setName("Relative Angle");
             }
+
             double speed;
             Rotation2d targetRotation;
+            PersistenceCheck check;
 
             @Override
             public void initialize() {
+                check = new PersistenceCheck(5, () -> Math
+                        .abs(pose.getRotation().getDegrees() - targetRotation.getDegrees()) <= ROTATION_BUFFER);
                 speed = Math.copySign(inputSpeed, inputAngle.getDegrees());
                 targetRotation = new Rotation2d(pose.getRotation().getRadians() + inputAngle.getRadians());
             }
@@ -251,8 +255,6 @@ public class Drive extends SmartSubsystemBase {
 
             @Override
             public boolean isFinished() {
-                PersistenceCheck check = new PersistenceCheck(5, () -> Math
-                        .abs(pose.getRotation().getDegrees() - targetRotation.getDegrees()) <= ROTATION_BUFFER);
                 return check.getAsBoolean();
             }
 
