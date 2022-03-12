@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
 
+import com.chopshop166.chopshoplib.Autonomous;
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.commands.SmartSubsystem;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
@@ -46,6 +47,24 @@ public class Robot extends CommandRobot {
     private final LightAnimation redAnimation = new LightAnimation("redfade.json", "Red Fade");
     private final LightAnimation blueAnimation = new LightAnimation("bluefade.json", "Blue Fade");
 
+    @Autonomous
+    CommandBase autoCommand = sequence("Autonomous", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+            shooter.waitUntilSpeedUp(),
+            ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new WaitCommand(2), shooter.stop(),
+            drive.driveDistanceRotation(2, 180, Math.PI));
+
+    // @Override
+    // public void populateAutonomous() {
+    // addAutonomous("Shoot Ball then drive backwards",
+    // sequence("Autonomous", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+    // shooter.waitUntilSpeedUp(),
+    // ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new
+    // WaitCommand(2),
+    // shooter.stop(),
+    // drive.driveDistanceRotation(2, 180, Math.PI)));
+
+    // }
+
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
             if (Math.abs(speed) < range) {
@@ -81,7 +100,7 @@ public class Robot extends CommandRobot {
 
         // Drive:
 
-        driveController.b().whenPressed(drive.setSpeedCoef(0.5)).whenReleased(drive.setSpeedCoef(1.0));
+        driveController.rbumper().whenPressed(drive.setSpeedCoef(0.5)).whenReleased(drive.setSpeedCoef(1.0));
 
         driveController.x()
                 .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW),
@@ -154,7 +173,7 @@ public class Robot extends CommandRobot {
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
 
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
-        led.setDefaultCommand(led.animate(rainbowAnimation, 0.1));
+        // led.setDefaultCommand(led.animate(rainbowAnimation, 0.1));
     }
 
     public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {

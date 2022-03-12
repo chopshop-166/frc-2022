@@ -158,45 +158,45 @@ public class ValkyrieMap extends RobotMap {
         return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
     }
 
-    @Override
-    public ClimberMap getLeftClimberMap() {
-        // The current limit for the climber's motors in amps
+    // @Override
+    // public ClimberMap getLeftClimberMap() {
+    // // The current limit for the climber's motors in amps
 
-        final PIDSparkMax extendMotor = new PIDSparkMax(9, MotorType.kBrushless);
+    // final PIDSparkMax extendMotor = new PIDSparkMax(9, MotorType.kBrushless);
 
-        final PIDSparkMax rotateMotor = new PIDSparkMax(18, MotorType.kBrushless);
+    // final PIDSparkMax rotateMotor = new PIDSparkMax(18, MotorType.kBrushless);
 
-        // Setting the current limits on both the validators and motor controllers
-        extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
-        extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
-        rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
-        rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
+    // // Setting the current limits on both the validators and motor controllers
+    // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+    // extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
+    // rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
+    // rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
-        return new ClimberMap(extendMotor, rotateMotor);
-    }
+    // return new ClimberMap(extendMotor, rotateMotor);
+    // }
 
-    @Override
-    public ClimberMap getRightClimberMap() {
-        // The current limit for the climber's motors in amps
-        final PIDSparkMax extendMotor = new PIDSparkMax(10, MotorType.kBrushless);
+    // @Override
+    // public ClimberMap getRightClimberMap() {
+    // // The current limit for the climber's motors in amps
+    // final PIDSparkMax extendMotor = new PIDSparkMax(10, MotorType.kBrushless);
 
-        final PIDSparkMax rotateMotor = new PIDSparkMax(19, MotorType.kBrushless);
+    // final PIDSparkMax rotateMotor = new PIDSparkMax(19, MotorType.kBrushless);
 
-        // Setting the current limits on both the validators and motor controllers
-        extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
-        extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
-        rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
-        rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
+    // // Setting the current limits on both the validators and motor controllers
+    // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+    // extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
+    // rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
+    // rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
-        return new ClimberMap(extendMotor, rotateMotor);
-    }
+    // return new ClimberMap(extendMotor, rotateMotor);
+    // }
 
-    @Override
-    public LedMap getLedMap() {
-        AddressableLED led = new AddressableLED(0);
-        // Best if this is a multiple of 10
-        AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(100);
+    // @Override
+    // public LedMap getLedMap() {
+    // AddressableLED led = new AddressableLED(0);
+    // // Best if this is a multiple of 10
+    // AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(100);
 
-        return new LedMap(led, ledBuffer);
-    }
+    // return new LedMap(led, ledBuffer);
+    // }
 }
