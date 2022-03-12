@@ -44,9 +44,7 @@ public class Robot extends CommandRobot {
     private final Climber leftClimber = new Climber(map.getLeftClimberMap());
     private final Climber rightClimber = new Climber(map.getRightClimberMap());
 
-    private final LightAnimation rainbowAnimation = new LightAnimation("rainbow.json", "Rainbow");
-    private final LightAnimation redAnimation = new LightAnimation("redfade.json", "Red Fade");
-    private final LightAnimation blueAnimation = new LightAnimation("bluefade.json", "Blue Fade");
+    private final LightAnimation teamColors = new LightAnimation("team_colors.json", "Team Colors");
 
     // @Autonomous(defaultAuto = true)
     CommandBase autoCommand = sequence("Autonomous",
@@ -136,31 +134,7 @@ public class Robot extends CommandRobot {
         driveController.y().or(copilotController.y())
                 .whenActive(intake.extend(SpinDirection.CLOCKWISE))
                 .whenInactive(intake.retract());
-        boolean climberActive = true;
-        if (climberActive) { // Climber:
-            // copilotController.x()
-            // .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
-            // climberTrigger), rightClimber.extendSpeed(climberTrigger)));
-            // copilotController.y()
-            // .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(
-            // climberJoystickX),
-            // rightClimber.rotateSpeed(
-            // climberJoystickX)));
 
-            // copilotController.getPovButton(POVDirection.LEFT)
-            // .whileHeld(parallel("Rotate CCW",
-            // leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
-            // rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
-            // copilotController.getPovButton(POVDirection.RIGHT)
-            // .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
-            // rightClimber.rotate(SpinDirection.CLOCKWISE)));
-            // copilotController.a()
-            // .whileHeld(parallel("Extend", leftClimber.extend(ExtendDirection.EXTEND),
-            // rightClimber.extend(ExtendDirection.EXTEND)));
-            // copilotController.b()
-            // .whileHeld(parallel("Retract", leftClimber.extend(ExtendDirection.RETRACT),
-            // rightClimber.extend(ExtendDirection.RETRACT)));
-        }
         // Stop all subsystems
         driveController.back()
                 .whenPressed(
@@ -185,12 +159,12 @@ public class Robot extends CommandRobot {
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
 
         leftClimber.setDefaultCommand(leftClimber.climb(
-                copilotController::getTriggers, deadbandAxis(0.15, ()->0.0)));
+                copilotController::getTriggers, deadbandAxis(0.15, () -> 0.0)));
         rightClimber.setDefaultCommand(rightClimber.climb(
-                copilotController::getTriggers, deadbandAxis(0.15, ()->0.0)));
+                copilotController::getTriggers, deadbandAxis(0.15, () -> 0.0)));
 
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
-        // led.setDefaultCommand(led.animate(rainbowAnimation, 0.1));
+        led.setDefaultCommand(led.animate(teamColors, 0.1));
     }
 
     public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {
