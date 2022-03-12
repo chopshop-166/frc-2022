@@ -13,6 +13,7 @@ import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
@@ -47,11 +48,33 @@ public class Robot extends CommandRobot {
     private final LightAnimation redAnimation = new LightAnimation("redfade.json", "Red Fade");
     private final LightAnimation blueAnimation = new LightAnimation("bluefade.json", "Blue Fade");
 
-    @Autonomous
-    CommandBase autoCommand = sequence("Autonomous", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+    // @Autonomous(defaultAuto = true)
+    CommandBase autoCommand = sequence("Autonomous",
+            shooter.setTargetAndStartShooter(HubSpeed.LOW),
             shooter.waitUntilSpeedUp(),
-            ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new WaitCommand(2), shooter.stop(),
-            drive.driveDistanceRotation(2, 180, Math.PI));
+            ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
+
+            parallel("Stop and drive",
+                    sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
+                    drive.driveDistance(3, 0, 0.5))
+
+    );
+
+    @Override
+    public void autonomousInit() {
+        drive.setStartingAngle();
+        autoCommand.schedule();
+    }
+
+    @Override
+    public void robotPeriodic() {
+        CommandScheduler.getInstance().run();
+    }
+
+    @Override
+    public void teleopInit() {
+        autoCommand.cancel();
+    }
 
     // @Override
     // public void populateAutonomous() {
@@ -95,6 +118,8 @@ public class Robot extends CommandRobot {
         copilotController.getPovButton(POVDirection.UP).whileHeld(ballTransport.runForwards());
         copilotController.getPovButton(POVDirection.DOWN).whileHeld(ballTransport.runBackwards());
         copilotController.getPovButton(POVDirection.RIGHT).whenPressed(ballTransport.moveBothMotorsToLaser());
+
+        driveController.lbumper().whenPressed(drive.setRotationOffset()).whenReleased(drive.resetRotationOffset());
 
         driveController.getPovButton(POVDirection.UP).whenPressed(drive.driveDistance(1, 0, 0.2));
 

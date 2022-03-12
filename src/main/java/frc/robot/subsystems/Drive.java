@@ -18,7 +18,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class Drive extends SmartSubsystemBase {
@@ -40,6 +42,11 @@ public class Drive extends SmartSubsystemBase {
 
     private Pose2d pose = new Pose2d();
 
+    private double rotationOffset = 0.0;
+    private double startingRotation = 0.0;
+
+    SendableChooser<Double> startingAngleChooser = new SendableChooser<>();
+
     public Drive(final SwerveDriveMap map) {
         super();
         SmartDashboard.putData("Field", field);
@@ -55,6 +62,23 @@ public class Drive extends SmartSubsystemBase {
         maxRotationRadiansPerSecond = map.getMaxRotationRadianPerSecond();
 
         odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d());
+
+        startingAngleChooser.addOption("Left Hub", 69.0);
+        startingAngleChooser.addOption("Right Hub", 21.0);
+        startingAngleChooser.addOption("Zero", 0.0);
+
+    }
+
+    public CommandBase setRotationOffset() {
+        return instant("Set Rotation Offset", () -> {
+            rotationOffset = gyro.getRotation2d().getDegrees();
+        });
+    }
+
+    public CommandBase resetRotationOffset() {
+        return instant("Reset Rotation Offset", () -> {
+            rotationOffset = 0.0;
+        });
     }
 
     public CommandBase setSpeedCoef(double fac) {
@@ -66,7 +90,8 @@ public class Drive extends SmartSubsystemBase {
 
     public CommandBase fieldCentricDrive(final DoubleSupplier translateX, final DoubleSupplier translateY,
             final DoubleSupplier rotation) {
-        return running("Field Centric Drive", () -> updateSwerveSpeedAngle(translateX, translateY, rotation));
+        return running("Field Centric Drive",
+                () -> updateSwerveSpeedAngle(translateX, translateY, rotation));
     }
 
     public Pose2d getPose() {
@@ -76,6 +101,7 @@ public class Drive extends SmartSubsystemBase {
     private void updateSwerveSpeedAngle(final DoubleSupplier translateX, final DoubleSupplier translateY,
             final DoubleSupplier rotation) {
         // Need to convert inputs from -1..1 scale to m/s
+        SmartDashboard.putNumber("Rotation Offset", rotationOffset);
         final Modifier deadband = Modifier.deadband(0.15);
         final double translateXSpeed = deadband.applyAsDouble(translateX.getAsDouble()) * maxDriveSpeedMetersPerSecond
                 * speedCoef;
@@ -85,8 +111,10 @@ public class Drive extends SmartSubsystemBase {
         SmartDashboard.putNumber("Translate Y", translateYSpeed);
         SmartDashboard.putNumber("Translate X", translateXSpeed);
         SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
+
+        // rotationOffset is temporary and startingRotation is set at the start
         final ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(translateYSpeed, translateXSpeed,
-                rotationSpeed, Rotation2d.fromDegrees(gyro.getAngle()));
+                rotationSpeed, Rotation2d.fromDegrees(gyro.getAngle() - rotationOffset - 180 - startingRotation));
 
         // Now use this in our kinematics
         final SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
@@ -146,6 +174,10 @@ public class Drive extends SmartSubsystemBase {
         };
     }
 
+    public void setStartingAngle() {
+        startingRotation = startingAngleChooser.getSelected();
+    }
+
     public CommandBase driveDistanceRotation(final double distanceMeters, final double direction, final double speed) {
 
         Rotation2d rotation = Rotation2d.fromDegrees(direction).plus(pose.getRotation());
@@ -189,6 +221,7 @@ public class Drive extends SmartSubsystemBase {
                 rearRight.getState());
 
         field.setRobotPose(pose);
+
     }
 
     @Override
