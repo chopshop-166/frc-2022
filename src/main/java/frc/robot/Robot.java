@@ -56,7 +56,7 @@ public class Robot extends CommandRobot {
 
             parallel("Stop and drive",
                     sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                    drive.driveDistance(3, 0, 0.5))
+                    drive.driveDistance(2.5, 0, 0.5))
 
     );
 
