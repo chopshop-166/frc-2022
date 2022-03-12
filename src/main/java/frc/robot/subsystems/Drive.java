@@ -71,7 +71,7 @@ public class Drive extends SmartSubsystemBase {
 
     public CommandBase setRotationOffset() {
         return instant("Set Rotation Offset", () -> {
-            rotationOffset = gyro.getRotation2d().getDegrees();
+            rotationOffset = gyro.getRotation2d().getDegrees() - 180;
         });
     }
 
@@ -114,7 +114,7 @@ public class Drive extends SmartSubsystemBase {
 
         // rotationOffset is temporary and startingRotation is set at the start
         final ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(translateYSpeed, translateXSpeed,
-                rotationSpeed, Rotation2d.fromDegrees(gyro.getAngle() - rotationOffset - 180 - startingRotation));
+                rotationSpeed, Rotation2d.fromDegrees(gyro.getAngle() - rotationOffset - startingRotation));
 
         // Now use this in our kinematics
         final SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
