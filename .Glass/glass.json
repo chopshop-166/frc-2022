@@ -21,6 +21,7 @@
       "/SmartDashboard/Only Roll Intake Forwards": "Command",
       "/SmartDashboard/Run Bottom Backwards": "Command",
       "/SmartDashboard/Run Top Backwards": "Command",
+      "/SmartDashboard/SendableChooser[1]": "String Chooser",
       "/SmartDashboard/Stop Intake": "Command"
     },
     "windows": {
@@ -43,21 +44,12 @@
           "series": [
             {
               "color": [
-                0.8666667342185974,
-                0.5176470875740051,
-                0.32156863808631897,
+                0.3333333432674408,
+                0.658823549747467,
+                0.4078431725502014,
                 1.0
               ],
-              "id": "NT:/SmartDashboard/Intake Current Draw 2 (amps)"
-            },
-            {
-              "color": [
-                0.0,
-                0.23414070904254913,
-                0.9950980544090271,
-                1.0
-              ],
-              "id": "NT:/SmartDashboard/Intake Current Draw 1 (amps)"
+              "id": "NT:/SmartDashboard/Climber Current Draw"
             }
           ]
         }

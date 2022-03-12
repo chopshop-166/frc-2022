@@ -76,18 +76,6 @@ public class Robot extends CommandRobot {
         autoCommand.cancel();
     }
 
-    // @Override
-    // public void populateAutonomous() {
-    // addAutonomous("Shoot Ball then drive backwards",
-    // sequence("Autonomous", shooter.setTargetAndStartShooter(HubSpeed.LOW),
-    // shooter.waitUntilSpeedUp(),
-    // ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new
-    // WaitCommand(2),
-    // shooter.stop(),
-    // drive.driveDistanceRotation(2, 180, Math.PI)));
-
-    // }
-
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
             if (Math.abs(speed) < range) {
@@ -110,7 +98,6 @@ public class Robot extends CommandRobot {
 
     @Override
     public void configureButtonBindings() {
-        DoubleSupplier climberTrigger = copilotController::getTriggers;
         DoubleSupplier climberJoystickX = copilotController::getLeftX;
 
         driveController.start().whenPressed(drive.resetGyro());
@@ -149,30 +136,30 @@ public class Robot extends CommandRobot {
         driveController.y().or(copilotController.y())
                 .whenActive(intake.extend(SpinDirection.CLOCKWISE))
                 .whenInactive(intake.retract());
-        boolean climberActive = false;
+        boolean climberActive = true;
         if (climberActive) { // Climber:
-            copilotController.x()
-                    .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
-                            climberTrigger), rightClimber.extendSpeed(climberTrigger)));
-            copilotController.y()
-                    .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(
-                            climberJoystickX),
-                            rightClimber.rotateSpeed(
-                                    climberJoystickX)));
+            // copilotController.x()
+            // .whileHeld(parallel("Extend Triggers", leftClimber.extendSpeed(
+            // climberTrigger), rightClimber.extendSpeed(climberTrigger)));
+            // copilotController.y()
+            // .whileHeld(parallel("Rotate", leftClimber.rotateSpeed(
+            // climberJoystickX),
+            // rightClimber.rotateSpeed(
+            // climberJoystickX)));
 
-            copilotController.getPovButton(POVDirection.LEFT)
-                    .whileHeld(parallel("Rotate CCW",
-                            leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
-                            rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
-            copilotController.getPovButton(POVDirection.RIGHT)
-                    .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
-                            rightClimber.rotate(SpinDirection.CLOCKWISE)));
-            copilotController.a()
-                    .whileHeld(parallel("Extend", leftClimber.extend(ExtendDirection.EXTEND),
-                            rightClimber.extend(ExtendDirection.EXTEND)));
-            copilotController.b()
-                    .whileHeld(parallel("Retract", leftClimber.extend(ExtendDirection.RETRACT),
-                            rightClimber.extend(ExtendDirection.RETRACT)));
+            // copilotController.getPovButton(POVDirection.LEFT)
+            // .whileHeld(parallel("Rotate CCW",
+            // leftClimber.rotate(SpinDirection.COUNTERCLOCKWISE),
+            // rightClimber.rotate(SpinDirection.COUNTERCLOCKWISE)));
+            // copilotController.getPovButton(POVDirection.RIGHT)
+            // .whileHeld(parallel("Rotate CW", leftClimber.rotate(SpinDirection.CLOCKWISE),
+            // rightClimber.rotate(SpinDirection.CLOCKWISE)));
+            // copilotController.a()
+            // .whileHeld(parallel("Extend", leftClimber.extend(ExtendDirection.EXTEND),
+            // rightClimber.extend(ExtendDirection.EXTEND)));
+            // copilotController.b()
+            // .whileHeld(parallel("Retract", leftClimber.extend(ExtendDirection.RETRACT),
+            // rightClimber.extend(ExtendDirection.RETRACT)));
         }
         // Stop all subsystems
         driveController.back()
@@ -196,6 +183,11 @@ public class Robot extends CommandRobot {
         final DoubleSupplier deadbandLeftY = deadbandAxis(0.15, driveController::getLeftY);
         final DoubleSupplier deadbandRightX = deadbandAxis(0.15, driveController::getRightX);
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
+
+        leftClimber.setDefaultCommand(leftClimber.climb(
+                copilotController::getTriggers, deadbandAxis(0.15, ()->0.0)));
+        rightClimber.setDefaultCommand(rightClimber.climb(
+                copilotController::getTriggers, deadbandAxis(0.15, ()->0.0)));
 
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
         // led.setDefaultCommand(led.animate(rainbowAnimation, 0.1));

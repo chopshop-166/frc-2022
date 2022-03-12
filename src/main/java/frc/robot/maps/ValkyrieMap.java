@@ -32,8 +32,8 @@ import frc.robot.maps.subsystems.ShooterMap;
 
 @RobotMapFor("00:80:2F:17:62:25")
 public class ValkyrieMap extends RobotMap {
-    final int CLIMBER_EXTEND_LIMIT = 20;
-    final int CLIMBER_ROTATE_LIMIT = 20;
+    final int CLIMBER_EXTEND_LIMIT = 50;
+    final int CLIMBER_ROTATE_LIMIT = 50;
 
     @Override
     public SwerveDriveMap getSwerveDriveMap() {
@@ -158,38 +158,56 @@ public class ValkyrieMap extends RobotMap {
         return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
     }
 
-    // @Override
-    // public ClimberMap getLeftClimberMap() {
-    // // The current limit for the climber's motors in amps
+    @Override
+    public ClimberMap getLeftClimberMap() {
+        // The current limit for the climber's motors in amps
 
-    // final PIDSparkMax extendMotor = new PIDSparkMax(9, MotorType.kBrushless);
+        final PIDSparkMax extendMotor = new PIDSparkMax(9, MotorType.kBrushless);
 
-    // final PIDSparkMax rotateMotor = new PIDSparkMax(18, MotorType.kBrushless);
+        final PIDSparkMax rotateMotor = new PIDSparkMax(18, MotorType.kBrushless);
 
-    // // Setting the current limits on both the validators and motor controllers
-    // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
-    // extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
-    // rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
-    // rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
+        final CANSparkMax extendController = extendMotor.getMotorController();
+        final CANSparkMax rotateController = rotateMotor.getMotorController();
 
-    // return new ClimberMap(extendMotor, rotateMotor);
-    // }
+        extendMotor.getMotorController().setIdleMode(IdleMode.kBrake);
+        rotateMotor.getMotorController().setIdleMode(IdleMode.kBrake);
+        extendMotor.getMotorController().setInverted(false);
+        rotateMotor.getMotorController().setInverted(false);
+        // Setting the current limits on both the validators and motor controllers
+        extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
+        rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
+        rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
-    // @Override
-    // public ClimberMap getRightClimberMap() {
-    // // The current limit for the climber's motors in amps
-    // final PIDSparkMax extendMotor = new PIDSparkMax(10, MotorType.kBrushless);
+        return new ClimberMap(extendMotor, rotateMotor, extendController::getOutputCurrent,
+                rotateController::getOutputCurrent);
+    }
 
-    // final PIDSparkMax rotateMotor = new PIDSparkMax(19, MotorType.kBrushless);
+    @Override
+    public ClimberMap getRightClimberMap() {
+        // The current limit for the climber's motors in amps
 
-    // // Setting the current limits on both the validators and motor controllers
-    // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
-    // extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
-    // rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
-    // rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
+        final PIDSparkMax extendMotor = new PIDSparkMax(10, MotorType.kBrushless);
 
-    // return new ClimberMap(extendMotor, rotateMotor);
-    // }
+        final PIDSparkMax rotateMotor = new PIDSparkMax(19, MotorType.kBrushless);
+
+        final CANSparkMax extendController = extendMotor.getMotorController();
+        final CANSparkMax rotateController = rotateMotor.getMotorController();
+
+        extendMotor.getMotorController().setIdleMode(IdleMode.kBrake);
+        rotateMotor.getMotorController().setIdleMode(IdleMode.kBrake);
+        extendMotor.getMotorController().setInverted(true);
+        rotateMotor.getMotorController().setInverted(true);
+
+        // Setting the current limits on both the validators and motor controllers
+        extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
+        rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
+        rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
+
+        return new ClimberMap(extendMotor, rotateMotor, extendController::getOutputCurrent,
+                rotateController::getOutputCurrent);
+    }
 
     // @Override
     // public LedMap getLedMap() {
