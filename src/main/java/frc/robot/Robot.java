@@ -165,10 +165,10 @@ public class Robot extends CommandRobot {
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
 
         leftClimber.setDefaultCommand(leftClimber.climb(
-                deadbandAxis(0.15, () -> copilotController.getTriggers() + copilotController.getLeftY()), () -> 0.0));
+                deadbandAxis(0.15, () -> copilotController.getTriggers() - copilotController.getLeftY()), () -> 0.0));
 
         rightClimber.setDefaultCommand(rightClimber.climb(
-                deadbandAxis(0.15, () -> copilotController.getTriggers() + copilotController.getRightY()), () -> 0.0));
+                deadbandAxis(0.15, () -> copilotController.getTriggers() - copilotController.getRightY()), () -> 0.0));
 
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
         led.setDefaultCommand(led.animate(teamColors, 1.0));
