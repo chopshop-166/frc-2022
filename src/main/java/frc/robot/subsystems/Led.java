@@ -26,20 +26,19 @@ public class Led extends SmartSubsystemBase {
 
     public CommandBase animate(LightAnimation animation, double brightness) {
         return running("Animate", () -> {
-            if (timer % 5 == 0) {
-                for (int i = 0; i < ledBuffer.getLength(); i++) {
-                    Color c = animation.getColor(frame,
-                            i / (ledBuffer.getLength() / 10));
-                    ledBuffer.setLED(i, new Color(
-                            c.red * brightness,
-                            c.green * brightness,
-                            c.blue * brightness));
-                }
-                led.setData(ledBuffer);
-                frame++;
+            for (int i = 0; i < ledBuffer.getLength(); i++) {
+                int bufLen = (ledBuffer.getLength() / 10);
+                Color c = animation.getColor(timer,
+                        i / bufLen, (i % bufLen) / ((float) bufLen));
+                ledBuffer.setLED(i, new Color(
+                        c.red * brightness,
+                        c.green * brightness,
+                        c.blue * brightness));
             }
+            led.setData(ledBuffer);
             timer++;
         });
+
     }
 
     @Override

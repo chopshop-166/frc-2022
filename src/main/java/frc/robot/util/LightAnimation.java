@@ -56,8 +56,15 @@ public class LightAnimation {
         return name;
     }
 
-    public Color getColor(int frame, int index) {
-        return frames[frame % frames.length][index % frames[0].length];
+    public Color getColor(int frame, int index, double interp) {
+        double f = frame / 15.0;
+        int wholeFrame = (int) f;
+        double fac = wholeFrame - f;
+
+        Color a = frames[wholeFrame % frames.length][(index) % frames[0].length];
+        Color b = frames[(wholeFrame + 1) % frames.length][(index + 1) % frames[0].length];
+
+        return ColorMath.lerp(a, b, interp * fac);
     }
 
 }

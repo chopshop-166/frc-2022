@@ -44,7 +44,7 @@ public class ValkyrieMap extends RobotMap {
         // All Distances are in Meters
         // Front Left Module
         final CANCoder encoderFL = new CANCoder(1);
-        encoderFL.configMagnetOffset(-195.381);
+        encoderFL.configMagnetOffset(180 + 74.119);
         encoderFL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule frontLeft = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
                 encoderFL, new PIDSparkMax(2, MotorType.kBrushless), new PIDSparkMax(1,
@@ -209,12 +209,12 @@ public class ValkyrieMap extends RobotMap {
                 rotateController::getOutputCurrent);
     }
 
-    // @Override
-    // public LedMap getLedMap() {
-    // AddressableLED led = new AddressableLED(0);
-    // // Best if this is a multiple of 10
-    // AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(100);
+    @Override
+    public LedMap getLedMap() {
+        AddressableLED led = new AddressableLED(0);
+        // Best if this is a multiple of 10
+        AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(30);
 
-    // return new LedMap(led, ledBuffer);
-    // }
+        return new LedMap(led, ledBuffer);
+    }
 }

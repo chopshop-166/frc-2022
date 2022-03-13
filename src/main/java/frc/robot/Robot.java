@@ -44,7 +44,7 @@ public class Robot extends CommandRobot {
     private final Climber leftClimber = new Climber(map.getLeftClimberMap());
     private final Climber rightClimber = new Climber(map.getRightClimberMap());
 
-    private final LightAnimation teamColors = new LightAnimation("team_colors.json", "Team Colors");
+    private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
     // @Autonomous(defaultAuto = true)
     CommandBase autoCommand = sequence("Autonomous",
