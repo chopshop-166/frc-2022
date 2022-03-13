@@ -11,6 +11,9 @@ import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -31,6 +34,7 @@ public class Robot extends CommandRobot {
     private final ButtonXboxController driveController = new ButtonXboxController(0);
     private final ButtonXboxController copilotController = new ButtonXboxController(1);
 
+    private UsbCamera camera = CameraServer.startAutomaticCapture();
     private final RobotMap map = getRobotMap(RobotMap.class, "frc.robot.maps", new RobotMap());
 
     private final Drive drive = new Drive(map.getSwerveDriveMap());
@@ -92,6 +96,8 @@ public class Robot extends CommandRobot {
     @Override
     public void robotInit() {
         super.robotInit();
+        Shuffleboard.getTab("Camera").add("USB Camera 0", camera);
+
     }
 
     @Override
@@ -159,12 +165,13 @@ public class Robot extends CommandRobot {
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
 
         leftClimber.setDefaultCommand(leftClimber.climb(
-                copilotController::getTriggers, deadbandAxis(0.15, () -> 0.0)));
+                deadbandAxis(0.15, () -> copilotController.getTriggers() + copilotController.getLeftY()), () -> 0.0));
+
         rightClimber.setDefaultCommand(rightClimber.climb(
-                copilotController::getTriggers, deadbandAxis(0.15, () -> 0.0)));
+                deadbandAxis(0.15, () -> copilotController.getTriggers() + copilotController.getRightY()), () -> 0.0));
 
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
-        led.setDefaultCommand(led.animate(teamColors, 0.1));
+        led.setDefaultCommand(led.animate(teamColors, 1.0));
     }
 
     public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {

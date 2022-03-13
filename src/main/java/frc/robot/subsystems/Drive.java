@@ -135,6 +135,7 @@ public class Drive extends SmartSubsystemBase {
     public CommandBase resetGyro() {
         return instant("Reset Gyro", () -> {
             gyro.reset();
+            startingRotation = 0.0;
         });
     }
 

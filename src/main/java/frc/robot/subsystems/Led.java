@@ -14,7 +14,6 @@ public class Led extends SmartSubsystemBase {
     private final AddressableLED led;
     private final AddressableLEDBuffer ledBuffer;
 
-    private int frame = 0;
     private int timer = 0;
 
     public Led(final LedMap map) {
@@ -25,11 +24,11 @@ public class Led extends SmartSubsystemBase {
     }
 
     public CommandBase animate(LightAnimation animation, double brightness) {
-        return running("Animate", () -> {
+        return cmd("Animate").onExecute(() -> {
             for (int i = 0; i < ledBuffer.getLength(); i++) {
                 int bufLen = (ledBuffer.getLength() / 10);
-                Color c = animation.getColor(timer,
-                        i / bufLen, (i % bufLen) / ((float) bufLen));
+                Color c = animation.getColor(0,
+                        i / bufLen + (timer / 10));
                 ledBuffer.setLED(i, new Color(
                         c.red * brightness,
                         c.green * brightness,
@@ -37,7 +36,7 @@ public class Led extends SmartSubsystemBase {
             }
             led.setData(ledBuffer);
             timer++;
-        });
+        }).runsWhenDisabled(true);
 
     }
 
