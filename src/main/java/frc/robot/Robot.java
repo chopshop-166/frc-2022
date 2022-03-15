@@ -15,6 +15,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -50,37 +51,18 @@ public class Robot extends CommandRobot {
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
-
-    // The messy way of doing autonomous requiring three functions
-    CommandBase autoCommand = sequence("Autonomous",
-            shooter.setTargetAndStartShooter(HubSpeed.LOW),
-            shooter.waitUntilSpeedUp(),
-            ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
-
-            parallel("Stop and drive",
-                    sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                    drive.driveDistance(2.5, 0, 0.5))
-
-    );
-
     @Override
-    public void autonomousInit() {
-        drive.setStartingAngle();
-        autoCommand.schedule();
+    public Command getAutoCommand() {
+        // Shoot one ball and taxi
+        return sequence("Autonomous",
+                shooter.setTargetAndStartShooter(HubSpeed.LOW),
+                shooter.waitUntilSpeedUp(),
+                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
+
+                parallel("Stop and drive",
+                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
+                        drive.driveDistance(2.5, 0, 0.5)));
     }
-
-    @Override
-    public void robotPeriodic() {
-        CommandScheduler.getInstance().run();
-    }
-
-    @Override
-    public void teleopInit() {
-        autoCommand.cancel();
-    }
-
-
-
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
@@ -167,7 +149,6 @@ public class Robot extends CommandRobot {
         final DoubleSupplier deadbandLeftY = deadbandAxis(0.15, driveController::getLeftY);
         final DoubleSupplier deadbandRightX = deadbandAxis(0.15, driveController::getRightX);
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
-
 
         // Eventually use controls for rotating arms
         leftClimber.setDefaultCommand(leftClimber.climb(
