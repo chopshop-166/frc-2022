@@ -195,7 +195,7 @@ public class SDSSwerveModule implements SwerveModule {
         // Set Motor controller configuration
         motor.setControlType(PIDControlType.Velocity);
         sparkMax.setIdleMode(CANSparkMax.IdleMode.kBrake);
-        sparkMax.setSmartCurrentLimit(60);
+        sparkMax.setSmartCurrentLimit(50);
         // Set velocity conversion to convert RPM to M/s
         encoder.setVelocityConversionFactor(conf.getConversion() / 60.0);
         // Set Position conversion to convert from Rotations to M

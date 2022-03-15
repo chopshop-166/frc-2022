@@ -23,6 +23,9 @@ public class Climber extends SmartSubsystemBase {
     private final Modifier extendLimit;
     private final Modifier rotateLimit;
 
+    private final DoubleSupplier extendCurrent;
+    private final DoubleSupplier rotateCurrent;
+
     public enum ExtendDirection {
         EXTEND(0.2), RETRACT(-0.2);
 
@@ -41,9 +44,12 @@ public class Climber extends SmartSubsystemBase {
 
         extendMotor = map.getExtendMotor();
         rotateMotor = map.getRotateMotor();
+        extendCurrent = map.getExtendCurrent();
+        rotateCurrent = map.getRotateCurrent();
 
         extendLimit = Modifier.unless(extendMotor::errored);
         rotateLimit = Modifier.unless(rotateMotor::errored);
+
     }
 
     // Move the motor based off a variable speed
@@ -54,6 +60,17 @@ public class Climber extends SmartSubsystemBase {
         }).runsUntil(extendMotor::errored).onEnd((interrupted) -> {
             extendMotor.set(0.0);
         });
+    }
+
+    public CommandBase climb(DoubleSupplier extendSpeed, DoubleSupplier rotateSpeed) {
+        return cmd("Extend Speed").onExecute(() -> {
+            extendMotor.set(extendLimit.applyAsDouble(extendSpeed.getAsDouble()));
+            rotateMotor.set(extendLimit.applyAsDouble(-rotateSpeed.getAsDouble() * 0.25));
+        }).runsUntil(() -> extendMotor.errored() || rotateMotor.errored()).onEnd((interrupted) -> {
+            extendMotor.set(0.0);
+            rotateMotor.set(0.0);
+        });
+
     }
 
     public CommandBase rotateSpeed(DoubleSupplier speed) {
@@ -89,5 +106,7 @@ public class Climber extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("Climber Extend Current Draw", extendCurrent.getAsDouble());
+        SmartDashboard.putNumber("Climber Rotate Current Draw", rotateCurrent.getAsDouble());
     }
 }
