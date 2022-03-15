@@ -15,10 +15,12 @@ public class ColorMath {
         return new Color(a.red * b, a.green * b, a.blue * b);
     }
 
-    public static Color lerp(Color a, Color b, double fac) {
-        // mx+b
-        // (b - a) * fac + a
+    public static Color div(Color a, double b) {
+        return new Color(a.red / b, a.green / b, a.blue / b);
+    }
 
+
+    public static Color lerp(Color a, Color b, double fac) {
         return add(mul(sub(b, a), fac), a);
     }
 }

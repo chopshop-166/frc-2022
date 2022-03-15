@@ -50,7 +50,8 @@ public class Robot extends CommandRobot {
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
-    // @Autonomous(defaultAuto = true)
+
+    // The messy way of doing autonomous requiring three functions
     CommandBase autoCommand = sequence("Autonomous",
             shooter.setTargetAndStartShooter(HubSpeed.LOW),
             shooter.waitUntilSpeedUp(),
@@ -77,6 +78,9 @@ public class Robot extends CommandRobot {
     public void teleopInit() {
         autoCommand.cancel();
     }
+
+
+
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
@@ -164,6 +168,8 @@ public class Robot extends CommandRobot {
         final DoubleSupplier deadbandRightX = deadbandAxis(0.15, driveController::getRightX);
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
 
+
+        // Eventually use controls for rotating arms
         leftClimber.setDefaultCommand(leftClimber.climb(
                 deadbandAxis(0.15, () -> copilotController.getTriggers() - copilotController.getLeftY()), () -> 0.0));
 

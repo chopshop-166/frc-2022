@@ -2,13 +2,10 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
-import javax.xml.stream.events.Comment;
-
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
-import com.google.common.math.DoubleMath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,7 +17,6 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class Drive extends SmartSubsystemBase {
@@ -63,6 +59,7 @@ public class Drive extends SmartSubsystemBase {
 
         odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d());
 
+        // These angles need some tweaking
         startingAngleChooser.addOption("Left Hub", 69.0);
         startingAngleChooser.addOption("Right Hub", 21.0);
         startingAngleChooser.addOption("Zero", 0.0);
@@ -73,6 +70,13 @@ public class Drive extends SmartSubsystemBase {
         return instant("Set Rotation Offset", () -> {
             rotationOffset = gyro.getRotation2d().getDegrees() - 180;
         });
+    }
+
+    // This sets an offset for the gyro when the robot is turned on. This offset can
+    // be selected using the sendable chooser depending on where the robot is
+    // positioned and facing in the beginning of the match
+    public void setStartingAngle() {
+        startingRotation = startingAngleChooser.getSelected();
     }
 
     public CommandBase resetRotationOffset() {
@@ -173,10 +177,6 @@ public class Drive extends SmartSubsystemBase {
             }
 
         };
-    }
-
-    public void setStartingAngle() {
-        startingRotation = startingAngleChooser.getSelected();
     }
 
     public CommandBase driveDistanceRotation(final double distanceMeters, final double direction, final double speed) {
