@@ -98,6 +98,40 @@ public class Climber extends SmartSubsystemBase {
         });
     }
 
+    public CommandBase autoClimb() {
+        // This assumes that the extending arms are fully extended over the bar and in
+        // place
+        return sequence("Automatic Climb",
+                // Move rotating arms out of the way
+                rotate(SpinDirection.CLOCKWISE),
+
+                // Pull the robot up
+                extend(ExtendDirection.RETRACT),
+
+                // Get the rotating arms in place
+                rotate(SpinDirection.COUNTERCLOCKWISE),
+
+                // Move robot down, then extend arms slightly ouy
+                // Extend slightly out
+
+                // Rotate the robot cw
+                // Rotate slightly ccw
+
+                // Extend arm to reach next bar
+                extend(ExtendDirection.EXTEND),
+
+                // Rotate robot so that extending arm is in place
+                rotate(SpinDirection.CLOCKWISE),
+
+                // Pull robot into the next bar
+                extend(ExtendDirection.RETRACT)
+
+        // Give rotating arms room to move out of the way
+        // Extend slightly out
+
+        );
+    }
+
     @Override
     public void safeState() {
         extendMotor.set(0.0);
