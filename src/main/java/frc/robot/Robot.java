@@ -155,7 +155,7 @@ public class Robot extends CommandRobot {
                 deadbandAxis(0.15, () -> copilotController.getTriggers() - copilotController.getRightY()), () -> 0.0));
 
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
-        led.setDefaultCommand(led.animate(teamColors, 1.0));
+        led.setDefaultCommand(led.animate(teamColors, 1.0, drive.getGyroOn()));
     }
 
     public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {

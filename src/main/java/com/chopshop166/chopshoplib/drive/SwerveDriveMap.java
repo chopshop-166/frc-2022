@@ -1,5 +1,7 @@
 package com.chopshop166.chopshoplib.drive;
 
+import java.util.function.BooleanSupplier;
+
 import com.chopshop166.chopshoplib.sensors.MockGyro;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -18,6 +20,8 @@ public class SwerveDriveMap {
 
     private final double distanceFromCenter = 0.381;
 
+    private final BooleanSupplier gyroOn;
+
     public SwerveDriveMap() {
 
         this.frontLeft = new MockSwerveModule(new Translation2d(distanceFromCenter, distanceFromCenter));
@@ -33,12 +37,14 @@ public class SwerveDriveMap {
         this.maxRotationRadianPerSecond = Math.PI;
 
         this.gyro = new MockGyro();
+
+        this.gyroOn = () -> false;
     }
 
     public SwerveDriveMap(final SwerveModule frontLeft, final SwerveModule frontRight, final SwerveModule rearLeft,
             final SwerveModule rearRight, final double maxDriveSpeedMetersPerSecond,
-            final double maxRotationRadianPerSecond, final Gyro gyro) {
-
+            final double maxRotationRadianPerSecond, final Gyro gyro, final BooleanSupplier gyroOn) {
+        this.gyroOn = gyroOn;
         this.frontLeft = frontLeft;
 
         this.frontRight = frontRight;
@@ -68,6 +74,10 @@ public class SwerveDriveMap {
 
     public SwerveModule getRearRight() {
         return rearRight;
+    }
+
+    public BooleanSupplier getGyroOn() {
+        return gyroOn;
     }
 
     public double getMaxDriveSpeedMetersPerSecond() {

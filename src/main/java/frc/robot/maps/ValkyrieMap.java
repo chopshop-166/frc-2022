@@ -11,6 +11,7 @@ import com.chopshop166.chopshoplib.sensors.WEncoder;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -23,7 +24,6 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import frc.robot.maps.subsystems.BallTransportMap;
 import frc.robot.maps.subsystems.ClimberMap;
 import frc.robot.maps.subsystems.IntakeMap;
@@ -83,11 +83,11 @@ public class ValkyrieMap extends RobotMap {
         final double maxRotationRadianPerSecond = Math.PI;
 
         // final Gyro gyro = new PigeonGyro(new PigeonIMU(5));
-        final Gyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
+        final PigeonGyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
 
         return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
                 maxDriveSpeedMetersPerSecond,
-                maxRotationRadianPerSecond, pigeonGyro);
+                maxRotationRadianPerSecond, pigeonGyro, () -> pigeonGyro.getRaw().getState() == PigeonState.Ready);
     }
 
     @Override
