@@ -61,8 +61,12 @@ public class Robot extends CommandRobot {
             AUTO_ACCEL);
     private PathPlannerTrajectory threeBallRightThree = PathPlanner.loadPath("ThreeBallAutoRightThree", AUTO_SPEED,
             AUTO_ACCEL);
+    private PathPlannerTrajectory twoBallRightOne = PathPlanner.loadPath("TwoBallAutoRightOne", AUTO_SPEED,
+            AUTO_ACCEL);
+    private PathPlannerTrajectory twoBallRightTwo = PathPlanner.loadPath("TwoBallAutoRightTwo", AUTO_SPEED,
+            AUTO_ACCEL);
 
-    public CommandBase shootPreloadedBallAuto() {
+    public CommandBase shootOneBallAuto() {
         return sequence("Shoot Preloaded Ball", shooter.setTargetAndStartShooter(HubSpeed.LOW),
                 shooter.waitUntilSpeedUp(), ballTransport.loadShooter());
     }
@@ -87,17 +91,24 @@ public class Robot extends CommandRobot {
     // shoot them
     public CommandBase threeRightAuto() {
         return sequence("Three Ball Right Auto",
-                shootPreloadedBallAuto(),
+                shootOneBallAuto(),
                 parallel("Stop Shooter", stopShooter(),
                         drive.auto(threeBallRightOne)),
                 intakeOneBallAuto(), drive.auto(threeBallRightTwo),
                 intakeOneBallAuto(), drive.auto(threeBallRightThree), shootTwoBallsAuto(), stopShooter());
     }
 
+    public CommandBase twoRightAuto() {
+        return sequence("Two Ball Right Auto", shootOneBallAuto(),
+                parallel("Stop Shooter", stopShooter(), drive.auto(twoBallRightOne)), intakeOneBallAuto(),
+                drive.auto(twoBallRightTwo), shootOneBallAuto(),
+                parallel("Stop Shooter", stopShooter(), drive.auto(twoBallRightOne)));
+    }
+
     // Shoot One ball and taxi
     public CommandBase oneBallAuto() {
         return sequence("One Ball Auto",
-                shootPreloadedBallAuto(),
+                shootOneBallAuto(),
                 parallel("Stop Shooter", stopShooter(),
                         drive.driveDistance(2.5, 0, 0.5)));
     }
