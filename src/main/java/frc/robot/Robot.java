@@ -4,11 +4,15 @@ import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
 
+import javax.sound.midi.Sequence;
+
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.commands.SmartSubsystem;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController.POVDirection;
 import com.chopshop166.chopshoplib.states.SpinDirection;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
@@ -29,6 +33,9 @@ import frc.robot.util.LightAnimation;
 
 public class Robot extends CommandRobot {
 
+    private final double AUTO_SPEED = 1;
+    private final double AUTO_ACCEL = .5;
+
     private final ButtonXboxController driveController = new ButtonXboxController(0);
     private final ButtonXboxController copilotController = new ButtonXboxController(1);
 
@@ -48,17 +55,52 @@ public class Robot extends CommandRobot {
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
+    private PathPlannerTrajectory threeBallRightOne = PathPlanner.loadPath("ThreeBallAutoRightOne", AUTO_SPEED,
+            AUTO_ACCEL);
+    private PathPlannerTrajectory threeBallRightTwo = PathPlanner.loadPath("ThreeBallAutoRightTwo", AUTO_SPEED,
+            AUTO_ACCEL);
+    private PathPlannerTrajectory threeBallRightThree = PathPlanner.loadPath("ThreeBallAutoRightThree", AUTO_SPEED,
+            AUTO_ACCEL);
+
+    public CommandBase shootPreloadedBallAuto() {
+        return sequence("Shoot Preloaded Ball", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+                shooter.waitUntilSpeedUp(), ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser());
+    }
+
+    public CommandBase shootTwoBallsAuto() {
+        return sequence("Shoot Two Balls Auto", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+                shooter.waitUntilSpeedUp(), ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
+                ballTransport.loadShooter());
+    }
+
+    public CommandBase intakeOneBallAuto() {
+        return sequence("Intake One Ball", parallel("Ball Transport/Intake",
+                intake.extend(SpinDirection.COUNTERCLOCKWISE), ballTransport.loadCargoWithIntake(), new WaitCommand(5)),
+                intake.retract());
+    }
+
+    // Starting Against the right side of the hub, Shoot One Ball, Pickup 2 balls,
+    // shoot them
+    public CommandBase threeRightAuto() {
+        return sequence("Three Ball Right Auto",
+                parallel("Stop Shooter", shootPreloadedBallAuto(), sequence("Stop Shooter", new WaitCommand(1),
+                        shooter.stop())), // Make this a function
+                drive.auto(threeBallRightOne),
+                intakeOneBallAuto(), drive.auto(threeBallRightTwo),
+                intakeOneBallAuto(), drive.auto(threeBallRightThree), shootTwoBallsAuto());
+    }
+
+    // Shoot One ball and taxi
+    public CommandBase oneBallAuto() {
+        return sequence("One Ball Auto",
+                parallel("Stop Shooter", shootPreloadedBallAuto(),
+                        sequence("Stop Shooter", new WaitCommand(1), shooter.stop())),
+                drive.driveDistance(2.5, 0, 0.5));
+    }
+
     @Override
     public Command getAutoCommand() {
-        // Shoot one ball and taxi
-        return sequence("Autonomous",
-                shooter.setTargetAndStartShooter(HubSpeed.LOW),
-                shooter.waitUntilSpeedUp(),
-                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
-
-                parallel("Stop and drive",
-                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                        drive.driveDistance(2.5, 0, 0.5)));
+        return oneBallAuto();
     }
 
     public DoubleUnaryOperator scalingDeadband(double range) {
