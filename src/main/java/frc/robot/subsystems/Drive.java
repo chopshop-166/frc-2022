@@ -6,13 +6,19 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -99,7 +105,11 @@ public class Drive extends SmartSubsystemBase {
     }
 
     public Pose2d getPose() {
-        return pose;
+        return odometry.getPoseMeters();
+    }
+
+    public void resetOdometry(Pose2d pose) {
+        odometry.resetPosition(pose, Rotation2d.fromDegrees(gyro.getAngle()));
     }
 
     private void updateSwerveSpeedAngle(final DoubleSupplier translateX, final DoubleSupplier translateY,
@@ -218,7 +228,7 @@ public class Drive extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        pose = odometry.update(gyro.getRotation2d(), frontLeft.getState(), frontRight.getState(), rearLeft.getState(),
+        odometry.update(gyro.getRotation2d(), frontLeft.getState(), frontRight.getState(), rearLeft.getState(),
                 rearRight.getState());
 
         field.setRobotPose(pose);
@@ -248,4 +258,38 @@ public class Drive extends SmartSubsystemBase {
         rearRight.setDesiredState(stop);
 
     }
+
+    public void setModuleStates(SwerveModuleState[] states) {
+        // Front left module state
+        frontLeft.setDesiredState(states[0]);
+
+        // Front right module state
+        frontRight.setDesiredState(states[1]);
+
+        // Back left module state
+        rearLeft.setDesiredState(states[2]);
+
+        // Back right module state
+        rearRight.setDesiredState(states[3]);
+    }
+
+    public CommandBase auto() {
+        PathPlannerTrajectory path = PathPlanner.loadPath("ThreeBallAutoRight", 1, .5);
+
+        // Create a PPSwerveControllerCommand. This is almost identical to WPILib's
+        // SwerveControllerCommand, but it uses the holonomic rotation
+        // from the PathPlannerTrajectory to control the robot's rotation.
+        // See the WPILib SwerveControllerCommand for more info on what you need to pass
+        // to the command
+        return new PPSwerveControllerCommand(
+                path,
+                this::getPose,
+                kinematics,
+                new PIDController(0, 0, 0),
+                new PIDController(0, 0, 0),
+                new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(Math.PI, Math.PI)),
+                this::setModuleStates,
+                this);
+    }
+
 }
