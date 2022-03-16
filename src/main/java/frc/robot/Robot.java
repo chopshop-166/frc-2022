@@ -64,7 +64,7 @@ public class Robot extends CommandRobot {
 
     public CommandBase shootPreloadedBallAuto() {
         return sequence("Shoot Preloaded Ball", shooter.setTargetAndStartShooter(HubSpeed.LOW),
-                shooter.waitUntilSpeedUp(), ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser());
+                shooter.waitUntilSpeedUp(), ballTransport.loadShooter());
     }
 
     public CommandBase shootTwoBallsAuto() {
@@ -79,23 +79,27 @@ public class Robot extends CommandRobot {
                 intake.retract());
     }
 
+    public CommandBase stopShooter() {
+        return sequence("Stop Shooter", new WaitCommand(1), shooter.stop());
+    }
+
     // Starting Against the right side of the hub, Shoot One Ball, Pickup 2 balls,
     // shoot them
     public CommandBase threeRightAuto() {
         return sequence("Three Ball Right Auto",
-                parallel("Stop Shooter", shootPreloadedBallAuto(), sequence("Stop Shooter", new WaitCommand(1),
-                        shooter.stop())), // Make this a function
-                drive.auto(threeBallRightOne),
+                shootPreloadedBallAuto(),
+                parallel("Stop Shooter", stopShooter(),
+                        drive.auto(threeBallRightOne)),
                 intakeOneBallAuto(), drive.auto(threeBallRightTwo),
-                intakeOneBallAuto(), drive.auto(threeBallRightThree), shootTwoBallsAuto());
+                intakeOneBallAuto(), drive.auto(threeBallRightThree), shootTwoBallsAuto(), stopShooter());
     }
 
     // Shoot One ball and taxi
     public CommandBase oneBallAuto() {
         return sequence("One Ball Auto",
-                parallel("Stop Shooter", shootPreloadedBallAuto(),
-                        sequence("Stop Shooter", new WaitCommand(1), shooter.stop())),
-                drive.driveDistance(2.5, 0, 0.5));
+                shootPreloadedBallAuto(),
+                parallel("Stop Shooter", stopShooter(),
+                        drive.driveDistance(2.5, 0, 0.5)));
     }
 
     @Override

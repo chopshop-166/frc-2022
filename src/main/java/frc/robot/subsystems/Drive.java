@@ -273,9 +273,7 @@ public class Drive extends SmartSubsystemBase {
         rearRight.setDesiredState(states[3]);
     }
 
-    public CommandBase auto() {
-        PathPlannerTrajectory path = PathPlanner.loadPath("ThreeBallAutoRight", 1, .5);
-
+    public CommandBase auto(PathPlannerTrajectory path) {
         // Create a PPSwerveControllerCommand. This is almost identical to WPILib's
         // SwerveControllerCommand, but it uses the holonomic rotation
         // from the PathPlannerTrajectory to control the robot's rotation.
