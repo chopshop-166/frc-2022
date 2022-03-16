@@ -98,6 +98,26 @@ public class Climber extends SmartSubsystemBase {
         });
     }
 
+    public CommandBase extendDistance(ExtendDirection direction, double distanceMeters) {
+        return cmd("Extend Distance").onExecute(() -> {
+            extendMotor.set(extendLimit.applyAsDouble(direction.get()));
+        }).runsUntil(() -> extendMotor.errored()
+                || Math.abs(extendMotor.getEncoder().getDistance()) >= distanceMeters)
+                .onEnd((interrupted) -> {
+                    extendMotor.set(0.0);
+                });
+    }
+
+    public CommandBase rotateDistance(SpinDirection direction, double rotations) {
+        return cmd("Rotate Distance").onExecute(() -> {
+            rotateMotor.set(rotateLimit.applyAsDouble(direction.apply(ROTATE_SPEED)));
+        }).runsUntil(() -> rotateMotor.errored()
+                || Math.abs(rotateMotor.getEncoder().getDistance()) >= rotations)
+                .onEnd((interrupted) -> {
+                    rotateMotor.set(0.0);
+                });
+    }
+
     public CommandBase autoClimb() {
         // This assumes that the extending arms are fully extended over the bar and in
         // place
@@ -111,11 +131,11 @@ public class Climber extends SmartSubsystemBase {
                 // Get the rotating arms in place
                 rotate(SpinDirection.COUNTERCLOCKWISE),
 
-                // Move robot down, then extend arms slightly ouy
-                // Extend slightly out
+                // Move robot down, then extend arms slightly out
+                extendDistance(ExtendDirection.EXTEND, 1),
 
                 // Rotate the robot cw
-                // Rotate slightly ccw
+                rotateDistance(SpinDirection.CLOCKWISE, 1),
 
                 // Extend arm to reach next bar
                 extend(ExtendDirection.EXTEND),
@@ -124,12 +144,10 @@ public class Climber extends SmartSubsystemBase {
                 rotate(SpinDirection.CLOCKWISE),
 
                 // Pull robot into the next bar
-                extend(ExtendDirection.RETRACT)
+                extend(ExtendDirection.RETRACT),
 
-        // Give rotating arms room to move out of the way
-        // Extend slightly out
-
-        );
+                // Give rotating arms room to move out of the way
+                extendDistance(ExtendDirection.EXTEND, 1));
     }
 
     @Override

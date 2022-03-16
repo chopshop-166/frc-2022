@@ -146,7 +146,6 @@ public class Robot extends CommandRobot {
         final DoubleSupplier deadbandLeftY = deadbandAxis(0.15, driveController::getLeftY);
         final DoubleSupplier deadbandRightX = deadbandAxis(0.15, driveController::getRightX);
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
-
         // Eventually use controls for rotating arms
         leftClimber.setDefaultCommand(leftClimber.climb(
                 deadbandAxis(0.15, () -> copilotController.getTriggers() - copilotController.getLeftY()), () -> 0.0));
