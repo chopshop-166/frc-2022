@@ -14,6 +14,7 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import frc.robot.maps.subsystems.BallTransportMap;
 import frc.robot.maps.subsystems.ClimberMap;
 import frc.robot.maps.subsystems.IntakeMap;
@@ -127,6 +129,11 @@ public class ValkyrieMap extends RobotMap {
         final PIDSparkMax deploymentFollower = new PIDSparkMax(12,
                 MotorType.kBrushless);
         final PIDSparkMax rollerMotor = new PIDSparkMax(13, MotorType.kBrushless);
+        final var rollerController = rollerMotor.getMotorController();
+
+        for (PeriodicFrame pf : PeriodicFrame.values()) {
+            rollerController.setPeriodicFramePeriod(pf, 500);
+        }
         CANSparkMax deploymentController = deploymentMotor.getMotorController();
         CANSparkMax followerController = deploymentFollower.getMotorController();
 
@@ -143,7 +150,6 @@ public class ValkyrieMap extends RobotMap {
 
         return new IntakeMap(deploymentMotor, rollerMotor, deploymentController::getOutputCurrent,
                 followerController::getOutputCurrent);
-
     }
 
     @Override
@@ -155,6 +161,13 @@ public class ValkyrieMap extends RobotMap {
 
         final WDigitalInput laserSwitch = new WDigitalInput(0);
 
+        final var topController = topMotor.getMotorController();
+        final var bottomController = bottomMotor.getMotorController();
+
+        for (PeriodicFrame pf : PeriodicFrame.values()) {
+            topController.setPeriodicFramePeriod(pf, 500);
+            bottomController.setPeriodicFramePeriod(pf, 500);
+        }
         return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
     }
 
