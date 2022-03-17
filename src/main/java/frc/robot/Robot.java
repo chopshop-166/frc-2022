@@ -85,7 +85,6 @@ public class Robot extends CommandRobot {
 
     @Override
     public void configureButtonBindings() {
-        DoubleSupplier climberJoystickX = copilotController::getLeftX;
 
         driveController.start().whenPressed(drive.resetGyro());
 
