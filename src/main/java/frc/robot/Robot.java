@@ -4,6 +4,8 @@ import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
 
+import javax.swing.text.AbstractDocument.LeafElement;
+
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.commands.SmartSubsystem;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
@@ -12,6 +14,7 @@ import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -41,12 +44,16 @@ public class Robot extends CommandRobot {
 
     private final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
     private final Led led = new Led(map.getLedMap());
+    private final Led leftLed = new Led(map.getLeftLedMap());
+    private final Led rightLed = new Led(map.getRightLedMap());
 
     private final Shooter shooter = new Shooter(map.getShooterMap());
     private final Climber leftClimber = new Climber(map.getLeftClimberMap());
     private final Climber rightClimber = new Climber(map.getRightClimberMap());
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
+    private final LightAnimation climberUp = new LightAnimation("climber_up.json", "Climber Up");
+    private final LightAnimation climberDown = new LightAnimation("climber_up.json", "Climber Down");
 
     @Override
     public Command getAutoCommand() {
@@ -119,7 +126,8 @@ public class Robot extends CommandRobot {
                         race("Finish Transport", new WaitCommand(0.5),
                                 ballTransport.loadCargoWithIntake()),
                         ballTransport.stopTransport()));
-
+        copilotController.getAxis(Axis.kRightTrigger).whileActiveContinuous(led.animate(climberUp, 1.0, () -> false));
+        copilotController.getAxis(Axis.kLeftTrigger).whileActiveContinuous(led.animate(climberDown, 1.0, () -> false));
         driveController.y().or(copilotController.y())
                 .whenActive(intake.extend(SpinDirection.CLOCKWISE))
                 .whenInactive(intake.retract());
@@ -156,6 +164,8 @@ public class Robot extends CommandRobot {
 
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
         led.setDefaultCommand(led.animate(teamColors, 1.0, drive.getGyroOn()));
+        leftLed.setDefaultCommand(leftLed.animate(teamColors, 1.0, drive.getGyroOn()));
+        rightLed.setDefaultCommand(rightLed.animate(teamColors, 1.0, drive.getGyroOn()));
     }
 
     public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {

@@ -217,4 +217,22 @@ public class ValkyrieMap extends RobotMap {
 
         return new LedMap(led, ledBuffer);
     }
+
+    @Override
+    public LedMap getLeftLedMap() {
+        AddressableLED led = new AddressableLED(1);
+        // Best if this is a multiple of 10
+        AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(50);
+
+        return new LedMap(led, ledBuffer);
+    }
+
+    @Override
+    public LedMap getRightLedMap() {
+        AddressableLED led = new AddressableLED(2);
+        // Best if this is a multiple of 10
+        AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(50);
+
+        return new LedMap(led, ledBuffer);
+    }
 }
