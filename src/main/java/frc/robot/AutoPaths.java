@@ -25,4 +25,9 @@ public final class AutoPaths {
             AUTO_ACCEL);
     public static final PathPlannerTrajectory twoBallLeftTwo = PathPlanner.loadPath("TwoBallAutoLeftTwo", AUTO_SPEED,
             AUTO_ACCEL);
+    public static final PathPlannerTrajectory twoMeterX = PathPlanner.loadPath("TwoMeterX", AUTO_SPEED,
+            AUTO_ACCEL);
+    public static final PathPlannerTrajectory twoMeterY = PathPlanner.loadPath("TwoMeterY", AUTO_SPEED,
+            AUTO_ACCEL);
+
 }

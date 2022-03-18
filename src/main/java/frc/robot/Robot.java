@@ -187,7 +187,8 @@ public class Robot extends CommandRobot {
         SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
         SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
         SmartDashboard.putData("Stop Intake", intake.stopRoller());
-
+        SmartDashboard.putData("Two Meter X", drive.auto(AutoPaths.twoMeterX));
+        SmartDashboard.putData("Two Meter Y", drive.auto(AutoPaths.twoMeterY));
     }
 
     @Override
