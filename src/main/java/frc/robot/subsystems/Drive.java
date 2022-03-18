@@ -68,7 +68,7 @@ public class Drive extends SmartSubsystemBase {
         startingAngleChooser.addOption("Left Hub", 69.0);
         startingAngleChooser.addOption("Right Hub", 21.0);
         startingAngleChooser.addOption("Zero", 0.0);
-        SmartDashboard.putData(startingAngleChooser);
+        SmartDashboard.putData("Starting Angle", startingAngleChooser);
     }
 
     public CommandBase setRotationOffset() {
