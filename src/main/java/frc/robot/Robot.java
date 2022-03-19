@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
 
+import com.chopshop166.chopshoplib.Autonomous;
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.commands.SmartSubsystem;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
@@ -14,8 +15,8 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
@@ -101,15 +102,29 @@ public class Robot extends CommandRobot {
     // Shoot One ball and taxi
     public CommandBase oneBallAuto() {
         return sequence("One Ball Auto",
-                shootOneBallAuto(),
-                parallel("Stop Shooter", stopShooter(),
-                        drive.driveDistance(2.5, 0, 0.5)));
+                shootOneBallAuto());
     }
 
-    @Override
-    public Command getAutoCommand() {
-        return oneBallAuto();
+    public CommandBase driveTwoX() {
+        return drive.auto(AutoPaths.twoMeterX);
     }
+
+    public CommandBase driveTwoY() {
+        return drive.auto(AutoPaths.twoMeterY);
+    }
+
+    @Autonomous
+    public CommandBase threeRightAuto = threeRightAuto();
+    @Autonomous
+    public CommandBase twoRightAuto = twoRightAuto();
+    @Autonomous
+    public CommandBase twoLeftAuto = twoLeftAuto();
+    @Autonomous
+    public CommandBase oneBallAuto = oneBallAuto();
+    @Autonomous(defaultAuto = true)
+    public CommandBase driveTwoX = driveTwoX().withName("Drive Two X");
+    @Autonomous
+    public CommandBase driveTwoY = driveTwoY().withName("Drive Two Y");
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
@@ -144,8 +159,6 @@ public class Robot extends CommandRobot {
         copilotController.getPovButton(POVDirection.RIGHT).whenPressed(ballTransport.moveBothMotorsToLaser());
 
         driveController.lbumper().whenPressed(drive.setRotationOffset()).whenReleased(drive.resetRotationOffset());
-
-        driveController.getPovButton(POVDirection.UP).whenPressed(drive.driveDistance(1, 0, 0.2));
 
         // Drive:
 
@@ -187,8 +200,7 @@ public class Robot extends CommandRobot {
         SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
         SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
         SmartDashboard.putData("Stop Intake", intake.stopRoller());
-        SmartDashboard.putData("Two Meter X", drive.auto(AutoPaths.twoMeterX));
-        SmartDashboard.putData("Two Meter Y", drive.auto(AutoPaths.twoMeterY));
+        SmartDashboard.putData("Reset Odometry", new InstantCommand(() -> drive.resetOdometry(), drive));
     }
 
     @Override

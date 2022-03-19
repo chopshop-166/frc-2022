@@ -41,8 +41,6 @@ public class Drive extends SmartSubsystemBase {
 
     private Field2d field = new Field2d();
 
-    private Pose2d pose = new Pose2d();
-
     private double rotationOffset = 0.0;
     private double startingRotation = 0.0;
 
@@ -107,8 +105,9 @@ public class Drive extends SmartSubsystemBase {
         return odometry.getPoseMeters();
     }
 
-    public void resetOdometry(Pose2d pose) {
-        odometry.resetPosition(pose, Rotation2d.fromDegrees(gyro.getAngle()));
+    public void resetOdometry() {
+        resetGyro();
+        odometry.resetPosition(new Pose2d(), Rotation2d.fromDegrees(gyro.getAngle()));
     }
 
     private void updateSwerveSpeedAngle(final DoubleSupplier translateX, final DoubleSupplier translateY,
@@ -152,85 +151,12 @@ public class Drive extends SmartSubsystemBase {
         });
     }
 
-    public CommandBase driveDistance(final double distanceMeters, final double direction, final double speed) {
-
-        Rotation2d rotation = Rotation2d.fromDegrees(direction);
-        Drive thisDrive = this;
-
-        return new CommandBase() {
-            {
-                addRequirements(thisDrive);
-                setName("Drive Distance");
-            }
-
-            private Pose2d initialPose;
-
-            @Override
-            public void initialize() {
-                initialPose = new Pose2d(pose.getTranslation().times(1), pose.getRotation().times(1));
-            }
-
-            @Override
-            public void execute() {
-                updateSwerveSpeedAngle(() -> rotation.getSin() * speed, () -> rotation.getCos() * speed, () -> 0);
-            }
-
-            @Override
-            public boolean isFinished() {
-                return initialPose.getTranslation().getDistance(pose.getTranslation()) >= distanceMeters;
-            }
-
-            @Override
-            public void end(boolean interrupted) {
-                updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
-            }
-
-        };
-    }
-
-    public CommandBase driveDistanceRotation(final double distanceMeters, final double direction, final double speed) {
-
-        Rotation2d rotation = Rotation2d.fromDegrees(direction).plus(pose.getRotation());
-        Drive thisDrive = this;
-
-        return new CommandBase() {
-            {
-                addRequirements(thisDrive);
-                setName("Drive Distance");
-            }
-
-            private Pose2d initialPose;
-
-            @Override
-            public void initialize() {
-                initialPose = new Pose2d(pose.getTranslation().times(1), pose.getRotation().times(1));
-
-            }
-
-            @Override
-            public void execute() {
-                updateSwerveSpeedAngle(() -> rotation.getSin() * speed, () -> rotation.getCos() * speed, () -> 0);
-            }
-
-            @Override
-            public boolean isFinished() {
-                return initialPose.getTranslation().getDistance(pose.getTranslation()) >= distanceMeters;
-            }
-
-            @Override
-            public void end(boolean interrupted) {
-                updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
-            }
-
-        };
-    }
-
     @Override
     public void periodic() {
         odometry.update(gyro.getRotation2d(), frontLeft.getState(), frontRight.getState(), rearLeft.getState(),
                 rearRight.getState());
 
-        field.setRobotPose(pose);
+        field.setRobotPose(getPose());
 
         SmartDashboard.putData("Front Left", frontLeft);
         SmartDashboard.putData("Front Right", frontRight);
