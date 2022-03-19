@@ -13,6 +13,7 @@ import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -102,7 +103,7 @@ public class Robot extends CommandRobot {
     // Shoot One ball and taxi
     public CommandBase oneBallAuto() {
         return sequence("One Ball Auto",
-                shootOneBallAuto());
+                drive.auto(AutoPaths.threeBallRightOne));
     }
 
     public CommandBase driveTwoX() {
@@ -111,6 +112,10 @@ public class Robot extends CommandRobot {
 
     public CommandBase driveTwoY() {
         return drive.auto(AutoPaths.twoMeterY);
+    }
+
+    public CommandBase rotateNinety() {
+        return drive.auto(AutoPaths.rotateNinety);
     }
 
     @Autonomous
@@ -125,6 +130,8 @@ public class Robot extends CommandRobot {
     public CommandBase driveTwoX = driveTwoX().withName("Drive Two X");
     @Autonomous
     public CommandBase driveTwoY = driveTwoY().withName("Drive Two Y");
+    @Autonomous
+    public CommandBase rotate = rotateNinety().withName("Rotate Ninety");
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
@@ -200,14 +207,14 @@ public class Robot extends CommandRobot {
         SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
         SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
         SmartDashboard.putData("Stop Intake", intake.stopRoller());
-        SmartDashboard.putData("Reset Odometry", new InstantCommand(() -> drive.resetOdometry(), drive));
+        SmartDashboard.putData("Reset Odometry", new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
     }
 
     @Override
     public void setDefaultCommands() {
-        final DoubleSupplier deadbandLeftX = deadbandAxis(0.15, driveController::getLeftX);
-        final DoubleSupplier deadbandLeftY = deadbandAxis(0.15, driveController::getLeftY);
-        final DoubleSupplier deadbandRightX = deadbandAxis(0.15, driveController::getRightX);
+        final DoubleSupplier deadbandLeftX = deadbandAxis(0.15, () -> -driveController.getLeftX());
+        final DoubleSupplier deadbandLeftY = deadbandAxis(0.15, () -> -driveController.getLeftY());
+        final DoubleSupplier deadbandRightX = deadbandAxis(0.15, () -> -driveController.getRightX());
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
 
         // Eventually use controls for rotating arms

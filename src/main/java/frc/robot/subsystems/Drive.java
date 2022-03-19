@@ -6,7 +6,9 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
+import com.chopshop166.chopshoplib.sensors.gyro.SmartGyro;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -18,7 +20,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,7 +36,7 @@ public class Drive extends SmartSubsystemBase {
 
     private final double maxDriveSpeedMetersPerSecond;
     private final double maxRotationRadiansPerSecond;
-    private final Gyro gyro;
+    private final SmartGyro gyro;
 
     private double speedCoef = 1.0;
 
@@ -71,7 +72,7 @@ public class Drive extends SmartSubsystemBase {
 
     public CommandBase setRotationOffset() {
         return instant("Set Rotation Offset", () -> {
-            rotationOffset = gyro.getRotation2d().getDegrees() - 180;
+            rotationOffset = gyro.getRotation2d().getDegrees();
         });
     }
 
@@ -105,9 +106,9 @@ public class Drive extends SmartSubsystemBase {
         return odometry.getPoseMeters();
     }
 
-    public void resetOdometry() {
-        resetGyro();
-        odometry.resetPosition(new Pose2d(), Rotation2d.fromDegrees(gyro.getAngle()));
+    public void resetOdometry(Pose2d pose) {
+        odometry.resetPosition(pose, pose.getRotation());
+        gyro.setAngle(pose.getRotation().getDegrees());
     }
 
     private void updateSwerveSpeedAngle(final DoubleSupplier translateX, final DoubleSupplier translateY,
@@ -153,7 +154,8 @@ public class Drive extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        odometry.update(gyro.getRotation2d(), frontLeft.getState(), frontRight.getState(), rearLeft.getState(),
+        odometry.update(Rotation2d.fromDegrees(gyro.getAngle()), frontLeft.getState(), frontRight.getState(),
+                rearLeft.getState(),
                 rearRight.getState());
 
         field.setRobotPose(getPose());
@@ -168,8 +170,6 @@ public class Drive extends SmartSubsystemBase {
     @Override
     public void reset() {
         gyro.reset();
-
-        // TODO Default wheels to start position?
 
     }
 
@@ -199,20 +199,29 @@ public class Drive extends SmartSubsystemBase {
     }
 
     public CommandBase auto(PathPlannerTrajectory path) {
+        ProfiledPIDController thetaController = new ProfiledPIDController(.3535, 0, 0, // .3535
+                new TrapezoidProfile.Constraints(Math.PI, Math.PI));
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
         // Create a PPSwerveControllerCommand. This is almost identical to WPILib's
         // SwerveControllerCommand, but it uses the holonomic rotation
         // from the PathPlannerTrajectory to control the robot's rotation.
         // See the WPILib SwerveControllerCommand for more info on what you need to pass
         // to the command
-        return new PPSwerveControllerCommand(
+        return sequence("auto", instant("Set Position", () -> {
+            PathPlannerState initState = path.getInitialState();
+            Pose2d startingPose = new Pose2d(initState.poseMeters.getTranslation(), initState.holonomicRotation);
+            resetOdometry(startingPose);
+        }), new PPSwerveControllerCommand(
                 path,
                 this::getPose,
                 kinematics,
-                new PIDController(0, 0, 0),
-                new PIDController(0, 0, 0),
-                new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(Math.PI, Math.PI)),
+                new PIDController(-0.003, 0, 0),
+                new PIDController(
+                        -0.007, 0, 0),
+                thetaController,
                 this::setModuleStates,
-                this);
+                this));
     }
 
 }

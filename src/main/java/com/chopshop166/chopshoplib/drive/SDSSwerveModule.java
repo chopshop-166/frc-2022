@@ -234,6 +234,6 @@ public class SDSSwerveModule implements SwerveModule {
 
     @Override
     public SwerveModuleState getState() {
-        return new SwerveModuleState(-driveController.getEncoder().getRate(), getAngle());
+        return new SwerveModuleState(driveController.getEncoder().getRate(), getAngle());
     }
 }

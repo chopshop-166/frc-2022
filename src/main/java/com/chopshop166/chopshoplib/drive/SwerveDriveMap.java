@@ -1,9 +1,9 @@
 package com.chopshop166.chopshoplib.drive;
 
 import com.chopshop166.chopshoplib.sensors.gyro.MockGyro;
+import com.chopshop166.chopshoplib.sensors.gyro.SmartGyro;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 public class SwerveDriveMap {
     // All Distances are in Meters
@@ -14,7 +14,7 @@ public class SwerveDriveMap {
     private final SwerveModule rearRight;
     private final double maxDriveSpeedMetersPerSecond;
     private final double maxRotationRadianPerSecond;
-    private final Gyro gyro;
+    private final SmartGyro gyro;
 
     private final double distanceFromCenter = 0.381;
 
@@ -37,7 +37,7 @@ public class SwerveDriveMap {
 
     public SwerveDriveMap(final SwerveModule frontLeft, final SwerveModule frontRight, final SwerveModule rearLeft,
             final SwerveModule rearRight, final double maxDriveSpeedMetersPerSecond,
-            final double maxRotationRadianPerSecond, final Gyro gyro) {
+            final double maxRotationRadianPerSecond, final SmartGyro gyro) {
 
         this.frontLeft = frontLeft;
 
@@ -78,7 +78,7 @@ public class SwerveDriveMap {
         return maxRotationRadianPerSecond;
     }
 
-    public Gyro getGyro() {
+    public SmartGyro getGyro() {
         return gyro;
     }
 }
