@@ -55,7 +55,7 @@ repositories {
 }
 
 chopshop {
-    version = "2022.8.1"
+    version = "2022.9.2"
 }
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.

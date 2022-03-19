@@ -26,8 +26,10 @@ public class Climber extends SmartSubsystemBase {
     private final DoubleSupplier extendCurrent;
     private final DoubleSupplier rotateCurrent;
 
+    private final DoubleSupplier gyroPitch;
+
     public enum ExtendDirection {
-        EXTEND(0.2), RETRACT(-0.2);
+        EXTEND(1.0), RETRACT(-1.0);
 
         private final double direction;
 
@@ -49,6 +51,7 @@ public class Climber extends SmartSubsystemBase {
 
         extendLimit = Modifier.unless(extendMotor::errored);
         rotateLimit = Modifier.unless(rotateMotor::errored);
+        gyroPitch = map.getGyroPitch();
 
     }
 
@@ -66,7 +69,7 @@ public class Climber extends SmartSubsystemBase {
         return cmd("Extend Speed").onExecute(() -> {
             extendMotor.set(extendLimit.applyAsDouble(extendSpeed.getAsDouble()));
             rotateMotor.set(extendLimit.applyAsDouble(-rotateSpeed.getAsDouble() * 0.25));
-        }).runsUntil(() -> extendMotor.errored() || rotateMotor.errored()).onEnd((interrupted) -> {
+        }).onEnd((interrupted) -> {
             extendMotor.set(0.0);
             rotateMotor.set(0.0);
         });
@@ -99,7 +102,9 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase extendDistance(ExtendDirection direction, double distanceMeters) {
-        return cmd("Extend Distance").onExecute(() -> {
+        return cmd("Extend Distance").onInitialize(() -> {
+            extendMotor.getEncoder().reset();
+        }).onExecute(() -> {
             extendMotor.set(extendLimit.applyAsDouble(direction.get()));
         }).runsUntil(() -> extendMotor.errored()
                 || Math.abs(extendMotor.getEncoder().getDistance()) >= distanceMeters)
@@ -109,7 +114,9 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase rotateDistance(SpinDirection direction, double rotations) {
-        return cmd("Rotate Distance").onExecute(() -> {
+        return cmd("Rotate Distance").onInitialize(() -> {
+            rotateMotor.getEncoder().reset();
+        }).onExecute(() -> {
             rotateMotor.set(rotateLimit.applyAsDouble(direction.apply(ROTATE_SPEED)));
         }).runsUntil(() -> rotateMotor.errored()
                 || Math.abs(rotateMotor.getEncoder().getDistance()) >= rotations)
@@ -160,5 +167,8 @@ public class Climber extends SmartSubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Climber Extend Current Draw", extendCurrent.getAsDouble());
         SmartDashboard.putNumber("Climber Rotate Current Draw", rotateCurrent.getAsDouble());
+        SmartDashboard.putNumber("Robot Pitch", Math.toDegrees(gyroPitch.getAsDouble()));
+        SmartDashboard.putNumber("Climber Extend Encoder", extendMotor.getEncoder().getDistance());
+        SmartDashboard.putNumber("Climber Rotate Encoder", rotateMotor.getEncoder().getDistance());
     }
 }

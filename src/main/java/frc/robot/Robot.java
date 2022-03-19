@@ -24,6 +24,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Climber.ExtendDirection;
 import frc.robot.subsystems.Shooter.HubSpeed;
 import frc.robot.util.LightAnimation;
 
@@ -123,11 +124,34 @@ public class Robot extends CommandRobot {
                 .whenActive(intake.extend(SpinDirection.CLOCKWISE))
                 .whenInactive(intake.retract());
 
+        copilotController.lbumper().whenPressed(
+                parallel("Extend Test",
+                        leftClimber.extendDistance(ExtendDirection.EXTEND, 412.22 + 7.83),
+                        rightClimber.extendDistance(ExtendDirection.EXTEND, 412.22 + 7.83))
+
+        );
+
         // Stop all subsystems
         driveController.back()
                 .whenPressed(
                         sequence("Stop All", safeStateSubsystems(ballTransport, drive, intake, shooter),
                                 drive.resetCmd()));
+
+        copilotController.rbumper().whileHeld(
+
+                parallel("Climb Individual",
+
+                        leftClimber.climb(
+                                deadbandAxis(0.15, () -> -copilotController.getLeftY()),
+                                deadbandAxis(0.15, () -> 0)),
+
+                        rightClimber.climb(
+                                deadbandAxis(0.15, () -> -copilotController.getRightY()),
+                                deadbandAxis(0.15, () -> 0))
+
+                )
+
+        );
     }
 
     @Override
@@ -147,10 +171,12 @@ public class Robot extends CommandRobot {
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
         // Eventually use controls for rotating arms
         leftClimber.setDefaultCommand(leftClimber.climb(
-                deadbandAxis(0.15, () -> copilotController.getTriggers() - copilotController.getLeftY()), () -> 0.0));
+                deadbandAxis(0.15, () -> copilotController.getTriggers()),
+                deadbandAxis(0.15, () -> -copilotController.getLeftY())));
 
         rightClimber.setDefaultCommand(rightClimber.climb(
-                deadbandAxis(0.15, () -> copilotController.getTriggers() - copilotController.getRightY()), () -> 0.0));
+                deadbandAxis(0.15, () -> copilotController.getTriggers()),
+                deadbandAxis(0.15, () -> -copilotController.getLeftY())));
 
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
         led.setDefaultCommand(led.animate(teamColors, 1.0));

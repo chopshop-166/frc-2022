@@ -8,6 +8,7 @@
       "/LiveWindow/BallTransport": "Subsystem",
       "/LiveWindow/Climber": "Subsystem",
       "/LiveWindow/Drive": "Subsystem",
+      "/LiveWindow/Intake": "Subsystem",
       "/LiveWindow/Shooter": "Subsystem",
       "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
       "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
@@ -44,12 +45,21 @@
           "series": [
             {
               "color": [
-                0.3333333432674408,
-                0.658823549747467,
-                0.4078431725502014,
+                0.8666667342185974,
+                0.5176470875740051,
+                0.32156863808631897,
                 1.0
               ],
-              "id": "NT:/SmartDashboard/Climber Current Draw"
+              "id": "NT:/SmartDashboard/Climber Extend Current Draw"
+            },
+            {
+              "color": [
+                0.11764717102050781,
+                0.0,
+                1.0,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/Climber Rotate Current Draw"
             }
           ]
         }

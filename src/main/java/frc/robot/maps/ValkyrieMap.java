@@ -1,13 +1,15 @@
 package frc.robot.maps;
 
+import java.util.function.DoubleSupplier;
+
 import com.chopshop166.chopshoplib.digital.WDigitalInput;
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
-import com.chopshop166.chopshoplib.sensors.PigeonGyro;
 import com.chopshop166.chopshoplib.sensors.REVColorSensor;
 import com.chopshop166.chopshoplib.sensors.WEncoder;
+import com.chopshop166.chopshoplib.sensors.gyro.PigeonGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -23,7 +25,6 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import frc.robot.maps.subsystems.BallTransportMap;
 import frc.robot.maps.subsystems.ClimberMap;
 import frc.robot.maps.subsystems.IntakeMap;
@@ -32,8 +33,10 @@ import frc.robot.maps.subsystems.ShooterMap;
 
 @RobotMapFor("00:80:2F:17:62:25")
 public class ValkyrieMap extends RobotMap {
-    final int CLIMBER_EXTEND_LIMIT = 50;
-    final int CLIMBER_ROTATE_LIMIT = 50;
+    final int CLIMBER_EXTEND_LIMIT = 20;
+    final int CLIMBER_ROTATE_LIMIT = 45;
+
+    private PigeonGyro gyro = new PigeonGyro(new PigeonIMU(0));
 
     @Override
     public SwerveDriveMap getSwerveDriveMap() {
@@ -82,12 +85,9 @@ public class ValkyrieMap extends RobotMap {
 
         final double maxRotationRadianPerSecond = Math.PI;
 
-        // final Gyro gyro = new PigeonGyro(new PigeonIMU(5));
-        final Gyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
-
         return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
                 maxDriveSpeedMetersPerSecond,
-                maxRotationRadianPerSecond, pigeonGyro);
+                maxRotationRadianPerSecond, gyro);
     }
 
     @Override
@@ -180,7 +180,7 @@ public class ValkyrieMap extends RobotMap {
         rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
         return new ClimberMap(extendMotor, rotateMotor, extendController::getOutputCurrent,
-                rotateController::getOutputCurrent);
+                rotateController::getOutputCurrent, () -> gyro.getRaw().getPitch());
     }
 
     @Override
@@ -206,7 +206,7 @@ public class ValkyrieMap extends RobotMap {
         rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
         return new ClimberMap(extendMotor, rotateMotor, extendController::getOutputCurrent,
-                rotateController::getOutputCurrent);
+                rotateController::getOutputCurrent, () -> gyro.getRaw().getPitch());
     }
 
     @Override
