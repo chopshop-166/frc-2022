@@ -212,9 +212,9 @@ public class Robot extends CommandRobot {
 
     @Override
     public void setDefaultCommands() {
-        final DoubleSupplier deadbandLeftX = deadbandAxis(0.15, () -> -driveController.getLeftX());
-        final DoubleSupplier deadbandLeftY = deadbandAxis(0.15, () -> -driveController.getLeftY());
-        final DoubleSupplier deadbandRightX = deadbandAxis(0.15, () -> -driveController.getRightX());
+        final DoubleSupplier deadbandLeftX = deadbandAxis(0.15, driveController::getLeftX);
+        final DoubleSupplier deadbandLeftY = deadbandAxis(0.15, driveController::getLeftY);
+        final DoubleSupplier deadbandRightX = deadbandAxis(0.15, driveController::getRightX);
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
 
         // Eventually use controls for rotating arms
