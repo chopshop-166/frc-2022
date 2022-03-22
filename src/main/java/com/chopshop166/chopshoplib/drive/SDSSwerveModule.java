@@ -7,6 +7,7 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -191,6 +192,8 @@ public class SDSSwerveModule implements SwerveModule {
         final CANSparkMax sparkMax = motor.getMotorController();
         final RelativeEncoder encoder = motor.getEncoder().getRaw();
         final SparkMaxPIDController pid = motor.getPidController();
+        sparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 40);
+        sparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 500);
 
         // Set Motor controller configuration
         motor.setControlType(PIDControlType.Velocity);
