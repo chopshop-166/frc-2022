@@ -6,6 +6,9 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.subsystems.LedMap;
@@ -15,11 +18,13 @@ public class Led extends SmartSubsystemBase {
 
     private final AddressableLED led;
     private final AddressableLEDBuffer ledBuffer;
+    private final SerialPort serialPort;
 
     private int timer = 0;
 
     public Led(final LedMap map) {
         led = map.getLed();
+        serialPort = map.getSerialPort();
         ledBuffer = map.getLedBuffer();
         led.setLength(ledBuffer.getLength());
         led.start();
@@ -46,9 +51,29 @@ public class Led extends SmartSubsystemBase {
 
     }
 
+    public CommandBase serialPortSend() {
+        return cmd("Serial Connection").onExecute(() -> {
+            Alliance currentAlliance = DriverStation.getAlliance();
+            byte[] sendData = new byte[1];
+            switch (currentAlliance) {
+                case Red:
+                    sendData[0] = 'r';
+                    break;
+                case Blue:
+                    sendData[0] = 'b';
+                    break;
+                default:
+                    sendData[0] = 'n';
+                    break;
+            }
+            serialPort.write(sendData, 1);
+            System.out.println(sendData[0]);
+        }).runsWhenDisabled(true).runsUntil(() -> true);
+    }
+
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
+
     }
 
     @Override

@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
 import frc.robot.maps.subsystems.BallTransportMap;
@@ -215,24 +216,8 @@ public class ValkyrieMap extends RobotMap {
         // Best if this is a multiple of 10
         AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(30);
 
-        return new LedMap(led, ledBuffer);
-    }
+        SerialPort serialPort = new SerialPort(9600, SerialPort.Port.kMXP);
 
-    @Override
-    public LedMap getLeftLedMap() {
-        AddressableLED led = new AddressableLED(1);
-        // Best if this is a multiple of 10
-        AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(50);
-
-        return new LedMap(led, ledBuffer);
-    }
-
-    @Override
-    public LedMap getRightLedMap() {
-        AddressableLED led = new AddressableLED(2);
-        // Best if this is a multiple of 10
-        AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(50);
-
-        return new LedMap(led, ledBuffer);
+        return new LedMap(led, ledBuffer, serialPort);
     }
 }

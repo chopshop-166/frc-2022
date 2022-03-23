@@ -4,8 +4,6 @@ import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
 
-import javax.swing.text.AbstractDocument.LeafElement;
-
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.commands.SmartSubsystem;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
@@ -14,12 +12,14 @@ import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
 import frc.robot.subsystems.Climber;
@@ -43,9 +43,8 @@ public class Robot extends CommandRobot {
     private final Intake intake = new Intake(map.getIntakeMap());
 
     private final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
+
     private final Led led = new Led(map.getLedMap());
-    private final Led leftLed = new Led(map.getLeftLedMap());
-    private final Led rightLed = new Led(map.getRightLedMap());
 
     private final Shooter shooter = new Shooter(map.getShooterMap());
     private final Climber leftClimber = new Climber(map.getLeftClimberMap());
@@ -93,6 +92,8 @@ public class Robot extends CommandRobot {
     @Override
     public void configureButtonBindings() {
         DoubleSupplier climberJoystickX = copilotController::getLeftX;
+
+        new Trigger(DriverStation::isDSAttached).whileActiveContinuous(led.serialPortSend());
 
         driveController.start().whenPressed(drive.resetGyro());
 
@@ -164,8 +165,6 @@ public class Robot extends CommandRobot {
 
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
         led.setDefaultCommand(led.animate(teamColors, 1.0, drive.getGyroOn()));
-        leftLed.setDefaultCommand(leftLed.animate(teamColors, 1.0, drive.getGyroOn()));
-        rightLed.setDefaultCommand(rightLed.animate(teamColors, 1.0, drive.getGyroOn()));
     }
 
     public CommandBase safeStateSubsystems(final SmartSubsystem... subsystems) {
