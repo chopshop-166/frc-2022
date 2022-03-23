@@ -52,14 +52,20 @@ public class Robot extends CommandRobot {
     @Override
     public Command getAutoCommand() {
         // Shoot one ball and taxi
-        return sequence("Autonomous",
-                shooter.setTargetAndStartShooter(HubSpeed.LOW),
-                shooter.waitUntilSpeedUp(),
-                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
+        return instant("", () -> {
+        });
+    }
 
-                parallel("Stop and drive",
-                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                        drive.driveDistance(2.5, 0, 0.5)));
+    @Override
+    public void teleopInit() {
+        leftClimber.resetEncoders();
+        rightClimber.resetEncoders();
+    }
+
+    @Override
+    public void autonomousInit() {
+        leftClimber.resetEncoders();
+        rightClimber.resetEncoders();
     }
 
     public DoubleUnaryOperator scalingDeadband(double range) {
@@ -124,18 +130,16 @@ public class Robot extends CommandRobot {
                 .whenActive(intake.extend(SpinDirection.CLOCKWISE))
                 .whenInactive(intake.retract());
 
-        copilotController.lbumper().whenPressed(
-                parallel("Extend Test",
-                        leftClimber.extendDistance(ExtendDirection.EXTEND, 412.22 + 7.83),
-                        rightClimber.extendDistance(ExtendDirection.EXTEND, 412.22 + 7.83))
-
-        );
-
         // Stop all subsystems
         driveController.back()
                 .whenPressed(
                         sequence("Stop All", safeStateSubsystems(ballTransport, drive, intake, shooter),
                                 drive.resetCmd()));
+
+        copilotController.lbumper().whenPressed(parallel("Extend Auto",
+
+                leftClimber.autoClimb(),
+                rightClimber.autoClimb()));
 
         copilotController.rbumper().whileHeld(
 

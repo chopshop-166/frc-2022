@@ -55,6 +55,11 @@ public class Climber extends SmartSubsystemBase {
 
     }
 
+    public void resetEncoders() {
+        extendMotor.getEncoder().reset();
+        rotateMotor.getEncoder().reset();
+    }
+
     // Move the motor based off a variable speed
     public CommandBase extendSpeed(DoubleSupplier speed) {
         return cmd("Extend Speed").onExecute(() -> {
@@ -101,25 +106,33 @@ public class Climber extends SmartSubsystemBase {
         });
     }
 
-    public CommandBase extendDistance(ExtendDirection direction, double distanceMeters) {
+    public CommandBase extendDistance(double encoderPosition) {
         return cmd("Extend Distance").onInitialize(() -> {
-            extendMotor.getEncoder().reset();
         }).onExecute(() -> {
-            extendMotor.set(extendLimit.applyAsDouble(direction.get()));
+            extendMotor.set(Math.signum(encoderPosition - extendMotor.getEncoder().getDistance()) * 1.0);
         }).runsUntil(() -> extendMotor.errored()
-                || Math.abs(extendMotor.getEncoder().getDistance()) >= distanceMeters)
+                || Math.abs(extendMotor.getEncoder().getDistance() - encoderPosition) < 0.5)
                 .onEnd((interrupted) -> {
                     extendMotor.set(0.0);
                 });
     }
 
-    public CommandBase rotateDistance(SpinDirection direction, double rotations) {
+    public CommandBase resetArms() {
+        return sequence("Reset Arms",
+                extend(ExtendDirection.RETRACT),
+                rotate(SpinDirection.COUNTERCLOCKWISE),
+                instant("Reset Encoders", () -> {
+                    extendMotor.getEncoder().reset();
+                    rotateMotor.getEncoder().reset();
+                }));
+    }
+
+    public CommandBase rotateDistance(double encoderPosition) {
         return cmd("Rotate Distance").onInitialize(() -> {
-            rotateMotor.getEncoder().reset();
         }).onExecute(() -> {
-            rotateMotor.set(rotateLimit.applyAsDouble(direction.apply(ROTATE_SPEED)));
+            rotateMotor.set(Math.signum(encoderPosition - rotateMotor.getEncoder().getDistance()) * ROTATE_SPEED);
         }).runsUntil(() -> rotateMotor.errored()
-                || Math.abs(rotateMotor.getEncoder().getDistance()) >= rotations)
+                || Math.abs(rotateMotor.getEncoder().getDistance() - encoderPosition) < 0.5)
                 .onEnd((interrupted) -> {
                     rotateMotor.set(0.0);
                 });
@@ -129,32 +142,20 @@ public class Climber extends SmartSubsystemBase {
         // This assumes that the extending arms are fully extended over the bar and in
         // place
         return sequence("Automatic Climb",
-                // Move rotating arms out of the way
-                rotate(SpinDirection.CLOCKWISE),
+                extendDistance(13),
+                rotateDistance(4.9),
+                extendDistance(146.33)/*
+                                       * ,
+                                       * rotateDistance(14.9),
+                                       * extendDistance(459),
+                                       * rotateDistance(9.6),
+                                       * extendDistance(145),
+                                       * rotateDistance(0),
+                                       * extendDistance(0),
+                                       * rotateDistance(5.28),
+                                       * extendDistance(56.8)
+                                       */);
 
-                // Pull the robot up
-                extend(ExtendDirection.RETRACT),
-
-                // Get the rotating arms in place
-                rotate(SpinDirection.COUNTERCLOCKWISE),
-
-                // Move robot down, then extend arms slightly out
-                extendDistance(ExtendDirection.EXTEND, 1),
-
-                // Rotate the robot cw
-                rotateDistance(SpinDirection.CLOCKWISE, 1),
-
-                // Extend arm to reach next bar
-                extend(ExtendDirection.EXTEND),
-
-                // Rotate robot so that extending arm is in place
-                rotate(SpinDirection.CLOCKWISE),
-
-                // Pull robot into the next bar
-                extend(ExtendDirection.RETRACT),
-
-                // Give rotating arms room to move out of the way
-                extendDistance(ExtendDirection.EXTEND, 1));
     }
 
     @Override
