@@ -28,6 +28,8 @@ public class Climber extends SmartSubsystemBase {
 
     private final DoubleSupplier gyroPitch;
 
+    private final String name;
+
     public enum ExtendDirection {
         EXTEND(1.0), RETRACT(-1.0);
 
@@ -42,8 +44,8 @@ public class Climber extends SmartSubsystemBase {
         }
     }
 
-    public Climber(ClimberMap map) {
-
+    public Climber(ClimberMap map, String name) {
+        this.name = name;
         extendMotor = map.getExtendMotor();
         rotateMotor = map.getRotateMotor();
         extendCurrent = map.getExtendCurrent();
@@ -58,16 +60,6 @@ public class Climber extends SmartSubsystemBase {
     public void resetEncoders() {
         extendMotor.getEncoder().reset();
         rotateMotor.getEncoder().reset();
-    }
-
-    // Move the motor based off a variable speed
-    public CommandBase extendSpeed(DoubleSupplier speed) {
-        return cmd("Extend Speed").onExecute(() -> {
-            extendMotor.set(extendLimit.applyAsDouble(speed.getAsDouble()));
-            SmartDashboard.putNumber("Climber Speed", extendMotor.get());
-        }).runsUntil(extendMotor::errored).onEnd((interrupted) -> {
-            extendMotor.set(0.0);
-        });
     }
 
     public CommandBase climb(DoubleSupplier extendSpeed, DoubleSupplier rotateSpeed) {
@@ -87,6 +79,16 @@ public class Climber extends SmartSubsystemBase {
             SmartDashboard.putNumber("Rotate Speed", rotateMotor.get());
         }).runsUntil(rotateMotor::errored).onEnd((interrupted) -> {
             rotateMotor.set(0.0);
+        });
+    }
+
+    // Move the motor based off a variable speed
+    public CommandBase extendSpeed(DoubleSupplier speed) {
+        return cmd("Extend Speed").onExecute(() -> {
+            extendMotor.set(extendLimit.applyAsDouble(speed.getAsDouble()));
+            SmartDashboard.putNumber("Climber Speed", extendMotor.get());
+        }).runsUntil(extendMotor::errored).onEnd((interrupted) -> {
+            extendMotor.set(0.0);
         });
     }
 
@@ -110,10 +112,31 @@ public class Climber extends SmartSubsystemBase {
         return cmd("Extend Distance").onInitialize(() -> {
         }).onExecute(() -> {
             extendMotor.set(Math.signum(encoderPosition - extendMotor.getEncoder().getDistance()) * 1.0);
-        }).runsUntil(() -> extendMotor.errored()
-                || Math.abs(extendMotor.getEncoder().getDistance() - encoderPosition) < 0.5)
+        }).runsUntil(() -> false
+                || Math.abs(extendMotor.getEncoder().getDistance() - encoderPosition) < 2)
                 .onEnd((interrupted) -> {
                     extendMotor.set(0.0);
+                });
+    }
+
+    public CommandBase extendStop() {
+        return cmd("Extend Distance").onInitialize(() -> {
+        }).onExecute(() -> {
+            extendMotor.set(ExtendDirection.EXTEND.get());
+        }).runsUntil(extendMotor::errored).onEnd(() -> {
+            extendMotor.set(0.0);
+        });
+
+    }
+
+    public CommandBase rotateDistance(double encoderPosition) {
+        return cmd("Rotate Distance").onInitialize(() -> {
+        }).onExecute(() -> {
+            rotateMotor.set(Math.signum(encoderPosition - rotateMotor.getEncoder().getDistance()) * ROTATE_SPEED);
+        }).runsUntil(() -> false
+                || Math.abs(rotateMotor.getEncoder().getDistance() - encoderPosition) < 2)
+                .onEnd((interrupted) -> {
+                    rotateMotor.set(0.0);
                 });
     }
 
@@ -127,34 +150,25 @@ public class Climber extends SmartSubsystemBase {
                 }));
     }
 
-    public CommandBase rotateDistance(double encoderPosition) {
-        return cmd("Rotate Distance").onInitialize(() -> {
-        }).onExecute(() -> {
-            rotateMotor.set(Math.signum(encoderPosition - rotateMotor.getEncoder().getDistance()) * ROTATE_SPEED);
-        }).runsUntil(() -> rotateMotor.errored()
-                || Math.abs(rotateMotor.getEncoder().getDistance() - encoderPosition) < 0.5)
-                .onEnd((interrupted) -> {
-                    rotateMotor.set(0.0);
-                });
-    }
-
     public CommandBase autoClimb() {
         // This assumes that the extending arms are fully extended over the bar and in
         // place
         return sequence("Automatic Climb",
                 extendDistance(13),
                 rotateDistance(4.9),
-                extendDistance(146.33)/*
-                                       * ,
-                                       * rotateDistance(14.9),
-                                       * extendDistance(459),
-                                       * rotateDistance(9.6),
-                                       * extendDistance(145),
-                                       * rotateDistance(0),
-                                       * extendDistance(0),
-                                       * rotateDistance(5.28),
-                                       * extendDistance(56.8)
-                                       */);
+                extendDistance(146.33),
+                rotateDistance(14.9),
+                // extendDistance(430),
+                extendStop(),
+
+                rotateDistance(9.6)
+        /*
+         * extendDistance(145),
+         * rotateDistance(0),
+         * extendDistance(0),
+         * rotateDistance(5.28),
+         * extendDistance(56.8)
+         */);
 
     }
 
@@ -166,10 +180,10 @@ public class Climber extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Climber Extend Current Draw", extendCurrent.getAsDouble());
-        SmartDashboard.putNumber("Climber Rotate Current Draw", rotateCurrent.getAsDouble());
         SmartDashboard.putNumber("Robot Pitch", Math.toDegrees(gyroPitch.getAsDouble()));
         SmartDashboard.putNumber("Climber Extend Encoder", extendMotor.getEncoder().getDistance());
         SmartDashboard.putNumber("Climber Rotate Encoder", rotateMotor.getEncoder().getDistance());
+        SmartDashboard.putData(name + " Extend", extendMotor);
+        SmartDashboard.putData(name + " Rotate", rotateMotor);
     }
 }

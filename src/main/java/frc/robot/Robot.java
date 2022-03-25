@@ -44,8 +44,8 @@ public class Robot extends CommandRobot {
     private final Led led = new Led(map.getLedMap());
 
     private final Shooter shooter = new Shooter(map.getShooterMap());
-    private final Climber leftClimber = new Climber(map.getLeftClimberMap());
-    private final Climber rightClimber = new Climber(map.getRightClimberMap());
+    private final Climber leftClimber = new Climber(map.getLeftClimberMap(), "Left");
+    private final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right");
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
@@ -136,10 +136,10 @@ public class Robot extends CommandRobot {
                         sequence("Stop All", safeStateSubsystems(ballTransport, drive, intake, shooter),
                                 drive.resetCmd()));
 
-        copilotController.lbumper().whenPressed(parallel("Extend Auto",
-
-                leftClimber.autoClimb(),
-                rightClimber.autoClimb()));
+        copilotController.lbumper()
+                .whenPressed(parallel("Extend Auto",
+                        leftClimber.autoClimb(),
+                        rightClimber.autoClimb()));
 
         copilotController.rbumper().whileHeld(
 

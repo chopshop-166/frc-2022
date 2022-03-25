@@ -1,6 +1,8 @@
 package frc.robot.maps;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 
 import com.chopshop166.chopshoplib.digital.WDigitalInput;
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
@@ -13,6 +15,7 @@ import com.chopshop166.chopshoplib.sensors.gyro.PigeonGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
+import com.google.common.primitives.Doubles;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -33,7 +36,7 @@ import frc.robot.maps.subsystems.ShooterMap;
 
 @RobotMapFor("00:80:2F:17:62:25")
 public class ValkyrieMap extends RobotMap {
-    final int CLIMBER_EXTEND_LIMIT = 60;
+    final int CLIMBER_EXTEND_LIMIT = 30;
     final int CLIMBER_ROTATE_LIMIT = 45;
 
     private PigeonGyro gyro = new PigeonGyro(new PigeonIMU(0));
@@ -158,6 +161,25 @@ public class ValkyrieMap extends RobotMap {
         return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
     }
 
+    private class CurrentValidator implements BooleanSupplier {
+
+        private final DoubleSupplier getCurrent;
+        private final double limit;
+        private final int cutoff;
+        private double current = 0.0;
+
+        public CurrentValidator(double limit, DoubleSupplier getCurrent, int cutoff) {
+            this.limit = limit;
+            this.getCurrent = getCurrent;
+            this.cutoff = cutoff;
+        }
+
+        public boolean getAsBoolean() {
+            current = (current * (cutoff - 1) + getCurrent.getAsDouble()) / ((double) cutoff);
+            return current < limit;
+        }
+    }
+
     @Override
     public ClimberMap getLeftClimberMap() {
         // The current limit for the climber's motors in amps
@@ -174,7 +196,10 @@ public class ValkyrieMap extends RobotMap {
         extendMotor.getMotorController().setInverted(false);
         rotateMotor.getMotorController().setInverted(false);
         // Setting the current limits on both the validators and motor controllers
-        extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        extendMotor.addValidator(
+                new CurrentValidator(CLIMBER_EXTEND_LIMIT, () -> extendMotor.getMotorController().getOutputCurrent(),
+                        5));
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
         rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
         rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
@@ -185,6 +210,7 @@ public class ValkyrieMap extends RobotMap {
 
     @Override
     public ClimberMap getRightClimberMap() {
+
         // The current limit for the climber's motors in amps
 
         final PIDSparkMax extendMotor = new PIDSparkMax(10, MotorType.kBrushless);
@@ -200,7 +226,10 @@ public class ValkyrieMap extends RobotMap {
         rotateMotor.getMotorController().setInverted(true);
 
         // Setting the current limits on both the validators and motor controllers
-        extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        extendMotor.addValidator(
+                new CurrentValidator(CLIMBER_EXTEND_LIMIT, () -> extendMotor.getMotorController().getOutputCurrent(),
+                        5));
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
         rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
         rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);

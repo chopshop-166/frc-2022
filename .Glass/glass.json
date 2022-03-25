@@ -1,6 +1,12 @@
 {
   "NetworkTables": {
+    "LiveWindow": {
+      "open": true
+    },
     "SmartDashboard": {
+      "Right Extend": {
+        "open": true
+      },
       "open": true
     },
     "types": {
@@ -19,11 +25,16 @@
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/Shuffleboard/Shuffleboard/Autonomous": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/Left Extend": "Motor Controller",
+      "/SmartDashboard/Left Rotate": "Motor Controller",
       "/SmartDashboard/Only Roll Intake Forwards": "Command",
+      "/SmartDashboard/Right Extend": "Motor Controller",
+      "/SmartDashboard/Right Rotate": "Motor Controller",
       "/SmartDashboard/Run Bottom Backwards": "Command",
       "/SmartDashboard/Run Top Backwards": "Command",
       "/SmartDashboard/SendableChooser[1]": "String Chooser",
-      "/SmartDashboard/Stop Intake": "Command"
+      "/SmartDashboard/Stop Intake": "Command",
+      "/SmartDashboard/Update LEDS": "Command"
     },
     "windows": {
       "/SmartDashboard/Field": {
@@ -45,21 +56,21 @@
           "series": [
             {
               "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/Left Extend/Current"
+            },
+            {
+              "color": [
                 0.8666667342185974,
                 0.5176470875740051,
                 0.32156863808631897,
                 1.0
               ],
-              "id": "NT:/SmartDashboard/Climber Extend Current Draw"
-            },
-            {
-              "color": [
-                0.11764717102050781,
-                0.0,
-                1.0,
-                1.0
-              ],
-              "id": "NT:/SmartDashboard/Climber Rotate Current Draw"
+              "id": "NT:/SmartDashboard/Right Extend/Current"
             }
           ]
         }
