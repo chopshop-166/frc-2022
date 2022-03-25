@@ -16,7 +16,7 @@ public class LedMap {
     }
 
     public LedMap() {
-        this(new AddressableLED(0), new AddressableLEDBuffer(0), new SerialPort(9600, SerialPort.Port.kUSB));
+        this(new AddressableLED(0), new AddressableLEDBuffer(0), new SerialPort(9600, SerialPort.Port.kMXP));
     }
 
     public AddressableLED getLed() {

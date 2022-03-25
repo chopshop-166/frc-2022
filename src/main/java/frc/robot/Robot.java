@@ -93,7 +93,7 @@ public class Robot extends CommandRobot {
     public void configureButtonBindings() {
         DoubleSupplier climberJoystickX = copilotController::getLeftX;
 
-        new Trigger(DriverStation::isDSAttached).whileActiveContinuous(led.serialPortSend());
+        new Trigger(DriverStation::isDSAttached).whileActiveOnce(led.serialPortSend());
 
         driveController.start().whenPressed(drive.resetGyro());
 
@@ -146,6 +146,7 @@ public class Robot extends CommandRobot {
         SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
         SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
         SmartDashboard.putData("Stop Intake", intake.stopRoller());
+        SmartDashboard.putData("Update LEDS", led.serialPortSend());
 
     }
 

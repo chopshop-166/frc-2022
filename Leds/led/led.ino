@@ -24,24 +24,24 @@ void setup()
 void loop(){
     switch (animationSelection){
       case 0:
-        CylonSequence();
+        setAll(0,255,0);
         break;
       case 1:
-        Fire(55,120,30, COLOR_BLUE);
+        setAll(0,0,255);
         break;
       case 2:
-        Fire(55,120,30, COLOR_RED);
+        setAll(255,0,0);
         break;
     }
 }
 
 void serialEvent() {
   byte ser = Serial.read();
+  Serial.write(ser);
   if (ser == 'b') {
-    selectionAnimation = 1;
-  } else if (ser == 'r')
-  {
-    selectionAnimation = 2;
+    animationSelection = 1;
+  } else if (ser == 'r'){
+    animationSelection = 2;
   } else if (ser == 'n') {
     animationSelection = 0;
   }
@@ -60,7 +60,7 @@ void CylonSequence() {
 }
 
 void setPixel(int Pixel, byte red, byte green, byte blue) {
-  for (int i = 0; i>1; i++) {
+  for (int i = 0; i<2; i++) {
    setPixelStrip(i,Pixel,red,green,blue);
   }
 }

@@ -55,6 +55,7 @@ public class Led extends SmartSubsystemBase {
         return cmd("Serial Connection").onExecute(() -> {
             Alliance currentAlliance = DriverStation.getAlliance();
             byte[] sendData = new byte[1];
+            int output;
             switch (currentAlliance) {
                 case Red:
                     sendData[0] = 'r';
@@ -66,8 +67,8 @@ public class Led extends SmartSubsystemBase {
                     sendData[0] = 'n';
                     break;
             }
-            serialPort.write(sendData, 1);
-            System.out.println(sendData[0]);
+            output = serialPort.write(sendData, 1);
+            System.out.println(sendData[0] + "  " + output);
         }).runsWhenDisabled(true).runsUntil(() -> true);
     }
 
