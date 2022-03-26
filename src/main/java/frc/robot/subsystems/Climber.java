@@ -214,15 +214,15 @@ public class Climber extends SmartSubsystemBase {
 
         final Map<Object, Command> commands = Map.ofEntries(
                 Map.entry(ClimbStep.PULL_ROBOT_UP, extendDistance(13)),
-                Map.entry(ClimbStep.MOVE_ROTATE_ARMS_ON, rotateDistance(4.9)), // rotate
+                Map.entry(ClimbStep.MOVE_ROTATE_ARMS_ON, rotateDistance(4.9)),
                 Map.entry(ClimbStep.MOVE_ARMS_UP, extendDistance(146.33)),
-                Map.entry(ClimbStep.ROTATE_ROBOT, rotateDistance(14.9)), // rortate
+                Map.entry(ClimbStep.ROTATE_ROBOT, rotateDistance(14.9)),
                 Map.entry(ClimbStep.EXTEND_FULLY, extendStop()),
-                Map.entry(ClimbStep.ROTATE_TO_NEXT_BAR, rotateDistance(9.6)), // rotate
+                Map.entry(ClimbStep.ROTATE_TO_NEXT_BAR, rotateDistance(9.6)),
                 Map.entry(ClimbStep.PULL_ROBOT_OFF, extendDistance(145, 0.5)),
-                Map.entry(ClimbStep.RESET_ROTATE_ARMS, rotateDistance(0)), // rotate
+                Map.entry(ClimbStep.RESET_ROTATE_ARMS, rotateDistance(0)),
                 Map.entry(ClimbStep.PULL_ROBOT_UP_FULLY, extendDistance(10)),
-                Map.entry(ClimbStep.PUT_ROTATING_ON_NEXT_BAR, rotateDistance(5.28)), // rotate
+                Map.entry(ClimbStep.PUT_ROTATING_ON_NEXT_BAR, rotateDistance(5.28)),
                 Map.entry(ClimbStep.EXTEND_ON_NEXT_BAR, extendDistance(56.8)),
                 Map.entry(ClimbStep.DO_NOTHING, instant("Nothing", () -> {
                 })));
@@ -242,15 +242,12 @@ public class Climber extends SmartSubsystemBase {
                 rotateDistance(14.9),
                 // extendDistance(430),
                 extendStop(),
-
-                rotateDistance(9.6)
-        /*
-         * extendDistance(145,0.5),
-         * rotateDistance(0),
-         * extendDistance(0),
-         * rotateDistance(5.28),
-         * extendDistance(56.8)
-         */);
+                rotateDistance(9.6),
+                extendDistance(145, 0.5),
+                rotateDistance(0),
+                extendDistance(0),
+                rotateDistance(5.28),
+                extendDistance(56.8));
 
     }
 
