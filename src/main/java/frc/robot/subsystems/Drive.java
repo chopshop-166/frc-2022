@@ -7,6 +7,7 @@ import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.sensors.gyro.SmartGyro;
+import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
@@ -107,8 +108,8 @@ public class Drive extends SmartSubsystemBase {
     }
 
     public void resetOdometry(Pose2d pose) {
-        odometry.resetPosition(pose, pose.getRotation());
         gyro.setAngle(pose.getRotation().getDegrees());
+        odometry.resetPosition(pose, gyro.getRotation2d().times(-1));
     }
 
     private void updateSwerveSpeedAngle(final DoubleSupplier translateX, final DoubleSupplier translateY,
@@ -198,8 +199,17 @@ public class Drive extends SmartSubsystemBase {
         rearRight.setDesiredState(states[3]);
     }
 
+    public CommandBase resetAuto(PathPlannerTrajectory initPath) {
+        return instant("Reset Auto", () -> {
+            Pose2d startingPose = initPath.getInitialPose();
+            // Pose2d startingPose = new Pose2d(initState.poseMeters.getTranslation(),
+            // initState.holonomicRotation);
+            resetOdometry(startingPose);
+        });
+    }
+
     public CommandBase auto(PathPlannerTrajectory path) {
-        ProfiledPIDController thetaController = new ProfiledPIDController(.155, 0, 0, // .3535
+        ProfiledPIDController thetaController = new ProfiledPIDController(.1555, 0, 0, // .3535
                 new TrapezoidProfile.Constraints(Math.PI, Math.PI));
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -208,20 +218,16 @@ public class Drive extends SmartSubsystemBase {
         // from the PathPlannerTrajectory to control the robot's rotation.
         // See the WPILib SwerveControllerCommand for more info on what you need to pass
         // to the command
-        return sequence("auto", instant("Set Position", () -> {
-            PathPlannerState initState = path.getInitialState();
-            Pose2d startingPose = new Pose2d(initState.poseMeters.getTranslation(), initState.holonomicRotation);
-            resetOdometry(startingPose);
-        }), new PPSwerveControllerCommand(
+        return new PPSwerveControllerCommand(
                 path,
                 this::getPose,
                 kinematics,
-                new PIDController(-0.003, 0, 0),
+                new PIDController(-0.00, 0, 0),
                 new PIDController(
-                        -0.007, 0, 0),
+                        -0.00, 0, 0),
                 thetaController,
                 this::setModuleStates,
-                this));
+                this);
     }
 
 }

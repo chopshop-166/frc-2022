@@ -94,15 +94,18 @@ public class Robot extends CommandRobot {
     }
 
     public CommandBase twoLeftAuto() {
-        return sequence("Two Ball Left Auto", shootOneBallAuto(), parallel("Stop Shooter", stopShooter(), drive.auto(
-                AutoPaths.twoBallLeftOne)), intakeOneBallAuto(), drive.auto(AutoPaths.twoBallLeftTwo),
-                shootOneBallAuto(),
-                parallel("Stop Shooter", stopShooter(), drive.auto(AutoPaths.twoBallRightOne)));
+        return sequence("Two Ball Left Auto", drive.resetAuto(AutoPaths.twoBallLeftOne),
+                parallel("Stop Shooter", stopShooter(), drive.auto(
+                        AutoPaths.twoBallLeftOne)),
+                drive.auto(AutoPaths.twoBallLeftTwo)); // intakeOneBallAuto(),
+                                                       // drive.auto(AutoPaths.twoBallLeftTwo),
+        // shootOneBallAuto(),
+        // ("Stop Shooter", stopShooter(), drive.auto(AutoPaths.twoBallRightOne)));
     }
 
     // Shoot One ball and taxi
     public CommandBase oneBallAuto() {
-        return sequence("One Ball Auto",
+        return sequence("One Ball Auto", shootOneBallAuto(),
                 drive.auto(AutoPaths.threeBallRightOne));
     }
 
@@ -169,7 +172,7 @@ public class Robot extends CommandRobot {
 
         // Drive:
 
-        driveController.rbumper().whenPressed(drive.setSpeedCoef(0.5)).whenReleased(drive.setSpeedCoef(1.0));
+        driveController.rbumper().whenPressed(drive.setSpeedCoef(0.2)).whenReleased(drive.setSpeedCoef(1.0));
 
         driveController.x()
                 .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW),
@@ -203,11 +206,9 @@ public class Robot extends CommandRobot {
 
     @Override
     public void populateDashboard() {
-        SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
-        SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
-        SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
-        SmartDashboard.putData("Stop Intake", intake.stopRoller());
         SmartDashboard.putData("Reset Odometry", new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
+        SmartDashboard.putData("Reset POSE for auto", drive.resetAuto(AutoPaths.twoBallLeftOne));
+
     }
 
     @Override
