@@ -108,8 +108,8 @@ public class Drive extends SmartSubsystemBase {
     }
 
     public void resetOdometry(Pose2d pose) {
-        gyro.setAngle(pose.getRotation().getDegrees());
-        odometry.resetPosition(pose, gyro.getRotation2d().times(-1));
+        gyro.setAngle(pose.getRotation().getDegrees() + 90);
+        odometry.resetPosition(pose, gyro.getRotation2d());
     }
 
     private void updateSwerveSpeedAngle(final DoubleSupplier translateX, final DoubleSupplier translateY,
@@ -155,11 +155,13 @@ public class Drive extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        odometry.update(Rotation2d.fromDegrees(gyro.getAngle()), frontLeft.getState(), frontRight.getState(),
+        odometry.update(Rotation2d.fromDegrees(gyro.getAngle() + 90), frontLeft.getState(), frontRight.getState(),
                 rearLeft.getState(),
                 rearRight.getState());
 
         field.setRobotPose(getPose());
+
+        SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
 
         SmartDashboard.putData("Front Left", frontLeft);
         SmartDashboard.putData("Front Right", frontRight);
@@ -209,7 +211,7 @@ public class Drive extends SmartSubsystemBase {
     }
 
     public CommandBase auto(PathPlannerTrajectory path) {
-        ProfiledPIDController thetaController = new ProfiledPIDController(.1555, 0, 0, // .3535
+        ProfiledPIDController thetaController = new ProfiledPIDController(.1855, 0, 0, // .3535
                 new TrapezoidProfile.Constraints(Math.PI, Math.PI));
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -222,9 +224,9 @@ public class Drive extends SmartSubsystemBase {
                 path,
                 this::getPose,
                 kinematics,
-                new PIDController(-0.00, 0, 0),
+                new PIDController(0.00, 0, 0),
                 new PIDController(
-                        -0.00, 0, 0),
+                        0.00, 0, 0),
                 thetaController,
                 this::setModuleStates,
                 this);
