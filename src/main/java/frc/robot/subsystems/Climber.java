@@ -147,12 +147,30 @@ public class Climber extends SmartSubsystemBase {
         });
     }
 
+    public CommandBase extend(ExtendDirection direction, double speedFactor) {
+        return cmd("Extend").onExecute(() -> {
+            extendMotor.set(extendLimit.applyAsDouble(direction.get() * speedFactor));
+        }).runsUntil(extendMotor::errored).onEnd((interrupted) -> {
+            extendMotor.set(0.0);
+        });
+    }
+
     public CommandBase extendDistance(double encoderPosition) {
         return cmd("Extend Distance").onInitialize(() -> {
         }).onExecute(() -> {
             extendMotor.set(Math.signum(encoderPosition - extendMotor.getEncoder().getDistance()) * 1.0);
         }).runsUntil(() -> extendMotor.errored()
                 || Math.abs(extendMotor.getEncoder().getDistance() - encoderPosition) < 2)
+                .onEnd((interrupted) -> {
+                    extendMotor.set(0.0);
+                });
+    }
+
+    public CommandBase extendDistanceIgnoreLimit(double encoderPosition) {
+        return cmd("Extend Distance").onInitialize(() -> {
+        }).onExecute(() -> {
+            extendMotor.set(Math.signum(encoderPosition - extendMotor.getEncoder().getDistance()) * 1.0);
+        }).runsUntil(() -> Math.abs(extendMotor.getEncoder().getDistance() - encoderPosition) < 2)
                 .onEnd((interrupted) -> {
                     extendMotor.set(0.0);
                 });
@@ -192,7 +210,7 @@ public class Climber extends SmartSubsystemBase {
 
     public CommandBase resetArms() {
         return sequence("Reset Arms",
-                extend(ExtendDirection.RETRACT),
+                extend(ExtendDirection.RETRACT, 0.1),
                 rotate(SpinDirection.COUNTERCLOCKWISE),
                 instant("Reset Encoders", () -> {
                     extendMotor.getEncoder().reset();

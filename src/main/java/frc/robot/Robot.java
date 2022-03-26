@@ -57,8 +57,14 @@ public class Robot extends CommandRobot {
 
     @Override
     public void teleopInit() {
-        leftClimber.resetEncoders();
-        rightClimber.resetEncoders();
+        sequence("Init Arms",
+
+                parallel("Zero Arms", leftClimber.resetArms(), rightClimber.resetArms()),
+
+                parallel("Move Past Limits", leftClimber.extendDistanceIgnoreLimit(20),
+                        rightClimber.extendDistanceIgnoreLimit(20))
+
+        ).schedule();
     }
 
     @Override
