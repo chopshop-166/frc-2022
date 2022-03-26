@@ -131,19 +131,11 @@ public class Climber extends SmartSubsystemBase {
         });
     }
 
-    public CommandBase rotate(SpinDirection direction) {
+    public CommandBase rotate(SpinDirection direction, double speedFactor) {
         return cmd("Rotate").onExecute(() -> {
-            rotateMotor.set(rotateLimit.applyAsDouble(direction.apply(ROTATE_SPEED)));
+            rotateMotor.set(rotateLimit.applyAsDouble(direction.apply(ROTATE_SPEED)) * speedFactor);
         }).runsUntil(rotateMotor::errored).onEnd((interrupted) -> {
             rotateMotor.set(0.0);
-        });
-    }
-
-    public CommandBase extend(ExtendDirection direction) {
-        return cmd("Extend").onExecute(() -> {
-            extendMotor.set(extendLimit.applyAsDouble(direction.get()));
-        }).runsUntil(extendMotor::errored).onEnd((interrupted) -> {
-            extendMotor.set(0.0);
         });
     }
 
@@ -211,7 +203,7 @@ public class Climber extends SmartSubsystemBase {
     public CommandBase resetArms() {
         return sequence("Reset Arms",
                 extend(ExtendDirection.RETRACT, 0.1),
-                rotate(SpinDirection.COUNTERCLOCKWISE),
+                rotate(SpinDirection.COUNTERCLOCKWISE, 0.1),
                 instant("Reset Encoders", () -> {
                     extendMotor.getEncoder().reset();
                     rotateMotor.getEncoder().reset();
