@@ -33,6 +33,7 @@ import frc.robot.maps.subsystems.ClimberMap;
 import frc.robot.maps.subsystems.IntakeMap;
 import frc.robot.maps.subsystems.LedMap;
 import frc.robot.maps.subsystems.ShooterMap;
+import frc.robot.util.CurrentValidator;
 
 @RobotMapFor("00:80:2F:17:62:25")
 public class ValkyrieMap extends RobotMap {
@@ -136,8 +137,9 @@ public class ValkyrieMap extends RobotMap {
         // Use current as a validator along with setting a current limit
         // on the motor controllers
 
-        deploymentMotor.validateCurrent(CURRENT_LIMIT);
-
+        // deploymentMotor.validateCurrent(CURRENT_LIMIT);
+        deploymentMotor.addValidator(
+                new CurrentValidator(CURRENT_LIMIT, () -> deploymentMotor.getMotorController().getOutputCurrent(), 3));
         deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(),
                 true);
         deploymentMotor.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
@@ -159,25 +161,6 @@ public class ValkyrieMap extends RobotMap {
         final WDigitalInput laserSwitch = new WDigitalInput(0);
 
         return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
-    }
-
-    private class CurrentValidator implements BooleanSupplier {
-
-        private final DoubleSupplier getCurrent;
-        private final double limit;
-        private final int cutoff;
-        private double current = 0.0;
-
-        public CurrentValidator(double limit, DoubleSupplier getCurrent, int cutoff) {
-            this.limit = limit;
-            this.getCurrent = getCurrent;
-            this.cutoff = cutoff;
-        }
-
-        public boolean getAsBoolean() {
-            current = (current * (cutoff - 1) + getCurrent.getAsDouble()) / ((double) cutoff);
-            return current < limit;
-        }
     }
 
     @Override
