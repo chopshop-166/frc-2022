@@ -27,10 +27,10 @@ void loop(){
         setAll(0,255,0);
         break;
       case 1:
-        setAll(0,0,255);
+        Fire(55,120,30, COLOR_BLUE);
         break;
       case 2:
-        setAll(255,0,0);
+        Fire(55,120,30, COLOR_RED);
         break;
     }
 }
