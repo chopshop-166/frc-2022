@@ -22,7 +22,10 @@ public class Shooter extends SmartSubsystemBase {
 
     private static final double MAX_RPM = 5300;
     private static final double RPM_BUFFER = 10;
+
     private double shootSpeed;
+
+    private double highGoal = 2650 / 60.0;
 
     private PIDController pid;
     private SimpleMotorFeedforward feedforward;
@@ -47,6 +50,7 @@ public class Shooter extends SmartSubsystemBase {
         feedforward = map.getFeedforward();
         shootSpeed = 0;
         pid = map.getPid();
+        SmartDashboard.putNumber("High Goal Speed", highGoal);
     }
 
     private void calculatePid(double speed) {
@@ -72,7 +76,7 @@ public class Shooter extends SmartSubsystemBase {
 
     public CommandBase setTargetAndStartShooter(HubSpeed hub) {
         return instant("Set Default Speed", () -> {
-            shootSpeed = hub.get();
+            shootSpeed = highGoal;
             pid.setSetpoint(shootSpeed);
         });
     }
@@ -83,6 +87,7 @@ public class Shooter extends SmartSubsystemBase {
 
     // Speed doesn't need to be set here, since it is already set in
     // setTargetHub/setSpeed
+
     public CommandBase waitUntilSpeedUp() {
         BooleanSupplier check = () -> Math.abs(encoder.getRate())
                 - Math.min(MAX_RPM, shootSpeed) < RPM_BUFFER;
@@ -102,6 +107,8 @@ public class Shooter extends SmartSubsystemBase {
         SmartDashboard.putNumber("Error Amount (RPM)", shootSpeed * 60.0 - encoder.getRate() * 60.0);
         SmartDashboard.putNumber("Target Speed (RPM)", shootSpeed * 60.0);
         SmartDashboard.putNumber("Encoder Rate (RPM)", encoder.getRate() * 60.0);
+
+        highGoal = SmartDashboard.getNumber("High Goal Speed", HubSpeed.HIGH.get());
         calculatePid(shootSpeed);
     }
 

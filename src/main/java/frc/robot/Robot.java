@@ -24,7 +24,6 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Climber.ExtendDirection;
 import frc.robot.subsystems.Shooter.HubSpeed;
 import frc.robot.util.LightAnimation;
 
@@ -122,7 +121,7 @@ public class Robot extends CommandRobot {
                         .loadCargoWithIntake())
                 .whenInactive(sequence("Ball transport end",
                         intake.retract(),
-                        race("Finish Transport", new WaitCommand(0.5),
+                        race("Finish Transport", new WaitCommand(1),
                                 ballTransport.loadCargoWithIntake()),
                         ballTransport.stopTransport()));
 
@@ -137,7 +136,7 @@ public class Robot extends CommandRobot {
                                 drive.resetCmd()));
 
         copilotController.lbumper()
-                .whenPressed(parallel("Extend Auto",
+                .whileHeld(parallel("Extend Auto",
                         leftClimber.autoClimb(),
                         rightClimber.autoClimb()));
 
@@ -172,6 +171,7 @@ public class Robot extends CommandRobot {
         final DoubleSupplier deadbandLeftX = deadbandAxis(0.15, driveController::getLeftX);
         final DoubleSupplier deadbandLeftY = deadbandAxis(0.15, driveController::getLeftY);
         final DoubleSupplier deadbandRightX = deadbandAxis(0.15, driveController::getRightX);
+        ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
         // Eventually use controls for rotating arms
         leftClimber.setDefaultCommand(leftClimber.climb(
@@ -182,7 +182,6 @@ public class Robot extends CommandRobot {
                 deadbandAxis(0.15, () -> copilotController.getTriggers()),
                 deadbandAxis(0.15, () -> -copilotController.getLeftY())));
 
-        ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
         led.setDefaultCommand(led.animate(teamColors, 1.0));
     }
 

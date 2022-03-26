@@ -1,9 +1,5 @@
 package frc.robot.maps;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
-
 import com.chopshop166.chopshoplib.digital.WDigitalInput;
 import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
@@ -15,7 +11,6 @@ import com.chopshop166.chopshoplib.sensors.gyro.PigeonGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
-import com.google.common.primitives.Doubles;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;

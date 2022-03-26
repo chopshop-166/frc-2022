@@ -1,7 +1,5 @@
 package com.chopshop166.chopshoplib.drive;
 
-import java.util.function.DoubleSupplier;
-
 import com.chopshop166.chopshoplib.sensors.gyro.MockGyro;
 
 import edu.wpi.first.math.geometry.Translation2d;
