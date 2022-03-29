@@ -104,19 +104,7 @@ public class Robot extends CommandRobot {
     // Shoot One ball and taxi
     public CommandBase oneBallAuto() {
         return sequence("One Ball Auto", shootOneBallAuto(),
-                drive.auto(AutoPaths.threeBallRightOne));
-    }
-
-    public CommandBase driveTwoX() {
-        return drive.auto(AutoPaths.twoMeterX);
-    }
-
-    public CommandBase driveTwoY() {
-        return drive.auto(AutoPaths.twoMeterY);
-    }
-
-    public CommandBase rotateNinety() {
-        return drive.auto(AutoPaths.rotateNinety);
+                drive.auto(AutoPaths.twoBallLeftOne));
     }
 
     @Autonomous
@@ -125,14 +113,8 @@ public class Robot extends CommandRobot {
     public CommandBase twoRightAuto = twoRightAuto();
     @Autonomous
     public CommandBase twoLeftAuto = twoLeftAuto();
-    @Autonomous
-    public CommandBase oneBallAuto = oneBallAuto();
     @Autonomous(defaultAuto = true)
-    public CommandBase driveTwoX = driveTwoX().withName("Drive Two X");
-    @Autonomous
-    public CommandBase driveTwoY = driveTwoY().withName("Drive Two Y");
-    @Autonomous
-    public CommandBase rotate = rotateNinety().withName("Rotate Ninety");
+    public CommandBase oneBallAuto = oneBallAuto();
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
@@ -158,8 +140,6 @@ public class Robot extends CommandRobot {
 
     @Override
     public void configureButtonBindings() {
-        DoubleSupplier climberJoystickX = copilotController::getLeftX;
-
         driveController.start().whenPressed(drive.resetGyro());
 
         copilotController.getPovButton(POVDirection.UP).whileHeld(ballTransport.runForwards());
