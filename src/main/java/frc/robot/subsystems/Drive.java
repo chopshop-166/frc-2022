@@ -7,9 +7,7 @@ import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.sensors.gyro.SmartGyro;
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -103,15 +101,6 @@ public class Drive extends SmartSubsystemBase {
                 () -> updateSwerveSpeedAngle(translateX, translateY, rotation));
     }
 
-    public Pose2d getPose() {
-        return odometry.getPoseMeters();
-    }
-
-    public void resetOdometry(Pose2d pose) {
-        gyro.setAngle(pose.getRotation().getDegrees() + 90);
-        odometry.resetPosition(pose, gyro.getRotation2d());
-    }
-
     private void updateSwerveSpeedAngle(final DoubleSupplier translateX, final DoubleSupplier translateY,
             final DoubleSupplier rotation) {
         // Need to convert inputs from -1..1 scale to m/s
@@ -153,6 +142,58 @@ public class Drive extends SmartSubsystemBase {
         });
     }
 
+    public void setModuleStates(SwerveModuleState[] states) {
+        // Front left module state
+        frontLeft.setDesiredState(states[0]);
+
+        // Front right module state
+        frontRight.setDesiredState(states[1]);
+
+        // Back left module state
+        rearLeft.setDesiredState(states[2]);
+
+        // Back right module state
+        rearRight.setDesiredState(states[3]);
+    }
+
+    public Pose2d getPose() {
+        return odometry.getPoseMeters();
+    }
+
+    public void resetOdometry(Pose2d pose) {
+        gyro.setAngle(pose.getRotation().getDegrees() + 90);
+        odometry.resetPosition(pose, gyro.getRotation2d());
+    }
+
+    public CommandBase auto(PathPlannerTrajectory path) {
+        ProfiledPIDController thetaController = new ProfiledPIDController(.1555, 0, 0,
+                new TrapezoidProfile.Constraints(Math.PI, Math.PI));
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        // Create a PPSwerveControllerCommand. This is almost identical to WPILib's
+        // SwerveControllerCommand, but it uses the holonomic rotation
+        // from the PathPlannerTrajectory to control the robot's rotation.
+        // See the WPILib SwerveControllerCommand for more info on what you need to pass
+        // to the command
+        return new PPSwerveControllerCommand(
+                path,
+                this::getPose,
+                kinematics,
+                new PIDController(0.00, 0, 0),
+                new PIDController(
+                        0.00, 0, 0),
+                thetaController,
+                this::setModuleStates,
+                this);
+    }
+
+    public CommandBase resetAuto(PathPlannerTrajectory initPath) {
+        return instant("Reset Auto", () -> {
+            Pose2d startingPose = initPath.getInitialPose();
+            resetOdometry(startingPose);
+        });
+    }
+
     @Override
     public void periodic() {
         odometry.update(Rotation2d.fromDegrees(gyro.getAngle() + 90), frontLeft.getState(), frontRight.getState(),
@@ -186,50 +227,4 @@ public class Drive extends SmartSubsystemBase {
         rearRight.setDesiredState(stop);
 
     }
-
-    public void setModuleStates(SwerveModuleState[] states) {
-        // Front left module state
-        frontLeft.setDesiredState(states[0]);
-
-        // Front right module state
-        frontRight.setDesiredState(states[1]);
-
-        // Back left module state
-        rearLeft.setDesiredState(states[2]);
-
-        // Back right module state
-        rearRight.setDesiredState(states[3]);
-    }
-
-    public CommandBase resetAuto(PathPlannerTrajectory initPath) {
-        return instant("Reset Auto", () -> {
-            Pose2d startingPose = initPath.getInitialPose();
-            // Pose2d startingPose = new Pose2d(initState.poseMeters.getTranslation(),
-            // initState.holonomicRotation);
-            resetOdometry(startingPose);
-        });
-    }
-
-    public CommandBase auto(PathPlannerTrajectory path) {
-        ProfiledPIDController thetaController = new ProfiledPIDController(.1555, 0, 0, // .3535
-                new TrapezoidProfile.Constraints(Math.PI, Math.PI));
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-        // Create a PPSwerveControllerCommand. This is almost identical to WPILib's
-        // SwerveControllerCommand, but it uses the holonomic rotation
-        // from the PathPlannerTrajectory to control the robot's rotation.
-        // See the WPILib SwerveControllerCommand for more info on what you need to pass
-        // to the command
-        return new PPSwerveControllerCommand(
-                path,
-                this::getPose,
-                kinematics,
-                new PIDController(0.00, 0, 0),
-                new PIDController(
-                        0.00, 0, 0),
-                thetaController,
-                this::setModuleStates,
-                this);
-    }
-
 }
