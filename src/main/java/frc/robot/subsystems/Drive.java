@@ -6,14 +6,19 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
+import com.chopshop166.chopshoplib.sensors.gyro.SmartGyro;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,13 +35,11 @@ public class Drive extends SmartSubsystemBase {
 
     private final double maxDriveSpeedMetersPerSecond;
     private final double maxRotationRadiansPerSecond;
-    private final Gyro gyro;
+    private final SmartGyro gyro;
 
     private double speedCoef = 1.0;
 
     private Field2d field = new Field2d();
-
-    private Pose2d pose = new Pose2d();
 
     private double rotationOffset = 0.0;
     private double startingRotation = 0.0;
@@ -63,12 +66,12 @@ public class Drive extends SmartSubsystemBase {
         startingAngleChooser.addOption("Left Hub", 69.0);
         startingAngleChooser.addOption("Right Hub", 21.0);
         startingAngleChooser.addOption("Zero", 0.0);
-        SmartDashboard.putData(startingAngleChooser);
+        SmartDashboard.putData("Starting Angle", startingAngleChooser);
     }
 
     public CommandBase setRotationOffset() {
         return instant("Set Rotation Offset", () -> {
-            rotationOffset = gyro.getRotation2d().getDegrees() - 180;
+            rotationOffset = gyro.getRotation2d().getDegrees();
         });
     }
 
@@ -96,10 +99,6 @@ public class Drive extends SmartSubsystemBase {
             final DoubleSupplier rotation) {
         return running("Field Centric Drive",
                 () -> updateSwerveSpeedAngle(translateX, translateY, rotation));
-    }
-
-    public Pose2d getPose() {
-        return pose;
     }
 
     private void updateSwerveSpeedAngle(final DoubleSupplier translateX, final DoubleSupplier translateY,
@@ -143,85 +142,67 @@ public class Drive extends SmartSubsystemBase {
         });
     }
 
-    public CommandBase driveDistance(final double distanceMeters, final double direction, final double speed) {
+    public void setModuleStates(SwerveModuleState[] states) {
+        // Front left module state
+        frontLeft.setDesiredState(states[0]);
 
-        Rotation2d rotation = Rotation2d.fromDegrees(direction);
-        Drive thisDrive = this;
+        // Front right module state
+        frontRight.setDesiredState(states[1]);
 
-        return new CommandBase() {
-            {
-                addRequirements(thisDrive);
-                setName("Drive Distance");
-            }
+        // Back left module state
+        rearLeft.setDesiredState(states[2]);
 
-            private Pose2d initialPose;
-
-            @Override
-            public void initialize() {
-                initialPose = new Pose2d(pose.getTranslation().times(1), pose.getRotation().times(1));
-            }
-
-            @Override
-            public void execute() {
-                updateSwerveSpeedAngle(() -> rotation.getSin() * speed, () -> rotation.getCos() * speed, () -> 0);
-            }
-
-            @Override
-            public boolean isFinished() {
-                return initialPose.getTranslation().getDistance(pose.getTranslation()) >= distanceMeters;
-            }
-
-            @Override
-            public void end(boolean interrupted) {
-                updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
-            }
-
-        };
+        // Back right module state
+        rearRight.setDesiredState(states[3]);
     }
 
-    public CommandBase driveDistanceRotation(final double distanceMeters, final double direction, final double speed) {
+    public Pose2d getPose() {
+        return odometry.getPoseMeters();
+    }
 
-        Rotation2d rotation = Rotation2d.fromDegrees(direction).plus(pose.getRotation());
-        Drive thisDrive = this;
+    public void resetOdometry(Pose2d pose) {
+        gyro.setAngle(pose.getRotation().getDegrees() + 90);
+        odometry.resetPosition(pose, gyro.getRotation2d());
+    }
 
-        return new CommandBase() {
-            {
-                addRequirements(thisDrive);
-                setName("Drive Distance");
-            }
+    public CommandBase auto(PathPlannerTrajectory path) {
+        ProfiledPIDController thetaController = new ProfiledPIDController(.1555, 0, 0,
+                new TrapezoidProfile.Constraints(Math.PI, Math.PI));
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-            private Pose2d initialPose;
+        // Create a PPSwerveControllerCommand. This is almost identical to WPILib's
+        // SwerveControllerCommand, but it uses the holonomic rotation
+        // from the PathPlannerTrajectory to control the robot's rotation.
+        // See the WPILib SwerveControllerCommand for more info on what you need to pass
+        // to the command
+        return new PPSwerveControllerCommand(
+                path,
+                this::getPose,
+                kinematics,
+                new PIDController(0.00, 0, 0),
+                new PIDController(
+                        0.00, 0, 0),
+                thetaController,
+                this::setModuleStates,
+                this);
+    }
 
-            @Override
-            public void initialize() {
-                initialPose = new Pose2d(pose.getTranslation().times(1), pose.getRotation().times(1));
-
-            }
-
-            @Override
-            public void execute() {
-                updateSwerveSpeedAngle(() -> rotation.getSin() * speed, () -> rotation.getCos() * speed, () -> 0);
-            }
-
-            @Override
-            public boolean isFinished() {
-                return initialPose.getTranslation().getDistance(pose.getTranslation()) >= distanceMeters;
-            }
-
-            @Override
-            public void end(boolean interrupted) {
-                updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
-            }
-
-        };
+    public CommandBase resetAuto(PathPlannerTrajectory initPath) {
+        return instant("Reset Auto", () -> {
+            Pose2d startingPose = initPath.getInitialPose();
+            resetOdometry(startingPose);
+        });
     }
 
     @Override
     public void periodic() {
-        pose = odometry.update(gyro.getRotation2d(), frontLeft.getState(), frontRight.getState(), rearLeft.getState(),
+        odometry.update(Rotation2d.fromDegrees(gyro.getAngle() + 90), frontLeft.getState(), frontRight.getState(),
+                rearLeft.getState(),
                 rearRight.getState());
 
-        field.setRobotPose(pose);
+        field.setRobotPose(getPose());
+
+        SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
 
         SmartDashboard.putData("Front Left", frontLeft);
         SmartDashboard.putData("Front Right", frontRight);
@@ -233,8 +214,6 @@ public class Drive extends SmartSubsystemBase {
     @Override
     public void reset() {
         gyro.reset();
-
-        // TODO Default wheels to start position?
 
     }
 

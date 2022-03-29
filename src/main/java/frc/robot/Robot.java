@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
 
+import com.chopshop166.chopshoplib.Autonomous;
 import com.chopshop166.chopshoplib.commands.CommandRobot;
 import com.chopshop166.chopshoplib.commands.SmartSubsystem;
 import com.chopshop166.chopshoplib.controls.ButtonXboxController;
@@ -12,10 +13,11 @@ import com.chopshop166.chopshoplib.states.SpinDirection;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
@@ -48,18 +50,71 @@ public class Robot extends CommandRobot {
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
-    @Override
-    public Command getAutoCommand() {
-        // Shoot one ball and taxi
-        return sequence("Autonomous",
-                shooter.setTargetAndStartShooter(HubSpeed.LOW),
-                shooter.waitUntilSpeedUp(),
-                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
-
-                parallel("Stop and drive",
-                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                        drive.driveDistance(2.5, 0, 0.5)));
+    public CommandBase shootOneBallAuto() {
+        return sequence("Shoot Preloaded Ball", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+                shooter.waitUntilSpeedUp(), ballTransport.loadShooter());
     }
+
+    public CommandBase shootTwoBallsAuto() {
+        return sequence("Shoot Two Balls Auto", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+                shooter.waitUntilSpeedUp(), ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
+                ballTransport.loadShooter());
+    }
+
+    public CommandBase intakeOneBallAuto() {
+        return sequence("Intake One Ball",
+                intake.extend(SpinDirection.COUNTERCLOCKWISE), ballTransport.loadCargoWithIntake(),
+                intake.retract());
+    }
+
+    public CommandBase stopShooter() {
+        return sequence("Stop Shooter", new WaitCommand(1), shooter.stop());
+    }
+
+    // Starting Against the right side of the hub, Shoot One Ball, Pickup 2 balls,
+    // shoot them
+    public CommandBase threeRightAuto() {
+        return sequence("Three Ball Right Auto",
+                shootOneBallAuto(),
+                parallel("Stop Shooter", stopShooter(),
+                        drive.auto(AutoPaths.threeBallRightOne)),
+                intakeOneBallAuto(), drive.auto(AutoPaths.threeBallRightTwo),
+                intakeOneBallAuto(), drive.auto(AutoPaths.threeBallRightThree), shootTwoBallsAuto(), stopShooter());
+    }
+
+    public CommandBase twoRightAuto() {
+        return sequence("Two Ball Right Auto", shootOneBallAuto(),
+                parallel("Stop Shooter", stopShooter(), drive.auto(
+                        AutoPaths.twoBallRightOne)),
+                intakeOneBallAuto(),
+                drive.auto(
+                        AutoPaths.twoBallRightTwo),
+                shootOneBallAuto(),
+                parallel("Stop Shooter", stopShooter(), drive.auto(AutoPaths.twoBallRightOne)));
+    }
+
+    public CommandBase twoLeftAuto() {
+        return sequence("Two Ball Left Auto", drive.resetAuto(AutoPaths.twoBallLeftOne),
+                parallel("Stop Shooter", stopShooter(), drive.auto(
+                        AutoPaths.twoBallLeftOne)),
+                intakeOneBallAuto(), drive.auto(AutoPaths.twoBallLeftTwo),
+                shootOneBallAuto(), parallel("Stop Shooter", stopShooter()));
+    }
+
+    // Shoot One ball and taxi
+    public CommandBase oneBallAuto() {
+        return sequence("One Ball Auto", shootOneBallAuto(),
+                drive.auto(AutoPaths.twoBallLeftOne));
+    }
+
+    @Autonomous
+    public CommandBase threeRightAuto = threeRightAuto();
+    @Autonomous
+    public CommandBase twoRightAuto = twoRightAuto();
+    @Autonomous
+    public CommandBase twoLeftAuto = twoLeftAuto();
+    @Autonomous(defaultAuto = true)
+    public CommandBase oneBallAuto = oneBallAuto();
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
@@ -85,8 +140,6 @@ public class Robot extends CommandRobot {
 
     @Override
     public void configureButtonBindings() {
-        DoubleSupplier climberJoystickX = copilotController::getLeftX;
-
         driveController.start().whenPressed(drive.resetGyro());
 
         copilotController.getPovButton(POVDirection.UP).whileHeld(ballTransport.runForwards());
@@ -95,11 +148,9 @@ public class Robot extends CommandRobot {
 
         driveController.lbumper().whenPressed(drive.setRotationOffset()).whenReleased(drive.resetRotationOffset());
 
-        driveController.getPovButton(POVDirection.UP).whenPressed(drive.driveDistance(1, 0, 0.2));
-
         // Drive:
 
-        driveController.rbumper().whenPressed(drive.setSpeedCoef(0.5)).whenReleased(drive.setSpeedCoef(1.0));
+        driveController.rbumper().whenPressed(drive.setSpeedCoef(0.2)).whenReleased(drive.setSpeedCoef(1.0));
 
         driveController.x()
                 .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW),
@@ -133,10 +184,8 @@ public class Robot extends CommandRobot {
 
     @Override
     public void populateDashboard() {
-        SmartDashboard.putData("Run Top Backwards", ballTransport.runTopBackwards());
-        SmartDashboard.putData("Run Bottom Backwards", ballTransport.runBottomBackwards());
-        SmartDashboard.putData("Only Roll Intake Forwards", intake.startRoller(SpinDirection.COUNTERCLOCKWISE));
-        SmartDashboard.putData("Stop Intake", intake.stopRoller());
+        SmartDashboard.putData("Reset Odometry", new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
+        SmartDashboard.putData("Reset POSE for auto", drive.resetAuto(AutoPaths.twoBallLeftOne));
 
     }
 

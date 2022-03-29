@@ -8,6 +8,7 @@ import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.REVColorSensor;
 import com.chopshop166.chopshoplib.sensors.WEncoder;
 import com.chopshop166.chopshoplib.sensors.gyro.PigeonGyro;
+import com.chopshop166.chopshoplib.sensors.gyro.SmartGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -26,6 +27,7 @@ import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+
 import frc.robot.maps.subsystems.BallTransportMap;
 import frc.robot.maps.subsystems.ClimberMap;
 import frc.robot.maps.subsystems.IntakeMap;
@@ -95,7 +97,7 @@ public class ValkyrieMap extends RobotMap {
         final double maxRotationRadianPerSecond = Math.PI;
 
         // final Gyro gyro = new PigeonGyro(new PigeonIMU(5));
-        final Gyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
+        final SmartGyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
 
         return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
                 maxDriveSpeedMetersPerSecond,
