@@ -34,7 +34,6 @@ import frc.robot.util.CurrentValidator;
 public class ValkyrieMap extends RobotMap {
     final int CLIMBER_EXTEND_LIMIT = 30;
     final int CLIMBER_ROTATE_LIMIT = 45;
-    final double CLIMBER_SOFT_LIMIT = 10;
 
     private PigeonGyro gyro = new PigeonGyro(new PigeonIMU(0));
 
@@ -179,7 +178,6 @@ public class ValkyrieMap extends RobotMap {
         extendMotor.addValidator(
                 new CurrentValidator(CLIMBER_EXTEND_LIMIT, () -> extendMotor.getMotorController().getOutputCurrent(),
                         5));
-        extendMotor.addValidator(() -> extendMotor.getEncoder().getDistance() > CLIMBER_SOFT_LIMIT);
 
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
         rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
@@ -211,7 +209,6 @@ public class ValkyrieMap extends RobotMap {
         extendMotor.addValidator(
                 new CurrentValidator(CLIMBER_EXTEND_LIMIT, () -> extendMotor.getMotorController().getOutputCurrent(),
                         5));
-        extendMotor.addValidator(() -> extendMotor.getEncoder().getDistance() > CLIMBER_SOFT_LIMIT);
 
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
         rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);

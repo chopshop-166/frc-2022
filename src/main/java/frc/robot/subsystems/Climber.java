@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
+import com.chopshop166.chopshoplib.motors.ModifierGroup;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
@@ -23,7 +24,7 @@ public class Climber extends SmartSubsystemBase {
     private final SmartMotorController extendMotor;
     private final SmartMotorController rotateMotor;
 
-    private final Modifier extendLimit;
+    private final ModifierGroup extendLimit;
     private final Modifier rotateLimit;
 
     private final DoubleSupplier gyroPitch;
@@ -88,7 +89,8 @@ public class Climber extends SmartSubsystemBase {
         extendMotor = map.getExtendMotor();
         rotateMotor = map.getRotateMotor();
 
-        extendLimit = Modifier.unless(extendMotor::errored);
+        extendLimit = new ModifierGroup(Modifier.unless(extendMotor::errored),
+                Modifier.lowerLimit(() -> extendMotor.getEncoder().getDistance() <= 30.0));
         rotateLimit = Modifier.unless(rotateMotor::errored);
         gyroPitch = map.getGyroPitch();
 
@@ -245,7 +247,7 @@ public class Climber extends SmartSubsystemBase {
                 rotateDistance(9.6),
                 extendDistance(145, 0.5),
                 rotateDistance(0),
-                extendDistance(0),
+                extendDistance(10),
                 rotateDistance(5.28),
                 extendDistance(56.8));
 
