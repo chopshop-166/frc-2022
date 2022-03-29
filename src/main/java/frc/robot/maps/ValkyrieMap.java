@@ -15,6 +15,7 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -24,6 +25,9 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+
 import frc.robot.maps.subsystems.BallTransportMap;
 import frc.robot.maps.subsystems.ClimberMap;
 import frc.robot.maps.subsystems.IntakeMap;
@@ -41,13 +45,23 @@ public class ValkyrieMap extends RobotMap {
         // of the robot
         final double MODULE_OFFSET_XY = 0.314325;
 
+        final PIDSparkMax frontLeftSteer = new PIDSparkMax(2, MotorType.kBrushless);
+        final PIDSparkMax frontRightSteer = new PIDSparkMax(4, MotorType.kBrushless);
+        final PIDSparkMax rearLeftSteer = new PIDSparkMax(6, MotorType.kBrushless);
+        final PIDSparkMax rearRightSteer = new PIDSparkMax(8, MotorType.kBrushless);
+
+        frontLeftSteer.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        frontRightSteer.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        rearLeftSteer.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        frontRightSteer.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+
         // All Distances are in Meters
         // Front Left Module
         final CANCoder encoderFL = new CANCoder(1);
         encoderFL.configMagnetOffset(180 + 74.119);
         encoderFL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule frontLeft = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
-                encoderFL, new PIDSparkMax(2, MotorType.kBrushless), new PIDSparkMax(1,
+                encoderFL, frontLeftSteer, new PIDSparkMax(1,
                         MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
@@ -56,7 +70,7 @@ public class ValkyrieMap extends RobotMap {
         encoderFR.configMagnetOffset(-304.189 + 180);
         encoderFR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule frontRight = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
-                encoderFR, new PIDSparkMax(4, MotorType.kBrushless), new PIDSparkMax(3,
+                encoderFR, frontRightSteer, new PIDSparkMax(3,
                         MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
@@ -65,7 +79,7 @@ public class ValkyrieMap extends RobotMap {
         encoderRL.configMagnetOffset(-298.213);
         encoderRL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule rearLeft = new SDSSwerveModule(new Translation2d(-MODULE_OFFSET_XY, MODULE_OFFSET_XY),
-                encoderRL, new PIDSparkMax(6, MotorType.kBrushless), new PIDSparkMax(5,
+                encoderRL, rearLeftSteer, new PIDSparkMax(5,
                         MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
@@ -74,7 +88,7 @@ public class ValkyrieMap extends RobotMap {
         encoderRR.configMagnetOffset(-168.223 + 180);
         encoderRR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule rearRight = new SDSSwerveModule(new Translation2d(-MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
-                encoderRR, new PIDSparkMax(8, MotorType.kBrushless), new PIDSparkMax(7,
+                encoderRR, rearRightSteer, new PIDSparkMax(7,
                         MotorType.kBrushless),
                 SDSSwerveModule.MK4_V2);
 
@@ -98,6 +112,10 @@ public class ValkyrieMap extends RobotMap {
         final WEncoder encoder = new WEncoder(1, 2, true, EncodingType.k1X);
 
         final PIDController pid = new PIDController(0.82212 / 4.0, 0, 0);
+
+        motor.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        follower.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        follower.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus0, 1000);
 
         SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.17243, 0.49992 /
                 4.0, 0.6289);
@@ -127,6 +145,15 @@ public class ValkyrieMap extends RobotMap {
         final PIDSparkMax deploymentFollower = new PIDSparkMax(12,
                 MotorType.kBrushless);
         final PIDSparkMax rollerMotor = new PIDSparkMax(13, MotorType.kBrushless);
+        final var rollerController = rollerMotor.getMotorController();
+
+        rollerController.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        deploymentMotor.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        deploymentFollower.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        deploymentFollower.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus0, 1000);
+        for (PeriodicFrame pf : PeriodicFrame.values()) {
+            rollerController.setPeriodicFramePeriod(pf, 500);
+        }
         CANSparkMax deploymentController = deploymentMotor.getMotorController();
         CANSparkMax followerController = deploymentFollower.getMotorController();
 
@@ -143,7 +170,6 @@ public class ValkyrieMap extends RobotMap {
 
         return new IntakeMap(deploymentMotor, rollerMotor, deploymentController::getOutputCurrent,
                 followerController::getOutputCurrent);
-
     }
 
     @Override
@@ -155,6 +181,14 @@ public class ValkyrieMap extends RobotMap {
 
         final WDigitalInput laserSwitch = new WDigitalInput(0);
 
+        final var topController = topMotor.getMotorController();
+        final var bottomController = bottomMotor.getMotorController();
+        topController.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        bottomController.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        for (PeriodicFrame pf : PeriodicFrame.values()) {
+            topController.setPeriodicFramePeriod(pf, 500);
+            bottomController.setPeriodicFramePeriod(pf, 500);
+        }
         return new BallTransportMap(bottomMotor, topMotor, colorSensor, laserSwitch);
     }
 
@@ -168,6 +202,9 @@ public class ValkyrieMap extends RobotMap {
 
         final CANSparkMax extendController = extendMotor.getMotorController();
         final CANSparkMax rotateController = rotateMotor.getMotorController();
+
+        extendController.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        rotateController.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
 
         extendMotor.getMotorController().setIdleMode(IdleMode.kBrake);
         rotateMotor.getMotorController().setIdleMode(IdleMode.kBrake);
@@ -193,6 +230,9 @@ public class ValkyrieMap extends RobotMap {
 
         final CANSparkMax extendController = extendMotor.getMotorController();
         final CANSparkMax rotateController = rotateMotor.getMotorController();
+
+        extendController.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+        rotateController.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
 
         extendMotor.getMotorController().setIdleMode(IdleMode.kBrake);
         rotateMotor.getMotorController().setIdleMode(IdleMode.kBrake);
