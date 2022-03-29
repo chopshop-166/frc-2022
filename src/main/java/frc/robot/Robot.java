@@ -97,10 +97,8 @@ public class Robot extends CommandRobot {
         return sequence("Two Ball Left Auto", drive.resetAuto(AutoPaths.twoBallLeftOne),
                 parallel("Stop Shooter", stopShooter(), drive.auto(
                         AutoPaths.twoBallLeftOne)),
-                drive.auto(AutoPaths.twoBallLeftTwo)); // intakeOneBallAuto(),
-                                                       // drive.auto(AutoPaths.twoBallLeftTwo),
-        // shootOneBallAuto(),
-        // ("Stop Shooter", stopShooter(), drive.auto(AutoPaths.twoBallRightOne)));
+                intakeOneBallAuto(), drive.auto(AutoPaths.twoBallLeftTwo),
+                shootOneBallAuto(), parallel("Stop Shooter", stopShooter()));
     }
 
     // Shoot One ball and taxi

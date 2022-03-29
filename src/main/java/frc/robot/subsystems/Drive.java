@@ -211,7 +211,7 @@ public class Drive extends SmartSubsystemBase {
     }
 
     public CommandBase auto(PathPlannerTrajectory path) {
-        ProfiledPIDController thetaController = new ProfiledPIDController(.1855, 0, 0, // .3535
+        ProfiledPIDController thetaController = new ProfiledPIDController(.1555, 0, 0, // .3535
                 new TrapezoidProfile.Constraints(Math.PI, Math.PI));
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
