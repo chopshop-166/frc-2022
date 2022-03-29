@@ -234,25 +234,6 @@ public class Climber extends SmartSubsystemBase {
         }));
     }
 
-    public CommandBase autoClimbOld() {
-        // This assumes that the extending arms are fully extended over the bar and in
-        // place
-        return sequence("Automatic Climb",
-                extendDistance(13),
-                rotateDistance(4.9),
-                extendDistance(146.33),
-                rotateDistance(14.9),
-                // extendDistance(430),
-                extendStop(),
-                rotateDistance(9.6),
-                extendDistance(145, 0.5),
-                rotateDistance(0),
-                extendDistance(10),
-                rotateDistance(5.28),
-                extendDistance(56.8));
-
-    }
-
     @Override
     public void safeState() {
         extendMotor.set(0.0);
