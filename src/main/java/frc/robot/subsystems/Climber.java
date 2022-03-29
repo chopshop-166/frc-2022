@@ -48,7 +48,8 @@ public class Climber extends SmartSubsystemBase {
     }
 
     private enum ClimbStep {
-        PULL_ROBOT_UP, MOVE_ROTATE_ARMS_ON, MOVE_ARMS_UP, ROTATE_ROBOT, EXTEND_FULLY, ROTATE_TO_NEXT_BAR,
+        PULL_ROBOT_UP, MOVE_ROTATE_ARMS_ON, MOVE_ARMS_UP, ROTATE_ROBOT,
+        EXTEND_TO_NEXT_BAR, EXTEND_FULLY, ROTATE_TO_NEXT_BAR,
         PULL_ROBOT_OFF, RESET_ROTATE_ARMS, PULL_ROBOT_UP_FULLY, PUT_ROTATING_ON_NEXT_BAR, EXTEND_ON_NEXT_BAR,
         DO_NOTHING;
 
@@ -61,6 +62,8 @@ public class Climber extends SmartSubsystemBase {
                 case MOVE_ARMS_UP:
                     return ROTATE_ROBOT;
                 case ROTATE_ROBOT:
+                    return EXTEND_TO_NEXT_BAR;
+                case EXTEND_TO_NEXT_BAR:
                     return EXTEND_FULLY;
                 case EXTEND_FULLY:
                     return ROTATE_TO_NEXT_BAR;
@@ -184,7 +187,8 @@ public class Climber extends SmartSubsystemBase {
     public CommandBase extendStop() {
         return cmd("Extend Distance").onInitialize(() -> {
         }).onExecute(() -> {
-            extendMotor.set(ExtendDirection.EXTEND.get());
+            // Safely extend
+            extendMotor.set(ExtendDirection.EXTEND.get() * 0.2);
         }).runsUntil(extendMotor::errored).onEnd(() -> {
             extendMotor.set(0.0);
         });
@@ -219,6 +223,7 @@ public class Climber extends SmartSubsystemBase {
                 Map.entry(ClimbStep.MOVE_ROTATE_ARMS_ON, rotateDistance(4.9)),
                 Map.entry(ClimbStep.MOVE_ARMS_UP, extendDistance(146.33)),
                 Map.entry(ClimbStep.ROTATE_ROBOT, rotateDistance(14.9)),
+                Map.entry(ClimbStep.EXTEND_TO_NEXT_BAR, extendDistance(400.0)),
                 Map.entry(ClimbStep.EXTEND_FULLY, extendStop()),
                 Map.entry(ClimbStep.ROTATE_TO_NEXT_BAR, rotateDistance(9.6)),
                 Map.entry(ClimbStep.PULL_ROBOT_OFF, extendDistance(145, 0.5)),
