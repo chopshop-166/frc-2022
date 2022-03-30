@@ -95,10 +95,6 @@ public class Drive extends SmartSubsystemBase {
         });
     }
 
-    public double getPitch() {
-        return 0.0;
-    }
-
     public CommandBase fieldCentricDrive(final DoubleSupplier translateX, final DoubleSupplier translateY,
             final DoubleSupplier rotation) {
         return running("Field Centric Drive",
