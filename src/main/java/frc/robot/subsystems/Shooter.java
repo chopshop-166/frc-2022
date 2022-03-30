@@ -21,7 +21,7 @@ public class Shooter extends SmartSubsystemBase {
     private final IEncoder encoder;
 
     private static final double MAX_RPM = 5300;
-    private static final double RPM_BUFFER = 20;
+    private static final double RPM_BUFFER = 40;
 
     private double shootSpeed;
 
