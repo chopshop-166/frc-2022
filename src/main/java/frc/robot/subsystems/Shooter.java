@@ -62,7 +62,7 @@ public class Shooter extends SmartSubsystemBase {
         SmartDashboard.putNumber("FF Calculation", ffv);
         SmartDashboard.putNumber("PID + FF", pidv + ffv);
         if (speed != 0) {
-            motor.setSetpoint(pidv + ffv * 0);
+            motor.setSetpoint(pidv + ffv);
         }
     }
 
