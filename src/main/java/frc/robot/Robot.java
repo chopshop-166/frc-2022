@@ -202,11 +202,11 @@ public class Robot extends CommandRobot {
 
                         leftClimber.climb(
                                 deadbandAxis(0.15, () -> -copilotController.getLeftY()),
-                                deadbandAxis(0.15, () -> 0)),
+                                () -> 0),
 
                         rightClimber.climb(
                                 deadbandAxis(0.15, () -> -copilotController.getRightY()),
-                                deadbandAxis(0.15, () -> 0))
+                                () -> 0)
 
                 )
 
