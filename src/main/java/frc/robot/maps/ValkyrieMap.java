@@ -56,7 +56,7 @@ public class ValkyrieMap extends RobotMap {
         // All Distances are in Meters
         // Front Left Module
         final CANCoder encoderFL = new CANCoder(1);
-        encoderFL.configMagnetOffset(180 + 74.119);
+        encoderFL.configMagnetOffset(-195.381);
         encoderFL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule frontLeft = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
                 encoderFL, frontLeftSteer, new PIDSparkMax(1,
