@@ -50,14 +50,14 @@ public class Robot extends CommandRobot {
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
-    @Override
-    public void teleopInit() {
-        sequence("Init Arms",
+    // @Override
+    // public void teleopInit() {
+    // sequence("Init Arms",
 
-                parallel("Zero Arms", leftClimber.resetArms(), rightClimber.resetArms())
+    // parallel("Zero Arms", leftClimber.resetArms(), rightClimber.resetArms())
 
-        ).schedule();
-    }
+    // ).schedule();
+    // }
 
     public CommandBase shootOneBallAuto() {
         return sequence("Shoot Preloaded Ball", shooter.setTargetAndStartShooter(HubSpeed.LOW),

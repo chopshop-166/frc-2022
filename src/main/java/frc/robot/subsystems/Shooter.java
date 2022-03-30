@@ -21,7 +21,7 @@ public class Shooter extends SmartSubsystemBase {
     private final IEncoder encoder;
 
     private static final double MAX_RPM = 5300;
-    private static final double RPM_BUFFER = 10;
+    private static final double RPM_BUFFER = 20;
 
     private double shootSpeed;
 
@@ -62,7 +62,7 @@ public class Shooter extends SmartSubsystemBase {
         SmartDashboard.putNumber("FF Calculation", ffv);
         SmartDashboard.putNumber("PID + FF", pidv + ffv);
         if (speed != 0) {
-            motor.setSetpoint(pidv + ffv);
+            motor.setSetpoint(pidv + ffv * 0);
         }
     }
 
@@ -89,10 +89,10 @@ public class Shooter extends SmartSubsystemBase {
     // setTargetHub/setSpeed
 
     public CommandBase waitUntilSpeedUp() {
-        BooleanSupplier check = () -> Math.abs(encoder.getRate())
-                - Math.min(MAX_RPM, shootSpeed) < RPM_BUFFER;
+        BooleanSupplier check = () -> Math.abs(encoder.getRate() - shootSpeed) < RPM_BUFFER;
         PersistenceCheck p = new PersistenceCheck(5, check);
         return cmd("Wait Until Speed Up").until(p);
+
     }
 
     public CommandBase setSpeed(DoubleSupplier speed) {
@@ -104,7 +104,7 @@ public class Shooter extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Error Amount (RPM)", shootSpeed * 60.0 - encoder.getRate() * 60.0);
+        SmartDashboard.putNumber("Error Amount (RPM)", Math.abs(shootSpeed - encoder.getRate()));
         SmartDashboard.putNumber("Target Speed (RPM)", shootSpeed * 60.0);
         SmartDashboard.putNumber("Encoder Rate (RPM)", encoder.getRate() * 60.0);
 
