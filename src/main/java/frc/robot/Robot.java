@@ -14,11 +14,14 @@ import com.chopshop166.chopshoplib.states.SpinDirection;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
 import frc.robot.subsystems.Climber;
@@ -42,6 +45,7 @@ public class Robot extends CommandRobot {
     private final Intake intake = new Intake(map.getIntakeMap());
 
     private final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
+
     private final Led led = new Led(map.getLedMap());
 
     private final Shooter shooter = new Shooter(map.getShooterMap());
@@ -49,6 +53,8 @@ public class Robot extends CommandRobot {
     private final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right");
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
+    private final LightAnimation climberUp = new LightAnimation("climber_up.json", "Climber Up");
+    private final LightAnimation climberDown = new LightAnimation("climber_up.json", "Climber Down");
 
     @Override
     public void teleopInit() {
@@ -168,6 +174,8 @@ public class Robot extends CommandRobot {
     @Override
     public void configureButtonBindings() {
 
+        new Trigger(DriverStation::isDSAttached).whileActiveOnce(led.serialPortSend());
+
         driveController.start().whenPressed(drive.resetGyro());
 
         copilotController.getPovButton(POVDirection.UP).whileHeld(ballTransport.runForwards());
@@ -198,7 +206,8 @@ public class Robot extends CommandRobot {
                         race("Finish Transport", new WaitCommand(1),
                                 ballTransport.loadCargoWithIntake()),
                         ballTransport.stopTransport()));
-
+        copilotController.getAxis(Axis.kRightTrigger).whileActiveContinuous(led.animate(climberUp, 1.0, () -> false));
+        copilotController.getAxis(Axis.kLeftTrigger).whileActiveContinuous(led.animate(climberDown, 1.0, () -> false));
         driveController.y().or(copilotController.y())
                 .whenActive(intake.extend(SpinDirection.CLOCKWISE))
                 .whenInactive(intake.retract());
@@ -237,6 +246,7 @@ public class Robot extends CommandRobot {
     public void populateDashboard() {
         SmartDashboard.putData("Reset Odometry", new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
         SmartDashboard.putData("Reset POSE for auto", drive.resetAuto(AutoPaths.twoBallLeftOne));
+        SmartDashboard.putData("Update LEDS", led.serialPortSend());
 
     }
 

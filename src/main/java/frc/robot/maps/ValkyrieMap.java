@@ -11,6 +11,7 @@ import com.chopshop166.chopshoplib.sensors.gyro.PigeonGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -22,6 +23,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
 import frc.robot.maps.subsystems.BallTransportMap;
@@ -96,7 +98,7 @@ public class ValkyrieMap extends RobotMap {
 
         return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
                 maxDriveSpeedMetersPerSecond,
-                maxRotationRadianPerSecond, pigeonGyro);
+                maxRotationRadianPerSecond, pigeonGyro, () -> pigeonGyro.getRaw().getState() == PigeonState.Ready);
     }
 
     @Override
@@ -260,6 +262,8 @@ public class ValkyrieMap extends RobotMap {
         // Best if this is a multiple of 10
         AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(30);
 
-        return new LedMap(led, ledBuffer);
+        SerialPort serialPort = new SerialPort(9600, SerialPort.Port.kMXP);
+
+        return new LedMap(led, ledBuffer, serialPort);
     }
 }
