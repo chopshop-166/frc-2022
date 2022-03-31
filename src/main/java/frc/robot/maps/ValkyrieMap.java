@@ -98,7 +98,7 @@ public class ValkyrieMap extends RobotMap {
 
         return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
                 maxDriveSpeedMetersPerSecond,
-                maxRotationRadianPerSecond, pigeonGyro, () -> pigeonGyro.getRaw().getState() == PigeonState.Ready);
+                maxRotationRadianPerSecond, pigeonGyro);
     }
 
     @Override

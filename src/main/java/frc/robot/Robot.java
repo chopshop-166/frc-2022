@@ -206,8 +206,6 @@ public class Robot extends CommandRobot {
                         race("Finish Transport", new WaitCommand(1),
                                 ballTransport.loadCargoWithIntake()),
                         ballTransport.stopTransport()));
-        copilotController.getAxis(Axis.kRightTrigger).whileActiveContinuous(led.animate(climberUp, 1.0, () -> false));
-        copilotController.getAxis(Axis.kLeftTrigger).whileActiveContinuous(led.animate(climberDown, 1.0, () -> false));
         driveController.y().or(copilotController.y())
                 .whenActive(intake.extend(SpinDirection.CLOCKWISE))
                 .whenInactive(intake.retract());

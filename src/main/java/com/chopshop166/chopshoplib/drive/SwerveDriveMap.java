@@ -18,8 +18,6 @@ public class SwerveDriveMap {
 
     private final double distanceFromCenter = 0.381;
 
-    private final BooleanSupplier gyroOn;
-
     public SwerveDriveMap() {
 
         this.frontLeft = new MockSwerveModule(new Translation2d(distanceFromCenter, distanceFromCenter));
@@ -36,7 +34,6 @@ public class SwerveDriveMap {
 
         this.gyro = new MockGyro();
 
-        this.gyroOn = () -> false;
     }
 
     public SwerveDriveMap(final SwerveModule frontLeft, final SwerveModule frontRight, final SwerveModule rearLeft,
@@ -72,10 +69,6 @@ public class SwerveDriveMap {
 
     public SwerveModule getRearRight() {
         return rearRight;
-    }
-
-    public BooleanSupplier getGyroOn() {
-        return gyroOn;
     }
 
     public double getMaxDriveSpeedMetersPerSecond() {

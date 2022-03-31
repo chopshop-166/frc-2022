@@ -45,8 +45,6 @@ public class Drive extends SmartSubsystemBase {
     private double rotationOffset = 0.0;
     private double startingRotation = 0.0;
 
-    private final BooleanSupplier gyroOn;
-
     SendableChooser<Double> startingAngleChooser = new SendableChooser<>();
 
     public Drive(final SwerveDriveMap map) {
@@ -65,7 +63,6 @@ public class Drive extends SmartSubsystemBase {
 
         odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d());
 
-        gyroOn = map.getGyroOn();
         // These angles need some tweaking
         startingAngleChooser.addOption("Left Hub", 69.0);
         startingAngleChooser.addOption("Right Hub", 21.0);
@@ -84,10 +81,6 @@ public class Drive extends SmartSubsystemBase {
     // positioned and facing in the beginning of the match
     public void setStartingAngle() {
         startingRotation = startingAngleChooser.getSelected();
-    }
-
-    public BooleanSupplier getGyroOn() {
-        return gyroOn;
     }
 
     public CommandBase resetRotationOffset() {
