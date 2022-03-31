@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 
+import com.chopshop166.chopshoplib.PersistenceCheck;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.motors.ModifierGroup;
@@ -93,12 +94,16 @@ public class Climber extends SmartSubsystemBase {
         rotateMotor = map.getRotateMotor();
 
         extendLimit = new ModifierGroup(Modifier.unless(extendMotor::errored),
-                Modifier.lowerLimit(() -> extendMotor.getEncoder().getDistance() <= 30.0));
+                Modifier.lowerLimit(() -> extendMotor.getEncoder().getDistance() <= 12.0));
         rotateLimit = Modifier.unless(rotateMotor::errored);
         gyroPitch = map.getGyroPitch();
 
         climbStep = ClimbStep.PULL_ROBOT_UP;
 
+    }
+
+    public void resetSteps() {
+        climbStep = ClimbStep.DO_NOTHING;
     }
 
     public void resetEncoders() {
@@ -108,8 +113,8 @@ public class Climber extends SmartSubsystemBase {
 
     public CommandBase climb(DoubleSupplier extendSpeed, DoubleSupplier rotateSpeed) {
         return cmd("Extend Speed").onExecute(() -> {
-            extendMotor.set(extendLimit.applyAsDouble(extendSpeed.getAsDouble()));
-            rotateMotor.set(extendLimit.applyAsDouble(-rotateSpeed.getAsDouble() * 0.25));
+            extendMotor.set(extendSpeed.getAsDouble());
+            rotateMotor.set(rotateLimit.applyAsDouble(-rotateSpeed.getAsDouble() * 0.25));
         }).onEnd((interrupted) -> {
             extendMotor.set(0.0);
             rotateMotor.set(0.0);
@@ -145,9 +150,11 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase extend(ExtendDirection direction, double speedFactor) {
+        PersistenceCheck p = new PersistenceCheck(5, () -> Math.abs(extendMotor.getEncoder().getRate()) < 0.2);
+
         return cmd("Extend").onExecute(() -> {
-            extendMotor.set(extendLimit.applyAsDouble(direction.get() * speedFactor));
-        }).runsUntil(extendMotor::errored).onEnd((interrupted) -> {
+            extendMotor.set(direction.get() * speedFactor);
+        }).runsUntil(p).onEnd((interrupted) -> {
             extendMotor.set(0.0);
         });
     }
@@ -185,11 +192,13 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase extendStop() {
+        PersistenceCheck p = new PersistenceCheck(5, () -> Math.abs(extendMotor.getEncoder().getRate()) < 0.2);
+
         return cmd("Extend Distance").onInitialize(() -> {
         }).onExecute(() -> {
             // Safely extend
             extendMotor.set(ExtendDirection.EXTEND.get() * 0.2);
-        }).runsUntil(extendMotor::errored).onEnd(() -> {
+        }).runsUntil(() -> extendMotor.errored() || p.getAsBoolean()).onEnd(() -> {
             extendMotor.set(0.0);
         });
 
@@ -209,10 +218,10 @@ public class Climber extends SmartSubsystemBase {
     public CommandBase resetArms() {
         return sequence("Reset Arms",
                 extend(ExtendDirection.RETRACT, 0.1),
-                rotate(SpinDirection.COUNTERCLOCKWISE, 0.1),
+                // rotate(SpinDirection.COUNTERCLOCKWISE, 0.1),
                 instant("Reset Encoders", () -> {
                     extendMotor.getEncoder().reset();
-                    rotateMotor.getEncoder().reset();
+                    // rotateMotor.getEncoder().reset();
                 }));
     }
 

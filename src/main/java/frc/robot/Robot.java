@@ -52,11 +52,16 @@ public class Robot extends CommandRobot {
 
     @Override
     public void teleopInit() {
-        sequence("Init Arms",
+        // sequence("Init Arms",
 
-                parallel("Zero Arms", leftClimber.resetArms(), rightClimber.resetArms())
+        // parallel("Zero Arms", leftClimber.resetArms(), rightClimber.resetArms())
 
-        ).schedule();
+        // ).schedule();
+
+        leftClimber.resetEncoders();
+        rightClimber.resetEncoders();
+        leftClimber.resetSteps();
+        rightClimber.resetSteps();
     }
 
     public CommandBase shootOneBallAuto() {
@@ -195,6 +200,8 @@ public class Robot extends CommandRobot {
                 .whileHeld(parallel("Extend Auto",
                         leftClimber.autoClimb(),
                         rightClimber.autoClimb()));
+
+        copilotController.b().whenPressed(parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
 
         copilotController.rbumper().whileHeld(
 
