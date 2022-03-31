@@ -104,7 +104,18 @@ public class Robot extends CommandRobot {
     // Shoot One ball and taxi
     public CommandBase oneBallAuto() {
         return sequence("One Ball Auto", shootOneBallAuto(),
-                drive.auto(AutoPaths.twoBallLeftOne));
+                drive.auto(AutoPaths.oneBallLeftOne));
+    }
+
+    private CommandBase weekTwoAuto() {
+        return sequence("Autonomous",
+                shooter.setTargetAndStartShooter(HubSpeed.LOW),
+                shooter.waitUntilSpeedUp(),
+                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
+
+                parallel("Stop and drive",
+                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
+                        drive.driveDistance(2.5, 0, 0.5)));
     }
 
     @Autonomous
@@ -115,6 +126,8 @@ public class Robot extends CommandRobot {
     public CommandBase twoLeftAuto = twoLeftAuto();
     @Autonomous(defaultAuto = true)
     public CommandBase oneBallAuto = oneBallAuto();
+    @Autonomous
+    public CommandBase weekTwoAuto = weekTwoAuto();
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
