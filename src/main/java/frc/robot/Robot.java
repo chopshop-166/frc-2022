@@ -152,9 +152,9 @@ public class Robot extends CommandRobot {
     public CommandBase twoRightAuto = twoRightAuto();
     @Autonomous
     public CommandBase twoLeftAuto = twoLeftAuto();
-    @Autonomous(defaultAuto = true)
-    public CommandBase oneBallAuto = oneBallAuto();
     @Autonomous
+    public CommandBase oneBallAuto = oneBallAuto();
+    @Autonomous(defaultAuto = true)
     public CommandBase weekTwoAuto = weekTwoAuto();
     @Autonomous
     public CommandBase onlyShoot = onlyShoot();
