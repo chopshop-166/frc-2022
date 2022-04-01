@@ -51,9 +51,8 @@ public class Robot extends CommandRobot {
 
     private final HashMap<ClimberSide, Boolean> climberStates = new HashMap<>();
     private final Shooter shooter = new Shooter(map.getShooterMap());
-    private final Climber leftClimber = new Climber(map.getLeftClimberMap(), "Left", ClimberSide.LEFT, climberStates);
-    private final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right", ClimberSide.RIGHT,
-            climberStates);
+    private final Climber leftClimber = new Climber(map.getLeftClimberMap(), "Left", ClimberSide.LEFTx);
+    private final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right", ClimberSide.RIGHT);
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
@@ -138,7 +137,8 @@ public class Robot extends CommandRobot {
 
                 parallel("Stop and drive",
                         sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                        drive.driveDistance(2.5, 0, 0.5)));
+                        drive.driveDistance(2.5, 0, 0.5)),
+                parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
     }
 
     private CommandBase onlyShoot() {
@@ -242,8 +242,6 @@ public class Robot extends CommandRobot {
                 .whileHeld(parallel("Extend Auto",
                         leftClimber.autoClimb(),
                         rightClimber.autoClimb()));
-
-        copilotController.b().whenPressed(parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
 
         copilotController.rbumper().whileHeld(
 

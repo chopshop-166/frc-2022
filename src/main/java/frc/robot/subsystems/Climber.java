@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.EnumMap;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 
@@ -98,15 +98,16 @@ public class Climber extends SmartSubsystemBase {
         }
     }
 
-    private final HashMap<ClimberSide, Boolean> finishedStates;
+    private static final Map<ClimberSide, Boolean> finishedStates = new EnumMap<ClimberSide, Boolean>(
+            ClimberSide.class);
+    private static boolean shouldReset = false;
 
-    public Climber(ClimberMap map, String name, ClimberSide side, HashMap<ClimberSide, Boolean> states) {
+    public Climber(ClimberMap map, String name, ClimberSide side) {
         this.name = name;
         extendMotor = map.getExtendMotor();
         rotateMotor = map.getRotateMotor();
 
         this.side = side;
-        finishedStates = states;
         finishedStates.put(this.side, false);
 
         extendLimit = new ModifierGroup(Modifier.unless(extendMotor::errored),
@@ -263,7 +264,7 @@ public class Climber extends SmartSubsystemBase {
                 Map.entry(ClimbStep.EXTEND_TO_NEXT_BAR, extendDistance(400.0)),
                 Map.entry(ClimbStep.EXTEND_FULLY, extendStop()),
                 Map.entry(ClimbStep.ROTATE_TO_NEXT_BAR, rotateDistance(9.6)),
-                Map.entry(ClimbStep.PULL_ROBOT_OFF, extendDistance(145, 0.5)),
+                Map.entry(ClimbStep.PULL_ROBOT_OFF, extendDistance(145, 0.75)),
                 Map.entry(ClimbStep.RESET_ROTATE_ARMS, rotateDistance(0)),
                 Map.entry(ClimbStep.PULL_ROBOT_UP_FULLY, extendDistance(10)),
                 Map.entry(ClimbStep.PUT_ROTATING_ON_NEXT_BAR, rotateDistance(5.28)),
@@ -271,16 +272,31 @@ public class Climber extends SmartSubsystemBase {
                 Map.entry(ClimbStep.DO_NOTHING, instant("Nothing", () -> {
                 })));
 
+        // return sequence("Auto Climb", new SelectCommand(commands, () -> climbStep),
+        // instant("Next Step", () -> {
+        // climbStep = climbStep.getNextState();
+        // }));
+
         return sequence("Auto Climb", new SelectCommand(commands, () -> climbStep),
-                instant("Next Step", () -> {
-                    climbStep = climbStep.getNextState();
-                }));
+                cmd("Increment").onInitialize(() -> {
+                    finishedStates.put(side, true);
+                    System.out.println(name + " running");
+                    shouldReset = false;
+                }).runsUntil(() -> (finishedStates.get(ClimberSide.LEFT) &&
+                        finishedStates.get(ClimberSide.RIGHT)) || shouldReset)
+                        .onEnd((interrupted) -> {
+                            if (!interrupted) {
+                                finishedStates.put(side, false);
+                                shouldReset = true;
+                                climbStep = climbStep.getNextState();
+                            }
+                        }));
 
     }
 
     public CommandBase resetSequence() {
         return instant("Reset Sequence", () -> {
-            climbStep = ClimbStep.DO_NOTHING;
+            climbStep = ClimbStep.MOVE_ARMS_UP;
         });
     }
 

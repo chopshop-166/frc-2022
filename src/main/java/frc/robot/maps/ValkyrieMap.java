@@ -35,7 +35,7 @@ import frc.robot.util.CurrentValidator;
 @RobotMapFor("00:80:2F:17:62:25")
 public class ValkyrieMap extends RobotMap {
     final int CLIMBER_EXTEND_LIMIT = 30;
-    final int CLIMBER_ROTATE_LIMIT = 45;
+    final int CLIMBER_ROTATE_LIMIT = 50;
     final PigeonGyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
 
     @Override
