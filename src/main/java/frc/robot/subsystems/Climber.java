@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.Map;
 import java.util.function.DoubleSupplier;
+import java.util.function.DoubleUnaryOperator;
 
 import com.chopshop166.chopshoplib.PersistenceCheck;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
@@ -112,8 +113,11 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase climb(DoubleSupplier extendSpeed, DoubleSupplier rotateSpeed) {
+        final double EXTEND_THRESHOLD = 400.0;
+        final DoubleUnaryOperator limitSpeed = (speed) -> (extendMotor.getEncoder().getDistance() >= EXTEND_THRESHOLD
+                && extendMotor.get() > 0) ? (speed / 10.0) : (speed);
         return cmd("Extend Speed").onExecute(() -> {
-            extendMotor.set(extendSpeed.getAsDouble());
+            extendMotor.set(limitSpeed.applyAsDouble(extendSpeed.getAsDouble()));
             rotateMotor.set(rotateLimit.applyAsDouble(-rotateSpeed.getAsDouble() * 0.25));
         }).onEnd((interrupted) -> {
             extendMotor.set(0.0);
@@ -151,7 +155,7 @@ public class Climber extends SmartSubsystemBase {
 
     public CommandBase extend(ExtendDirection direction, double speedFactor) {
         PersistenceCheck p = new PersistenceCheck(5, () -> Math.abs(extendMotor.getEncoder().getRate()) < 0.2);
-
+ 
         return cmd("Extend").onExecute(() -> {
             extendMotor.set(direction.get() * speedFactor);
         }).runsUntil(p).onEnd((interrupted) -> {
@@ -221,7 +225,7 @@ public class Climber extends SmartSubsystemBase {
                 // rotate(SpinDirection.COUNTERCLOCKWISE, 0.1),
                 instant("Reset Encoders", () -> {
                     extendMotor.getEncoder().reset();
-                    // rotateMotor.getEncoder().reset();
+                    rotateMotor.getEncoder().reset();
                 }));
     }
 
@@ -246,6 +250,12 @@ public class Climber extends SmartSubsystemBase {
         return sequence("Auto Climb", new SelectCommand(commands, () -> climbStep), instant("Next Step", () -> {
             climbStep = climbStep.getNextState();
         }));
+    }
+
+    public CommandBase resetSequence() {
+        return instant("Reset Sequence", () -> {
+            climbStep = ClimbStep.DO_NOTHING;
+        });
     }
 
     @Override

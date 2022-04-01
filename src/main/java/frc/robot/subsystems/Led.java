@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.function.BooleanSupplier;
-
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 
 import edu.wpi.first.wpilibj.AddressableLED;

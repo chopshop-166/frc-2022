@@ -10,6 +10,7 @@ import com.chopshop166.chopshoplib.sensors.IEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -21,17 +22,17 @@ public class Shooter extends SmartSubsystemBase {
     private final IEncoder encoder;
 
     private static final double MAX_RPM = 5300;
-    private static final double RPM_BUFFER = 40;
+    private static final double RPM_BUFFER = 20;
 
     private double shootSpeed;
 
-    private double highGoal = 2650 / 60.0;
+    private double highGoal = HubSpeed.HIGH.get();
 
     private PIDController pid;
     private SimpleMotorFeedforward feedforward;
 
     public enum HubSpeed {
-        LOW(1800 / 60.0), HIGH(2650 / 60.0);
+        LOW(1800 / 60.0), HIGH(66), LOW_HIGH_HOOD(36);
 
         private double speed;
 
@@ -44,6 +45,8 @@ public class Shooter extends SmartSubsystemBase {
         }
     }
 
+    SendableChooser<HubSpeed> goalSelect = new SendableChooser<>();
+
     public Shooter(ShooterMap map) {
         motor = map.getMotor();
         encoder = map.getEncoder();
@@ -51,13 +54,14 @@ public class Shooter extends SmartSubsystemBase {
         shootSpeed = 0;
         pid = map.getPid();
         SmartDashboard.putNumber("High Goal Speed", highGoal);
+
     }
 
     private void calculatePid(double speed) {
         double pidv = pid.calculate(encoder.getRate());
 
         // We'll eventually need an acceleration
-        double ffv = feedforward.calculate(speed, (speed == 0) ? 0 : 0.0);
+        double ffv = feedforward.calculate(speed, 0);
         SmartDashboard.putNumber("PID Calculation", pidv);
         SmartDashboard.putNumber("FF Calculation", ffv);
         SmartDashboard.putNumber("PID + FF", pidv + ffv);
@@ -76,6 +80,13 @@ public class Shooter extends SmartSubsystemBase {
 
     public CommandBase setTargetAndStartShooter(HubSpeed hub) {
         return instant("Set Default Speed", () -> {
+            shootSpeed = hub.get();
+            pid.setSetpoint(shootSpeed);
+        });
+    }
+
+    public CommandBase setTargetVariable() {
+        return instant("Set Default Speed", () -> {
             shootSpeed = highGoal;
             pid.setSetpoint(shootSpeed);
         });
@@ -90,7 +101,7 @@ public class Shooter extends SmartSubsystemBase {
 
     public CommandBase waitUntilSpeedUp() {
         BooleanSupplier check = () -> Math.abs(encoder.getRate() - shootSpeed) < RPM_BUFFER;
-        PersistenceCheck p = new PersistenceCheck(5, check);
+        PersistenceCheck p = new PersistenceCheck(20, check);
         return cmd("Wait Until Speed Up").until(p);
 
     }
@@ -102,6 +113,7 @@ public class Shooter extends SmartSubsystemBase {
         });
     }
 
+    // !55.22
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Error Amount (RPM)", Math.abs(shootSpeed - encoder.getRate()));

@@ -15,7 +15,6 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -53,8 +52,6 @@ public class Robot extends CommandRobot {
     private final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right");
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
-    private final LightAnimation climberUp = new LightAnimation("climber_up.json", "Climber Up");
-    private final LightAnimation climberDown = new LightAnimation("climber_up.json", "Climber Down");
 
     @Override
     public void teleopInit() {
@@ -68,15 +65,17 @@ public class Robot extends CommandRobot {
         rightClimber.resetEncoders();
         leftClimber.resetSteps();
         rightClimber.resetSteps();
+        SmartDashboard.putNumber("High Goal Speed", 36);
+
     }
 
     public CommandBase shootOneBallAuto() {
-        return sequence("Shoot Preloaded Ball", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+        return sequence("Shoot Preloaded Ball", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
                 shooter.waitUntilSpeedUp(), ballTransport.loadShooter());
     }
 
     public CommandBase shootTwoBallsAuto() {
-        return sequence("Shoot Two Balls Auto", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+        return sequence("Shoot Two Balls Auto", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
                 shooter.waitUntilSpeedUp(), ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
                 ballTransport.loadShooter());
     }
@@ -128,8 +127,8 @@ public class Robot extends CommandRobot {
     }
 
     private CommandBase weekTwoAuto() {
-        return sequence("Autonomous",
-                shooter.setTargetAndStartShooter(HubSpeed.LOW),
+        return sequence("Week Two Auto",
+                shooter.setTargetAndStartShooter(HubSpeed.HIGH),
                 shooter.waitUntilSpeedUp(),
                 ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
 
@@ -188,14 +187,27 @@ public class Robot extends CommandRobot {
 
         driveController.rbumper().whenPressed(drive.setSpeedCoef(0.2)).whenReleased(drive.setSpeedCoef(1.0));
 
+        driveController.y()
+                .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
+                        shooter.waitUntilSpeedUp(),
+                        ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser()))
+                .whenReleased(shooter.stop());
         driveController.x()
-                .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+                .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW_HIGH_HOOD),
+                        shooter.waitUntilSpeedUp(),
+                        ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser()))
+                .whenReleased(shooter.stop());
+        driveController.b()
+                .whileHeld(sequence("Shoot", shooter.setTargetVariable(),
                         shooter.waitUntilSpeedUp(),
                         ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser()))
                 .whenReleased(shooter.stop());
 
         // Intake:
         // These commands are duplicated for both the drive and copilot controllers.
+
+        copilotController.back()
+                .whenPressed(parallel("Reset Sequence", leftClimber.resetSequence(), rightClimber.resetSequence()));
 
         driveController.a().or(copilotController.a()).whenActive(intake.extend(
                 SpinDirection.COUNTERCLOCKWISE))
@@ -206,9 +218,6 @@ public class Robot extends CommandRobot {
                         race("Finish Transport", new WaitCommand(1),
                                 ballTransport.loadCargoWithIntake()),
                         ballTransport.stopTransport()));
-        driveController.y().or(copilotController.y())
-                .whenActive(intake.extend(SpinDirection.CLOCKWISE))
-                .whenInactive(intake.retract());
 
         // Stop all subsystems
         driveController.back()
