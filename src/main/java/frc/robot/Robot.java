@@ -1,6 +1,5 @@
 package frc.robot;
 
-import java.util.HashMap;
 import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
@@ -25,11 +24,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Climber.ClimberSide;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Climber.ClimberSide;
 import frc.robot.subsystems.Shooter.HubSpeed;
 import frc.robot.util.LightAnimation;
 
