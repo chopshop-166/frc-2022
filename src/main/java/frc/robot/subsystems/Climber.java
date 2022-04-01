@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
+import java.util.HashMap;
 import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 
@@ -19,6 +20,8 @@ import frc.robot.maps.subsystems.ClimberMap;
 
 public class Climber extends SmartSubsystemBase {
 
+    private static final double EXTEND_THRESHOLD = 400.0;
+    private static final double RETRACT_THRESHOLD = 20.0;
     // Constants:
 
     private static final double ROTATE_SPEED = 0.2;
@@ -34,6 +37,12 @@ public class Climber extends SmartSubsystemBase {
     private final String name;
 
     private ClimbStep climbStep;
+
+    private final ClimberSide side;
+
+    public enum ClimberSide {
+        LEFT, RIGHT;
+    }
 
     public enum ExtendDirection {
         EXTEND(1.0), RETRACT(-1.0);
@@ -89,10 +98,16 @@ public class Climber extends SmartSubsystemBase {
         }
     }
 
-    public Climber(ClimberMap map, String name) {
+    private final HashMap<ClimberSide, Boolean> finishedStates;
+
+    public Climber(ClimberMap map, String name, ClimberSide side, HashMap<ClimberSide, Boolean> states) {
         this.name = name;
         extendMotor = map.getExtendMotor();
         rotateMotor = map.getRotateMotor();
+
+        this.side = side;
+        finishedStates = states;
+        finishedStates.put(this.side, false);
 
         extendLimit = new ModifierGroup(Modifier.unless(extendMotor::errored),
                 Modifier.lowerLimit(() -> extendMotor.getEncoder().getDistance() <= 12.0));
@@ -113,9 +128,11 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase climb(DoubleSupplier extendSpeed, DoubleSupplier rotateSpeed) {
-        final double EXTEND_THRESHOLD = 400.0;
-        final DoubleUnaryOperator limitSpeed = (speed) -> (extendMotor.getEncoder().getDistance() >= EXTEND_THRESHOLD
-                && extendMotor.get() > 0) ? (speed / 10.0) : (speed);
+        final DoubleUnaryOperator limitSpeed = (speed) -> ((extendMotor.getEncoder().getDistance() >= EXTEND_THRESHOLD
+                && extendMotor.get() > 0)
+                || (extendMotor.getEncoder().getDistance() <= RETRACT_THRESHOLD && extendMotor.get() < 0))
+                        ? (speed / 10.0)
+                        : (speed);
         return cmd("Extend Speed").onExecute(() -> {
             extendMotor.set(limitSpeed.applyAsDouble(extendSpeed.getAsDouble()));
             rotateMotor.set(rotateLimit.applyAsDouble(-rotateSpeed.getAsDouble() * 0.25));
@@ -127,26 +144,29 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase rotateSpeed(DoubleSupplier speed) {
-        return cmd("Rotate Speed").onExecute(() -> {
+        return cmd("Rotate Speed").onInitialize(() -> {
+
+        }).onExecute(() -> {
             rotateMotor.set(rotateLimit.applyAsDouble(speed.getAsDouble()));
-            SmartDashboard.putNumber("Rotate Speed", rotateMotor.get());
         }).runsUntil(rotateMotor::errored).onEnd((interrupted) -> {
             rotateMotor.set(0.0);
+
         });
     }
 
     // Move the motor based off a variable speed
     public CommandBase extendSpeed(DoubleSupplier speed) {
-        return cmd("Extend Speed").onExecute(() -> {
+        return cmd("Extend Speed").onInitialize(() -> {
+        }).onExecute(() -> {
             extendMotor.set(extendLimit.applyAsDouble(speed.getAsDouble()));
-            SmartDashboard.putNumber("Climber Speed", extendMotor.get());
         }).runsUntil(extendMotor::errored).onEnd((interrupted) -> {
             extendMotor.set(0.0);
         });
     }
 
     public CommandBase rotate(SpinDirection direction, double speedFactor) {
-        return cmd("Rotate").onExecute(() -> {
+        return cmd("Rotate").onInitialize(() -> {
+        }).onExecute(() -> {
             rotateMotor.set(rotateLimit.applyAsDouble(direction.apply(ROTATE_SPEED)) * speedFactor);
         }).runsUntil(rotateMotor::errored).onEnd((interrupted) -> {
             rotateMotor.set(0.0);
@@ -155,7 +175,7 @@ public class Climber extends SmartSubsystemBase {
 
     public CommandBase extend(ExtendDirection direction, double speedFactor) {
         PersistenceCheck p = new PersistenceCheck(5, () -> Math.abs(extendMotor.getEncoder().getRate()) < 0.2);
- 
+
         return cmd("Extend").onExecute(() -> {
             extendMotor.set(direction.get() * speedFactor);
         }).runsUntil(p).onEnd((interrupted) -> {
@@ -176,11 +196,13 @@ public class Climber extends SmartSubsystemBase {
 
     public CommandBase extendDistanceIgnoreLimit(double encoderPosition) {
         return cmd("Extend Distance").onInitialize(() -> {
+
         }).onExecute(() -> {
             extendMotor.set(Math.signum(encoderPosition - extendMotor.getEncoder().getDistance()) * 1.0);
         }).runsUntil(() -> Math.abs(extendMotor.getEncoder().getDistance() - encoderPosition) < 2)
                 .onEnd((interrupted) -> {
                     extendMotor.set(0.0);
+
                 });
     }
 
@@ -204,6 +226,7 @@ public class Climber extends SmartSubsystemBase {
             extendMotor.set(ExtendDirection.EXTEND.get() * 0.2);
         }).runsUntil(() -> extendMotor.errored() || p.getAsBoolean()).onEnd(() -> {
             extendMotor.set(0.0);
+
         });
 
     }
@@ -216,6 +239,7 @@ public class Climber extends SmartSubsystemBase {
                 || Math.abs(rotateMotor.getEncoder().getDistance() - encoderPosition) < 2)
                 .onEnd((interrupted) -> {
                     rotateMotor.set(0.0);
+
                 });
     }
 
@@ -247,9 +271,11 @@ public class Climber extends SmartSubsystemBase {
                 Map.entry(ClimbStep.DO_NOTHING, instant("Nothing", () -> {
                 })));
 
-        return sequence("Auto Climb", new SelectCommand(commands, () -> climbStep), instant("Next Step", () -> {
-            climbStep = climbStep.getNextState();
-        }));
+        return sequence("Auto Climb", new SelectCommand(commands, () -> climbStep),
+                instant("Next Step", () -> {
+                    climbStep = climbStep.getNextState();
+                }));
+
     }
 
     public CommandBase resetSequence() {
@@ -271,5 +297,8 @@ public class Climber extends SmartSubsystemBase {
         SmartDashboard.putNumber("Climber Rotate Encoder", rotateMotor.getEncoder().getDistance());
         SmartDashboard.putData(name + " Extend", extendMotor);
         SmartDashboard.putData(name + " Rotate", rotateMotor);
+        SmartDashboard.putString(name + " Step", climbStep.name());
+
+        SmartDashboard.putBoolean(name + " finished?", finishedStates.get(side));
     }
 }

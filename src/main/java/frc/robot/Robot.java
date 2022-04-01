@@ -1,5 +1,6 @@
 package frc.robot;
 
+import java.util.HashMap;
 import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
@@ -28,6 +29,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Climber.ClimberSide;
 import frc.robot.subsystems.Shooter.HubSpeed;
 import frc.robot.util.LightAnimation;
 
@@ -47,9 +49,11 @@ public class Robot extends CommandRobot {
 
     private final Led led = new Led(map.getLedMap());
 
+    private final HashMap<ClimberSide, Boolean> climberStates = new HashMap<>();
     private final Shooter shooter = new Shooter(map.getShooterMap());
-    private final Climber leftClimber = new Climber(map.getLeftClimberMap(), "Left");
-    private final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right");
+    private final Climber leftClimber = new Climber(map.getLeftClimberMap(), "Left", ClimberSide.LEFT, climberStates);
+    private final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right", ClimberSide.RIGHT,
+            climberStates);
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
@@ -137,6 +141,13 @@ public class Robot extends CommandRobot {
                         drive.driveDistance(2.5, 0, 0.5)));
     }
 
+    private CommandBase onlyShoot() {
+        return sequence("Only Shoot",
+                shooter.setTargetAndStartShooter(HubSpeed.HIGH),
+                shooter.waitUntilSpeedUp(),
+                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser());
+    }
+
     @Autonomous
     public CommandBase threeRightAuto = threeRightAuto();
     @Autonomous
@@ -147,6 +158,8 @@ public class Robot extends CommandRobot {
     public CommandBase oneBallAuto = oneBallAuto();
     @Autonomous
     public CommandBase weekTwoAuto = weekTwoAuto();
+    @Autonomous
+    public CommandBase onlyShoot = onlyShoot();
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
