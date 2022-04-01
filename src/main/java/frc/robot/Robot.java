@@ -197,6 +197,8 @@ public class Robot extends CommandRobot {
 
         // Drive:
 
+        copilotController.b().whenPressed(parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
+
         driveController.rbumper().whenPressed(drive.setSpeedCoef(0.2)).whenReleased(drive.setSpeedCoef(1.0));
 
         driveController.y()

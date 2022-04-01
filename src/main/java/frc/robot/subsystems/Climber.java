@@ -24,7 +24,7 @@ public class Climber extends SmartSubsystemBase {
     private static final double RETRACT_THRESHOLD = 20.0;
     // Constants:
 
-    private static final double ROTATE_SPEED = 0.2;
+    private static final double ROTATE_SPEED = 0.3;
 
     private final SmartMotorController extendMotor;
     private final SmartMotorController rotateMotor;
