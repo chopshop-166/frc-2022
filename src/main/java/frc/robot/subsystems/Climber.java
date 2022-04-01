@@ -236,8 +236,7 @@ public class Climber extends SmartSubsystemBase {
         return cmd("Rotate Distance").onInitialize(() -> {
         }).onExecute(() -> {
             rotateMotor.set(Math.signum(encoderPosition - rotateMotor.getEncoder().getDistance()) * ROTATE_SPEED);
-        }).runsUntil(() -> rotateMotor.errored()
-                || Math.abs(rotateMotor.getEncoder().getDistance() - encoderPosition) < 2)
+        }).runsUntil(() -> Math.abs(rotateMotor.getEncoder().getDistance() - encoderPosition) < 2)
                 .onEnd((interrupted) -> {
                     rotateMotor.set(0.0);
 
@@ -264,7 +263,7 @@ public class Climber extends SmartSubsystemBase {
                 Map.entry(ClimbStep.EXTEND_TO_NEXT_BAR, extendDistance(400.0)),
                 Map.entry(ClimbStep.EXTEND_FULLY, extendStop()),
                 Map.entry(ClimbStep.ROTATE_TO_NEXT_BAR, rotateDistance(9.6)),
-                Map.entry(ClimbStep.PULL_ROBOT_OFF, extendDistance(145, 0.75)),
+                Map.entry(ClimbStep.PULL_ROBOT_OFF, extendDistance(194, 0.75)),
                 Map.entry(ClimbStep.RESET_ROTATE_ARMS, rotateDistance(0)),
                 Map.entry(ClimbStep.PULL_ROBOT_UP_FULLY, extendDistance(10)),
                 Map.entry(ClimbStep.PUT_ROTATING_ON_NEXT_BAR, rotateDistance(5.28)),
@@ -308,9 +307,9 @@ public class Climber extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Robot Pitch", Math.toDegrees(gyroPitch.getAsDouble()));
-        SmartDashboard.putNumber("Climber Extend Encoder", extendMotor.getEncoder().getDistance());
-        SmartDashboard.putNumber("Climber Rotate Encoder", rotateMotor.getEncoder().getDistance());
+        SmartDashboard.putNumber(name + " Robot Pitch", Math.toDegrees(gyroPitch.getAsDouble()));
+        SmartDashboard.putNumber(name + " Climber Extend Encoder", extendMotor.getEncoder().getDistance());
+        SmartDashboard.putNumber(name + " Climber Rotate Encoder", rotateMotor.getEncoder().getDistance());
         SmartDashboard.putData(name + " Extend", extendMotor);
         SmartDashboard.putData(name + " Rotate", rotateMotor);
         SmartDashboard.putString(name + " Step", climbStep.name());
