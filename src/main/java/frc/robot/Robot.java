@@ -129,7 +129,7 @@ public class Robot extends CommandRobot {
 
     private CommandBase weekTwoAuto() {
         return sequence("Week Two Auto",
-                shooter.setTargetAndStartShooter(HubSpeed.LOW_HIGH_HOOD),
+                shooter.setTargetAndStartShooter(HubSpeed.LOW),
                 shooter.waitUntilSpeedUp(),
                 ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
 
