@@ -49,7 +49,6 @@ public class Robot extends CommandRobot {
 
     private final Led led = new Led(map.getLedMap());
 
-    private final HashMap<ClimberSide, Boolean> climberStates = new HashMap<>();
     private final Shooter shooter = new Shooter(map.getShooterMap());
     private final Climber leftClimber = new Climber(map.getLeftClimberMap(), "Left", ClimberSide.LEFT);
     private final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right", ClimberSide.RIGHT);
@@ -131,7 +130,7 @@ public class Robot extends CommandRobot {
 
     private CommandBase weekTwoAuto() {
         return sequence("Week Two Auto",
-                shooter.setTargetAndStartShooter(HubSpeed.HIGH),
+                shooter.setTargetAndStartShooter(HubSpeed.LOW_HIGH_HOOD),
                 shooter.waitUntilSpeedUp(),
                 ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
 

@@ -87,7 +87,7 @@ public class Climber extends SmartSubsystemBase {
                 case PULL_ROBOT_UP_FULLY:
                     return PUT_ROTATING_ON_NEXT_BAR;
                 case PUT_ROTATING_ON_NEXT_BAR:
-                    return EXTEND_ON_NEXT_BAR;
+                    return MOVE_ARMS_UP;
                 case EXTEND_ON_NEXT_BAR:
                     return DO_NOTHING;
                 case DO_NOTHING:
@@ -287,6 +287,7 @@ public class Climber extends SmartSubsystemBase {
                             if (!interrupted) {
                                 finishedStates.put(side, false);
                                 shouldReset = true;
+                                System.out.println(name + " finished on " + side.name());
                                 climbStep = climbStep.getNextState();
                             }
                         }));
