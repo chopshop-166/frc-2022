@@ -147,6 +147,17 @@ public class Robot extends CommandRobot {
                 parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
     }
 
+    private CommandBase eliminationAuto() {
+        return sequence("Elimination Auto",
+                new WaitCommand(2),
+                shootHigh(),
+
+                parallel("Stop and drive",
+                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
+                        drive.driveDistance(2.5, 0, 0.5)),
+                parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
+    }
+
     private CommandBase weekTwoAutoLow() {
         return sequence("Week Two Auto Low",
                 shootLow(),
@@ -171,10 +182,12 @@ public class Robot extends CommandRobot {
     public CommandBase oneBallAuto = oneBallAuto();
     @Autonomous
     public CommandBase weekTwoAutoLow = weekTwoAutoLow();
-    @Autonomous(defaultAuto = true)
+    @Autonomous
     public CommandBase weekTwoAutoHigh = weekTwoAutoHigh();
     @Autonomous
     public CommandBase onlyShoot = onlyShoot();
+    @Autonomous(defaultAuto = true)
+    public CommandBase eliminationAuto = eliminationAuto();
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
