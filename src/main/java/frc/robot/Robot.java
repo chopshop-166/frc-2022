@@ -54,6 +54,18 @@ public class Robot extends CommandRobot {
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
+    private CommandBase shootHigh() {
+        return sequence("Shoot High", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
+                shooter.waitUntilSpeedUp(),
+                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new WaitCommand(0.15));
+    }
+
+    private CommandBase shootLow() {
+        return sequence("Shoot Low", shooter.setTargetAndStartShooter(HubSpeed.LOW_HIGH_HOOD),
+                shooter.waitUntilSpeedUp(),
+                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser());
+    }
+
     @Override
     public void teleopInit() {
         // sequence("Init Arms",
@@ -71,13 +83,11 @@ public class Robot extends CommandRobot {
     }
 
     public CommandBase shootOneBallAuto() {
-        return sequence("Shoot Preloaded Ball", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
-                shooter.waitUntilSpeedUp(), ballTransport.loadShooter());
+        return shootHigh().withName("Shoot One Ball Auto");
     }
 
     public CommandBase shootTwoBallsAuto() {
-        return sequence("Shoot Two Balls Auto", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
-                shooter.waitUntilSpeedUp(), ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
+        return sequence("Shoot Two Balls Auto", shootHigh(),
                 ballTransport.loadShooter());
     }
 
@@ -127,11 +137,19 @@ public class Robot extends CommandRobot {
                 drive.auto(AutoPaths.oneBallLeftOne));
     }
 
-    private CommandBase weekTwoAuto() {
-        return sequence("Week Two Auto",
-                shooter.setTargetAndStartShooter(HubSpeed.LOW),
-                shooter.waitUntilSpeedUp(),
-                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
+    private CommandBase weekTwoAutoHigh() {
+        return sequence("Week Two Auto High",
+                shootHigh(),
+
+                parallel("Stop and drive",
+                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
+                        drive.driveDistance(2.5, 0, 0.5)),
+                parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
+    }
+
+    private CommandBase weekTwoAutoLow() {
+        return sequence("Week Two Auto Low",
+                shootLow(),
 
                 parallel("Stop and drive",
                         sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
@@ -140,10 +158,7 @@ public class Robot extends CommandRobot {
     }
 
     private CommandBase onlyShoot() {
-        return sequence("Only Shoot",
-                shooter.setTargetAndStartShooter(HubSpeed.HIGH),
-                shooter.waitUntilSpeedUp(),
-                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser());
+        return sequence("Only Shoot", shootHigh());
     }
 
     @Autonomous
@@ -154,8 +169,10 @@ public class Robot extends CommandRobot {
     public CommandBase twoLeftAuto = twoLeftAuto();
     @Autonomous
     public CommandBase oneBallAuto = oneBallAuto();
+    @Autonomous
+    public CommandBase weekTwoAutoLow = weekTwoAutoLow();
     @Autonomous(defaultAuto = true)
-    public CommandBase weekTwoAuto = weekTwoAuto();
+    public CommandBase weekTwoAutoHigh = weekTwoAutoHigh();
     @Autonomous
     public CommandBase onlyShoot = onlyShoot();
 
@@ -201,14 +218,10 @@ public class Robot extends CommandRobot {
         driveController.rbumper().whenPressed(drive.setSpeedCoef(0.2)).whenReleased(drive.setSpeedCoef(1.0));
 
         driveController.y()
-                .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
-                        shooter.waitUntilSpeedUp(),
-                        ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser()))
+                .whileHeld(shootHigh())
                 .whenReleased(shooter.stop());
         driveController.x()
-                .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW_HIGH_HOOD),
-                        shooter.waitUntilSpeedUp(),
-                        ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser()))
+                .whileHeld(shootLow())
                 .whenReleased(shooter.stop());
         driveController.b()
                 .whileHeld(sequence("Shoot", shooter.setTargetVariable(),

@@ -3,11 +3,16 @@ package frc.robot.subsystems;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 
+import javax.swing.border.StrokeBorder;
+
 import com.chopshop166.chopshoplib.SampleBuffer;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IColorSensor;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,11 +27,12 @@ public class BallTransport extends SmartSubsystemBase {
     private final SmartMotorController topMotor;
     private final IColorSensor colorSensor;
     private final BooleanSupplier laserSwitch;
+    private final NetworkTableEntry seenBallEntry, laserSwitchEntry;
 
     // "random values that get bigger when it's closer"
     static private final int BALL_DETECTION_LIMIT = 160;
     static private final double REMOVE_SPEED = -0.25;
-    static private final double TRANSPORT_SPEED = 0.5;
+    static private final double TRANSPORT_SPEED = 1;
 
     boolean seenBall = false;
 
@@ -45,6 +51,10 @@ public class BallTransport extends SmartSubsystemBase {
         this.topMotor = map.getTopMotor();
         this.colorSensor = map.getColorSensor();
         this.laserSwitch = map.getLaserSwitch();
+
+        var netTable = NetworkTableInstance.getDefault().getTable("Transporter");
+        seenBallEntry = netTable.getEntry("Seen Ball");
+        laserSwitchEntry = netTable.getEntry("Laser State");
     }
 
     private boolean colorSensorBallLimit() {
@@ -66,6 +76,7 @@ public class BallTransport extends SmartSubsystemBase {
         return cmd("Move ball from color sensor to laser").onExecute(() -> {
             bottomMotor.set(TRANSPORT_SPEED);
             topMotor.set(TRANSPORT_SPEED);
+            seenBall = true;
         }).runsUntil(() -> {
             return laserSwitch.getAsBoolean();
         }).onEnd(this::stop);
@@ -79,7 +90,7 @@ public class BallTransport extends SmartSubsystemBase {
     public CommandBase loadShooter() {
         return cmd("Load Ball Into Shooter").onExecute(() -> {
             if (laserSwitch.getAsBoolean()) {
-                topMotor.set(TRANSPORT_SPEED);
+                topMotor.set(1.0);
             }
         }).runsUntil(() -> {
             return !laserSwitch.getAsBoolean();
@@ -247,10 +258,11 @@ public class BallTransport extends SmartSubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Color Sensor Proximity", colorSensor.getProximity());
-        SmartDashboard.putString("Color Buffer #1", colorBufferConvertor(colorBuffer.peekFirst()));
-        SmartDashboard.putString("Color Buffer #2", colorBufferConvertor(colorBuffer.peekLast()));
         SmartDashboard.putBoolean("Laser Switch Activated", laserSwitch.getAsBoolean());
         SmartDashboard.putBoolean("Cargo in Color Sensor", colorSensorBallLimit());
+
+        seenBallEntry.setBoolean(seenBall);
+        laserSwitchEntry.setBoolean(laserSwitch.getAsBoolean());
     }
 
     @Override
