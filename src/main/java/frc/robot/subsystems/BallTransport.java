@@ -12,7 +12,6 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -244,9 +243,6 @@ public class BallTransport extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Color Sensor Proximity", colorSensor.getProximity());
-        SmartDashboard.putBoolean("Laser Switch Activated", laserSwitch.getAsBoolean());
-        SmartDashboard.putBoolean("Cargo in Color Sensor", colorSensorBallLimit());
 
         seenBallEntry.setBoolean(seenBall);
         laserSwitchEntry.setBoolean(laserSwitch.getAsBoolean());

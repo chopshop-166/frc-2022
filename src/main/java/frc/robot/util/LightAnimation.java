@@ -14,6 +14,12 @@ public class LightAnimation {
     private Color frames[][];
     private String name;
 
+    /**
+     * Loads an animation from a JSON file
+     * 
+     * @param filename Path to the JSON relative to the deploy folder
+     * @param name     Name of the animation
+     */
     public LightAnimation(String filename, String name) {
         final int numLeds = 10, numFrames = 10;
         this.name = name;

@@ -158,7 +158,6 @@ public class Climber extends SmartSubsystemBase {
         });
     }
 
-    // Move the motor based off a variable speed
     public CommandBase extendSpeed(DoubleSupplier speed) {
         return cmd("Extend Speed").onInitialize(() -> {
         }).onExecute(() -> {
@@ -178,6 +177,8 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase extend(ExtendDirection direction, double speedFactor) {
+        // Extend all the way to the hard-stop using the encoder rate to determine if
+        // the motor stops spinning
         PersistenceCheck p = new PersistenceCheck(5, () -> Math.abs(extendMotor.getEncoder().getRate()) < 0.2);
 
         return cmd("Extend").onExecute(() -> {
@@ -198,6 +199,17 @@ public class Climber extends SmartSubsystemBase {
                 });
     }
 
+    public CommandBase extendDistance(double encoderPosition, double speedFactor) {
+        return cmd("Extend Distance").onInitialize(() -> {
+        }).onExecute(() -> {
+            extendMotor.set(Math.signum(encoderPosition - extendMotor.getEncoder().getDistance()) * speedFactor * 1.0);
+        }).runsUntil(() -> extendMotor.errored()
+                || Math.abs(extendMotor.getEncoder().getDistance() - encoderPosition) < 2)
+                .onEnd((interrupted) -> {
+                    extendMotor.set(0.0);
+                });
+    }
+
     public CommandBase extendDistanceIgnoreLimit(double encoderPosition) {
         return cmd("Extend Distance").onInitialize(() -> {
 
@@ -210,18 +222,8 @@ public class Climber extends SmartSubsystemBase {
                 });
     }
 
-    public CommandBase extendDistance(double encoderPosition, double speedFactor) {
-        return cmd("Extend Distance").onInitialize(() -> {
-        }).onExecute(() -> {
-            extendMotor.set(Math.signum(encoderPosition - extendMotor.getEncoder().getDistance()) * speedFactor * 1.0);
-        }).runsUntil(() -> extendMotor.errored()
-                || Math.abs(extendMotor.getEncoder().getDistance() - encoderPosition) < 2)
-                .onEnd((interrupted) -> {
-                    extendMotor.set(0.0);
-                });
-    }
-
     public CommandBase extendStop() {
+        // Checks if the encoder is no longer rotating instead of current limits
         PersistenceCheck p = new PersistenceCheck(5, () -> Math.abs(extendMotor.getEncoder().getRate()) < 0.2);
 
         return cmd("Extend Distance").onInitialize(() -> {
@@ -274,11 +276,7 @@ public class Climber extends SmartSubsystemBase {
                 Map.entry(ClimbStep.DO_NOTHING, instant("Nothing", () -> {
                 })));
 
-        // return sequence("Auto Climb", new SelectCommand(commands, () -> climbStep),
-        // instant("Next Step", () -> {
-        // climbStep = climbStep.getNextState();
-        // }));
-
+        // Check if both arms have finished before moving on to the next step
         return sequence("Auto Climb", new SelectCommand(commands, () -> climbStep),
                 cmd("Increment").onInitialize(() -> {
                     finishedStates.put(side, true);

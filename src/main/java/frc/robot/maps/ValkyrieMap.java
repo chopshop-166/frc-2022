@@ -150,8 +150,6 @@ public class ValkyrieMap extends RobotMap {
         for (PeriodicFrame pf : PeriodicFrame.values()) {
             rollerController.setPeriodicFramePeriod(pf, 500);
         }
-        CANSparkMax deploymentController = deploymentMotor.getMotorController();
-        CANSparkMax followerController = deploymentFollower.getMotorController();
 
         // Use current as a validator along with setting a current limit
         // on the motor controllers
@@ -165,8 +163,7 @@ public class ValkyrieMap extends RobotMap {
         deploymentFollower.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
         rollerMotor.getMotorController().setInverted(true);
 
-        return new IntakeMap(deploymentMotor, rollerMotor, deploymentController::getOutputCurrent,
-                followerController::getOutputCurrent);
+        return new IntakeMap(deploymentMotor, rollerMotor);
     }
 
     @Override

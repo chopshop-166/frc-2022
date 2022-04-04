@@ -202,12 +202,12 @@ public class Drive extends SmartSubsystemBase {
 
         field.setRobotPose(getPose());
 
-        SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
+        // SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
 
-        SmartDashboard.putData("Front Left", frontLeft);
-        SmartDashboard.putData("Front Right", frontRight);
-        SmartDashboard.putData("Rear Left", rearLeft);
-        SmartDashboard.putData("Rear Right", rearRight);
+        // SmartDashboard.putData("Front Left", frontLeft);
+        // SmartDashboard.putData("Front Right", frontRight);
+        // SmartDashboard.putData("Rear Left", rearLeft);
+        // SmartDashboard.putData("Rear Right", rearRight);
 
     }
 

@@ -68,17 +68,11 @@ public class Robot extends CommandRobot {
 
     @Override
     public void teleopInit() {
-        // sequence("Init Arms",
-
-        // parallel("Zero Arms", leftClimber.resetArms(), rightClimber.resetArms())
-
-        // ).schedule();
-
         leftClimber.resetEncoders();
         rightClimber.resetEncoders();
         leftClimber.resetSteps();
         rightClimber.resetSteps();
-        SmartDashboard.putNumber("High Goal Speed", 36);
+        SmartDashboard.putNumber("High Goal Speed", HubSpeed.LOW.get());
 
     }
 
@@ -243,11 +237,11 @@ public class Robot extends CommandRobot {
                 .whenReleased(shooter.stop());
 
         // Intake:
-        // These commands are duplicated for both the drive and copilot controllers.
 
         copilotController.back()
                 .whenPressed(parallel("Reset Sequence", leftClimber.resetSequence(), rightClimber.resetSequence()));
 
+        // Both controllers control intake deployment
         driveController.a().or(copilotController.a()).whenActive(intake.extend(
                 SpinDirection.COUNTERCLOCKWISE))
                 .whileActiveContinuous(ballTransport
@@ -269,6 +263,7 @@ public class Robot extends CommandRobot {
                         leftClimber.autoClimb(),
                         rightClimber.autoClimb()));
 
+        // Individual control of the elevator arms
         copilotController.rbumper().whileHeld(
 
                 parallel("Climb Individual",
@@ -301,7 +296,8 @@ public class Robot extends CommandRobot {
         final DoubleSupplier deadbandRightX = deadbandAxis(0.15, driveController::getRightX);
         ballTransport.setDefaultCommand(ballTransport.defaultToLaser());
         drive.setDefaultCommand(drive.fieldCentricDrive(deadbandLeftX, deadbandLeftY, deadbandRightX));
-        // Eventually use controls for rotating arms
+
+        // Manual control for climbing
         leftClimber.setDefaultCommand(leftClimber.climb(
                 deadbandAxis(0.15, () -> copilotController.getTriggers()),
                 deadbandAxis(0.15, () -> -copilotController.getLeftY())));

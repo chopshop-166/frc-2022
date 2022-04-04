@@ -1,14 +1,11 @@
 package frc.robot.subsystems;
 
-import java.util.function.DoubleSupplier;
-
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.motors.PIDControlType;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.subsystems.IntakeMap;
 
@@ -25,9 +22,6 @@ public class Intake extends SmartSubsystemBase {
 
     private final Modifier limit;
 
-    private final DoubleSupplier current;
-    private final DoubleSupplier current2;
-
     public Intake(final IntakeMap map) {
         this.deploymentMotor = map.getDeploy();
         this.rollerMotor = map.getRoller();
@@ -36,8 +30,6 @@ public class Intake extends SmartSubsystemBase {
 
         deploymentMotor.setControlType(PIDControlType.Velocity);
 
-        current = map.getCurrent();
-        current2 = map.getCurrent2();
     }
 
     // rollerDirection is CLOCKWISE for the ball to go in, and COUNTERCLOCKWISE for
@@ -91,9 +83,8 @@ public class Intake extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Intake Current Draw 1 (amps)", current.getAsDouble());
-        SmartDashboard.putNumber("Intake Current Draw 2 (amps)", current2.getAsDouble());
-        SmartDashboard.putNumber("Intake Deploy Encoder", deploymentMotor.getEncoder().getDistance());
+        // SmartDashboard.putNumber("Intake Deploy Encoder",
+        // deploymentMotor.getEncoder().getDistance());
     }
 
     @Override
