@@ -39,4 +39,12 @@ public class RobotMap {
     public LedMap getLedMap() {
         return new LedMap();
     }
+
+    public LedMap getLeftLedMap() {
+        return new LedMap();
+    }
+
+    public LedMap getRightLedMap() {
+        return new LedMap();
+    }
 }

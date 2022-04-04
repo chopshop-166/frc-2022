@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.maps.subsystems.BallTransportMap;
 import frc.robot.maps.subsystems.ClimberMap;
 import frc.robot.maps.subsystems.IntakeMap;
@@ -34,7 +35,7 @@ import frc.robot.util.CurrentValidator;
 @RobotMapFor("00:80:2F:17:62:25")
 public class ValkyrieMap extends RobotMap {
     final int CLIMBER_EXTEND_LIMIT = 30;
-    final int CLIMBER_ROTATE_LIMIT = 45;
+    final int CLIMBER_ROTATE_LIMIT = 50;
     final PigeonGyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
 
     @Override
@@ -173,6 +174,7 @@ public class ValkyrieMap extends RobotMap {
         final PIDSparkMax topMotor = new PIDSparkMax(14, MotorType.kBrushless);
         final PIDSparkMax bottomMotor = new PIDSparkMax(17, MotorType.kBrushless);
 
+        topMotor.getMotorController().setIdleMode(IdleMode.kBrake);
         final REVColorSensor colorSensor = new REVColorSensor(Port.kMXP);
 
         final WDigitalInput laserSwitch = new WDigitalInput(0);
@@ -260,6 +262,8 @@ public class ValkyrieMap extends RobotMap {
         // Best if this is a multiple of 10
         AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(30);
 
-        return new LedMap(led, ledBuffer);
+        SerialPort serialPort = new SerialPort(9600, SerialPort.Port.kMXP);
+
+        return new LedMap(led, ledBuffer, serialPort);
     }
 }

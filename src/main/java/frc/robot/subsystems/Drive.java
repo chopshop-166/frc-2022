@@ -211,6 +211,42 @@ public class Drive extends SmartSubsystemBase {
 
     }
 
+    public CommandBase driveDistance(final double distanceMeters, final double direction, final double speed) {
+
+        Rotation2d rotation = Rotation2d.fromDegrees(direction);
+        Drive thisDrive = this;
+
+        return new CommandBase() {
+            {
+                addRequirements(thisDrive);
+                setName("Drive Distance");
+            }
+
+            private Pose2d initialPose;
+
+            @Override
+            public void initialize() {
+                initialPose = new Pose2d(getPose().getTranslation().times(1), getPose().getRotation().times(1));
+            }
+
+            @Override
+            public void execute() {
+                updateSwerveSpeedAngle(() -> rotation.getSin() * speed, () -> rotation.getCos() * speed, () -> 0);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return initialPose.getTranslation().getDistance(getPose().getTranslation()) >= distanceMeters;
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                updateSwerveSpeedAngle(() -> 0, () -> 0, () -> 0);
+            }
+
+        };
+    }
+
     @Override
     public void reset() {
         gyro.reset();

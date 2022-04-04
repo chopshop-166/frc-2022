@@ -14,14 +14,17 @@ import com.chopshop166.chopshoplib.states.SpinDirection;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.maps.RobotMap;
 import frc.robot.subsystems.BallTransport;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Climber.ClimberSide;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Led;
@@ -42,13 +45,26 @@ public class Robot extends CommandRobot {
     private final Intake intake = new Intake(map.getIntakeMap());
 
     private final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
+
     private final Led led = new Led(map.getLedMap());
 
     private final Shooter shooter = new Shooter(map.getShooterMap());
-    private final Climber leftClimber = new Climber(map.getLeftClimberMap(), "Left");
-    private final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right");
+    private final Climber leftClimber = new Climber(map.getLeftClimberMap(), "Left", ClimberSide.LEFT);
+    private final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right", ClimberSide.RIGHT);
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
+
+    private CommandBase shootHigh() {
+        return sequence("Shoot High", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
+                shooter.waitUntilSpeedUp(),
+                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new WaitCommand(0.15));
+    }
+
+    private CommandBase shootLow() {
+        return sequence("Shoot Low", shooter.setTargetAndStartShooter(HubSpeed.LOW_HIGH_HOOD),
+                shooter.waitUntilSpeedUp(),
+                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser());
+    }
 
     @Override
     public void teleopInit() {
@@ -62,16 +78,16 @@ public class Robot extends CommandRobot {
         rightClimber.resetEncoders();
         leftClimber.resetSteps();
         rightClimber.resetSteps();
+        SmartDashboard.putNumber("High Goal Speed", 36);
+
     }
 
     public CommandBase shootOneBallAuto() {
-        return sequence("Shoot Preloaded Ball", shooter.setTargetAndStartShooter(HubSpeed.LOW),
-                shooter.waitUntilSpeedUp(), ballTransport.loadShooter());
+        return shootHigh().withName("Shoot One Ball Auto");
     }
 
     public CommandBase shootTwoBallsAuto() {
-        return sequence("Shoot Two Balls Auto", shooter.setTargetAndStartShooter(HubSpeed.LOW),
-                shooter.waitUntilSpeedUp(), ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(),
+        return sequence("Shoot Two Balls Auto", shootHigh(),
                 ballTransport.loadShooter());
     }
 
@@ -118,7 +134,42 @@ public class Robot extends CommandRobot {
     // Shoot One ball and taxi
     public CommandBase oneBallAuto() {
         return sequence("One Ball Auto", shootOneBallAuto(),
-                drive.auto(AutoPaths.twoBallLeftOne));
+                drive.auto(AutoPaths.oneBallLeftOne));
+    }
+
+    private CommandBase weekTwoAutoHigh() {
+        return sequence("Week Two Auto High",
+                shootHigh(),
+
+                parallel("Stop and drive",
+                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
+                        drive.driveDistance(2.8, 0, 0.5)),
+                parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
+    }
+
+    private CommandBase delayedAuto() {
+        return sequence("Delayed Auto",
+                new WaitCommand(2),
+                shootHigh(),
+
+                parallel("Stop and drive",
+                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
+                        drive.driveDistance(2.8, 0, 0.5)),
+                parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
+    }
+
+    private CommandBase weekTwoAutoLow() {
+        return sequence("Week Two Auto Low",
+                shootLow(),
+
+                parallel("Stop and drive",
+                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
+                        drive.driveDistance(2.8, 0, 0.5)),
+                parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
+    }
+
+    private CommandBase onlyShoot() {
+        return sequence("Only Shoot", shootHigh());
     }
 
     @Autonomous
@@ -127,8 +178,16 @@ public class Robot extends CommandRobot {
     public CommandBase twoRightAuto = twoRightAuto();
     @Autonomous
     public CommandBase twoLeftAuto = twoLeftAuto();
-    @Autonomous(defaultAuto = true)
+    @Autonomous
     public CommandBase oneBallAuto = oneBallAuto();
+    @Autonomous
+    public CommandBase weekTwoAutoLow = weekTwoAutoLow();
+    @Autonomous
+    public CommandBase weekTwoAutoHigh = weekTwoAutoHigh();
+    @Autonomous
+    public CommandBase onlyShoot = onlyShoot();
+    @Autonomous(defaultAuto = true)
+    public CommandBase delayedAuto = delayedAuto();
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
@@ -155,6 +214,8 @@ public class Robot extends CommandRobot {
     @Override
     public void configureButtonBindings() {
 
+        new Trigger(DriverStation::isDSAttached).whileActiveOnce(led.serialPortSend());
+
         driveController.start().whenPressed(drive.resetGyro());
 
         copilotController.getPovButton(POVDirection.UP).whileHeld(ballTransport.runForwards());
@@ -165,16 +226,27 @@ public class Robot extends CommandRobot {
 
         // Drive:
 
+        copilotController.b().whenPressed(parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
+
         driveController.rbumper().whenPressed(drive.setSpeedCoef(0.2)).whenReleased(drive.setSpeedCoef(1.0));
 
+        driveController.y()
+                .whileHeld(shootHigh())
+                .whenReleased(shooter.stop());
         driveController.x()
-                .whileHeld(sequence("Shoot", shooter.setTargetAndStartShooter(HubSpeed.LOW),
+                .whileHeld(shootLow())
+                .whenReleased(shooter.stop());
+        driveController.b()
+                .whileHeld(sequence("Shoot", shooter.setTargetVariable(),
                         shooter.waitUntilSpeedUp(),
                         ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser()))
                 .whenReleased(shooter.stop());
 
         // Intake:
         // These commands are duplicated for both the drive and copilot controllers.
+
+        copilotController.back()
+                .whenPressed(parallel("Reset Sequence", leftClimber.resetSequence(), rightClimber.resetSequence()));
 
         driveController.a().or(copilotController.a()).whenActive(intake.extend(
                 SpinDirection.COUNTERCLOCKWISE))
@@ -186,10 +258,6 @@ public class Robot extends CommandRobot {
                                 ballTransport.loadCargoWithIntake()),
                         ballTransport.stopTransport()));
 
-        driveController.y().or(copilotController.y())
-                .whenActive(intake.extend(SpinDirection.CLOCKWISE))
-                .whenInactive(intake.retract());
-
         // Stop all subsystems
         driveController.back()
                 .whenPressed(
@@ -200,8 +268,6 @@ public class Robot extends CommandRobot {
                 .whileHeld(parallel("Extend Auto",
                         leftClimber.autoClimb(),
                         rightClimber.autoClimb()));
-
-        copilotController.b().whenPressed(parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
 
         copilotController.rbumper().whileHeld(
 
@@ -224,6 +290,7 @@ public class Robot extends CommandRobot {
     public void populateDashboard() {
         SmartDashboard.putData("Reset Odometry", new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
         SmartDashboard.putData("Reset POSE for auto", drive.resetAuto(AutoPaths.twoBallLeftOne));
+        SmartDashboard.putData("Update LEDS", led.serialPortSend());
 
     }
 
