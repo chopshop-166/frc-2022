@@ -3,14 +3,11 @@ package frc.robot.subsystems;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 
-import javax.swing.border.StrokeBorder;
-
 import com.chopshop166.chopshoplib.SampleBuffer;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IColorSensor;
 
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -243,16 +240,6 @@ public class BallTransport extends SmartSubsystemBase {
                 }
             }
         }).onEnd(this::stop);
-    }
-
-    private String colorBufferConvertor(Color color) {
-        if (color == Color.kFirstRed) {
-            return "Red";
-        } else if (color == Color.kFirstBlue) {
-            return "Blue";
-        } else {
-            return "None";
-        }
     }
 
     @Override

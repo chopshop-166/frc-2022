@@ -143,18 +143,18 @@ public class Robot extends CommandRobot {
 
                 parallel("Stop and drive",
                         sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                        drive.driveDistance(2.5, 0, 0.5)),
+                        drive.driveDistance(2.8, 0, 0.5)),
                 parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
     }
 
-    private CommandBase eliminationAuto() {
-        return sequence("Elimination Auto",
+    private CommandBase delayedAuto() {
+        return sequence("Delayed Auto",
                 new WaitCommand(2),
                 shootHigh(),
 
                 parallel("Stop and drive",
                         sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                        drive.driveDistance(2.5, 0, 0.5)),
+                        drive.driveDistance(2.8, 0, 0.5)),
                 parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
     }
 
@@ -164,7 +164,7 @@ public class Robot extends CommandRobot {
 
                 parallel("Stop and drive",
                         sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                        drive.driveDistance(2.5, 0, 0.5)),
+                        drive.driveDistance(2.8, 0, 0.5)),
                 parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
     }
 
@@ -187,7 +187,7 @@ public class Robot extends CommandRobot {
     @Autonomous
     public CommandBase onlyShoot = onlyShoot();
     @Autonomous(defaultAuto = true)
-    public CommandBase eliminationAuto = eliminationAuto();
+    public CommandBase delayedAuto = delayedAuto();
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {

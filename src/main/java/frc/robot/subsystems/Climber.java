@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
-import java.util.function.DoubleUnaryOperator;
 
 import com.chopshop166.chopshoplib.PersistenceCheck;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
@@ -119,6 +118,14 @@ public class Climber extends SmartSubsystemBase {
 
     }
 
+    private double limitSpeed(double speed) {
+        return ((extendMotor.getEncoder().getDistance() >= EXTEND_THRESHOLD
+                && extendMotor.get() > 0)
+                || (extendMotor.getEncoder().getDistance() <= RETRACT_THRESHOLD && extendMotor.get() < 0))
+                        ? (speed / 10.0)
+                        : (speed);
+    }
+
     public void resetSteps() {
         climbStep = ClimbStep.DO_NOTHING;
     }
@@ -129,13 +136,9 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase climb(DoubleSupplier extendSpeed, DoubleSupplier rotateSpeed) {
-        final DoubleUnaryOperator limitSpeed = (speed) -> ((extendMotor.getEncoder().getDistance() >= EXTEND_THRESHOLD
-                && extendMotor.get() > 0)
-                || (extendMotor.getEncoder().getDistance() <= RETRACT_THRESHOLD && extendMotor.get() < 0))
-                        ? (speed / 10.0)
-                        : (speed);
+
         return cmd("Extend Speed").onExecute(() -> {
-            extendMotor.set(limitSpeed.applyAsDouble(extendSpeed.getAsDouble()));
+            extendMotor.set(limitSpeed(extendSpeed.getAsDouble()));
             rotateMotor.set(rotateLimit.applyAsDouble(-rotateSpeed.getAsDouble() * 0.25));
         }).onEnd((interrupted) -> {
             extendMotor.set(0.0);
