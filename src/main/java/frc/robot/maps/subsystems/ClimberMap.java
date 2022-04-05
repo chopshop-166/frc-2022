@@ -10,18 +10,20 @@ public class ClimberMap {
     private final SmartMotorController rotateMotor;
     private final DoubleSupplier extendCurrent;
     private final DoubleSupplier rotateCurrent;
+    private final DoubleSupplier gyroPitch;
 
     public ClimberMap(SmartMotorController extendMotor, SmartMotorController rotateMotor, DoubleSupplier extendCurrent,
-            DoubleSupplier rotateCurrent) {
+            DoubleSupplier rotateCurrent, DoubleSupplier gyroPitch) {
         this.extendMotor = extendMotor;
         this.rotateMotor = rotateMotor;
         this.extendCurrent = extendCurrent;
         this.rotateCurrent = rotateCurrent;
+        this.gyroPitch = gyroPitch;
 
     }
 
     public ClimberMap() {
-        this(new SmartMotorController(), new SmartMotorController(), () -> 0.0, () -> 0.0);
+        this(new SmartMotorController(), new SmartMotorController(), () -> 0.0, () -> 0.0, () -> 0.0);
     }
 
     public SmartMotorController getExtendMotor() {
@@ -38,5 +40,9 @@ public class ClimberMap {
 
     public DoubleSupplier getRotateCurrent() {
         return rotateCurrent;
+    }
+
+    public DoubleSupplier getGyroPitch() {
+        return gyroPitch;
     }
 }

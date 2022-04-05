@@ -33,6 +33,7 @@ public class SwerveDriveMap {
         this.maxRotationRadianPerSecond = Math.PI;
 
         this.gyro = new MockGyro();
+
     }
 
     public SwerveDriveMap(final SwerveModule frontLeft, final SwerveModule frontRight, final SwerveModule rearLeft,

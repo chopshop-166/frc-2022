@@ -8,7 +8,6 @@ import com.chopshop166.chopshoplib.motors.PIDSparkMax;
 import com.chopshop166.chopshoplib.sensors.REVColorSensor;
 import com.chopshop166.chopshoplib.sensors.WEncoder;
 import com.chopshop166.chopshoplib.sensors.gyro.PigeonGyro;
-import com.chopshop166.chopshoplib.sensors.gyro.SmartGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -25,19 +24,19 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
-
+import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.maps.subsystems.BallTransportMap;
 import frc.robot.maps.subsystems.ClimberMap;
 import frc.robot.maps.subsystems.IntakeMap;
 import frc.robot.maps.subsystems.LedMap;
 import frc.robot.maps.subsystems.ShooterMap;
+import frc.robot.util.CurrentValidator;
 
 @RobotMapFor("00:80:2F:17:62:25")
 public class ValkyrieMap extends RobotMap {
-    final int CLIMBER_EXTEND_LIMIT = 50;
+    final int CLIMBER_EXTEND_LIMIT = 30;
     final int CLIMBER_ROTATE_LIMIT = 50;
+    final PigeonGyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
 
     @Override
     public SwerveDriveMap getSwerveDriveMap() {
@@ -58,7 +57,7 @@ public class ValkyrieMap extends RobotMap {
         // All Distances are in Meters
         // Front Left Module
         final CANCoder encoderFL = new CANCoder(1);
-        encoderFL.configMagnetOffset(180 + 74.119);
+        encoderFL.configMagnetOffset(-195.381);
         encoderFL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule frontLeft = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
                 encoderFL, frontLeftSteer, new PIDSparkMax(1,
@@ -95,9 +94,6 @@ public class ValkyrieMap extends RobotMap {
         final double maxDriveSpeedMetersPerSecond = Units.feetToMeters(10);
 
         final double maxRotationRadianPerSecond = Math.PI;
-
-        // final Gyro gyro = new PigeonGyro(new PigeonIMU(5));
-        final SmartGyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
 
         return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
                 maxDriveSpeedMetersPerSecond,
@@ -154,22 +150,20 @@ public class ValkyrieMap extends RobotMap {
         for (PeriodicFrame pf : PeriodicFrame.values()) {
             rollerController.setPeriodicFramePeriod(pf, 500);
         }
-        CANSparkMax deploymentController = deploymentMotor.getMotorController();
-        CANSparkMax followerController = deploymentFollower.getMotorController();
 
         // Use current as a validator along with setting a current limit
         // on the motor controllers
 
-        deploymentMotor.validateCurrent(CURRENT_LIMIT);
-
+        // deploymentMotor.validateCurrent(CURRENT_LIMIT);
+        deploymentMotor.addValidator(
+                new CurrentValidator(CURRENT_LIMIT, () -> deploymentMotor.getMotorController().getOutputCurrent(), 3));
         deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(),
                 true);
         deploymentMotor.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
         deploymentFollower.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
         rollerMotor.getMotorController().setInverted(true);
 
-        return new IntakeMap(deploymentMotor, rollerMotor, deploymentController::getOutputCurrent,
-                followerController::getOutputCurrent);
+        return new IntakeMap(deploymentMotor, rollerMotor);
     }
 
     @Override
@@ -177,6 +171,7 @@ public class ValkyrieMap extends RobotMap {
         final PIDSparkMax topMotor = new PIDSparkMax(14, MotorType.kBrushless);
         final PIDSparkMax bottomMotor = new PIDSparkMax(17, MotorType.kBrushless);
 
+        topMotor.getMotorController().setIdleMode(IdleMode.kBrake);
         final REVColorSensor colorSensor = new REVColorSensor(Port.kMXP);
 
         final WDigitalInput laserSwitch = new WDigitalInput(0);
@@ -211,17 +206,22 @@ public class ValkyrieMap extends RobotMap {
         extendMotor.getMotorController().setInverted(false);
         rotateMotor.getMotorController().setInverted(false);
         // Setting the current limits on both the validators and motor controllers
-        extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        extendMotor.addValidator(
+                new CurrentValidator(CLIMBER_EXTEND_LIMIT, () -> extendMotor.getMotorController().getOutputCurrent(),
+                        5));
+
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
         rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
         rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
         return new ClimberMap(extendMotor, rotateMotor, extendController::getOutputCurrent,
-                rotateController::getOutputCurrent);
+                rotateController::getOutputCurrent, () -> pigeonGyro.getRaw().getPitch());
     }
 
     @Override
     public ClimberMap getRightClimberMap() {
+
         // The current limit for the climber's motors in amps
 
         final PIDSparkMax extendMotor = new PIDSparkMax(10, MotorType.kBrushless);
@@ -240,13 +240,17 @@ public class ValkyrieMap extends RobotMap {
         rotateMotor.getMotorController().setInverted(true);
 
         // Setting the current limits on both the validators and motor controllers
-        extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
+        extendMotor.addValidator(
+                new CurrentValidator(CLIMBER_EXTEND_LIMIT, () -> extendMotor.getMotorController().getOutputCurrent(),
+                        5));
+
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
         rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
         rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
         return new ClimberMap(extendMotor, rotateMotor, extendController::getOutputCurrent,
-                rotateController::getOutputCurrent);
+                rotateController::getOutputCurrent, () -> pigeonGyro.getRaw().getPitch());
     }
 
     @Override
@@ -255,6 +259,8 @@ public class ValkyrieMap extends RobotMap {
         // Best if this is a multiple of 10
         AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(30);
 
-        return new LedMap(led, ledBuffer);
+        SerialPort serialPort = new SerialPort(9600, SerialPort.Port.kMXP);
+
+        return new LedMap(led, ledBuffer, serialPort);
     }
 }
