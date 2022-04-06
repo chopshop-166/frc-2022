@@ -36,6 +36,7 @@ public class Drive extends SmartSubsystemBase {
     private final double maxDriveSpeedMetersPerSecond;
     private final double maxRotationRadiansPerSecond;
     private final SmartGyro gyro;
+    private boolean inverted;
 
     private double speedCoef = 1.0;
 
@@ -142,6 +143,15 @@ public class Drive extends SmartSubsystemBase {
         });
     }
 
+    public void setInverted(boolean invertState) {
+        inverted = invertState;
+
+        frontLeft.setInverted(invertState);
+        frontRight.setInverted(invertState);
+        rearLeft.setInverted(invertState);
+        rearRight.setInverted(invertState);
+    }
+
     public void setModuleStates(SwerveModuleState[] states) {
         // Front left module state
         frontLeft.setDesiredState(states[0]);
@@ -187,6 +197,11 @@ public class Drive extends SmartSubsystemBase {
                 this);
     }
 
+    public CommandBase autoInverted(PathPlannerTrajectory path) {
+        return sequence("Invert Auto", instant("Set Invert True", () -> setInverted(true)), auto(path),
+                instant("Set Invert False", () -> setInverted(false)));
+    }
+
     public CommandBase resetAuto(PathPlannerTrajectory initPath) {
         return instant("Reset Auto", () -> {
             Pose2d startingPose = initPath.getInitialPose();
@@ -201,14 +216,6 @@ public class Drive extends SmartSubsystemBase {
                 rearRight.getState());
 
         field.setRobotPose(getPose());
-
-        // SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
-
-        // SmartDashboard.putData("Front Left", frontLeft);
-        // SmartDashboard.putData("Front Right", frontRight);
-        // SmartDashboard.putData("Rear Left", rearLeft);
-        // SmartDashboard.putData("Rear Right", rearRight);
-
     }
 
     public CommandBase driveDistance(final double distanceMeters, final double direction, final double speed) {

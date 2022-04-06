@@ -19,6 +19,8 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 /** Swerve Drive Specialties Mk3. */
 public class SDSSwerveModule implements SwerveModule {
 
+    /** State of the module inversion */
+    private boolean inverted;
     /** The physical location of the module. */
     private final Translation2d location;
     /** The encoder used for steering. */
@@ -156,7 +158,16 @@ public class SDSSwerveModule implements SwerveModule {
             driveController.getPidController().setIAccum(0);
         }
         this.speedError = state.speedMetersPerSecond - driveController.getEncoder().getRate();
-        driveController.setSetpoint(state.speedMetersPerSecond);
+        if (inverted) {
+            driveController.setSetpoint(-state.speedMetersPerSecond);
+        } else {
+            driveController.setSetpoint(state.speedMetersPerSecond);
+        }
+    }
+
+    @Override
+    public void setInverted(boolean isInverted) {
+        inverted = isInverted;
     }
 
     /**
@@ -237,6 +248,10 @@ public class SDSSwerveModule implements SwerveModule {
 
     @Override
     public SwerveModuleState getState() {
-        return new SwerveModuleState(-driveController.getEncoder().getRate(), getAngle());
+        if (inverted) {
+            return new SwerveModuleState(driveController.getEncoder().getRate(), getAngle());
+        } else {
+            return new SwerveModuleState(-driveController.getEncoder().getRate(), getAngle());
+        }
     }
 }
