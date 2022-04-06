@@ -81,13 +81,13 @@ public class Robot extends CommandRobot {
     }
 
     public CommandBase shootTwoBallsAuto() {
-        return sequence("Shoot Two Balls Auto", shootHigh(),
-                ballTransport.loadShooter());
+        return repeat("Shoot Two Balls Auto", 2, shootHigh());
     }
 
     public CommandBase intakeOneBallAuto() {
         return sequence("Intake One Ball",
-                intake.extend(SpinDirection.COUNTERCLOCKWISE), ballTransport.loadCargoWithIntake(),
+                intake.extend(SpinDirection.COUNTERCLOCKWISE),
+                race("Infinite Intake Stopper", new WaitCommand(4), ballTransport.loadCargoWithIntake()),
                 intake.retract());
     }
 
@@ -119,10 +119,10 @@ public class Robot extends CommandRobot {
 
     public CommandBase twoLeftAuto() {
         return sequence("Two Ball Left Auto", drive.resetAuto(AutoPaths.twoBallLeftOne),
-                parallel("Stop Shooter", stopShooter(), drive.auto(
-                        AutoPaths.twoBallLeftOne)),
-                intakeOneBallAuto(), drive.auto(AutoPaths.twoBallLeftTwo),
-                shootOneBallAuto(), parallel("Stop Shooter", stopShooter()));
+                parallel("", drive.auto(
+                        AutoPaths.twoBallLeftOne), sequence("", new WaitCommand(2), intakeOneBallAuto())),
+                drive.auto(AutoPaths.twoBallLeftTwo),
+                shootTwoBallsAuto(), stopShooter());
     }
 
     // Shoot One ball and taxi
