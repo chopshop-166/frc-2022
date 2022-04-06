@@ -1,16 +1,25 @@
 package frc.robot.subsystems;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 
 import com.chopshop166.chopshoplib.PersistenceCheck;
 import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
+import com.chopshop166.chopshoplib.motors.MockMotorController;
 import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.motors.ModifierGroup;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
+import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -40,7 +49,17 @@ public class Climber extends SmartSubsystemBase {
     private final ClimberSide side;
 
     public enum ClimberSide {
-        LEFT, RIGHT;
+        LEFT(0), RIGHT(4);
+
+        private final int offset;
+
+        private ClimberSide(int offset) {
+            this.offset = offset;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
     }
 
     public enum ExtendDirection {
@@ -100,8 +119,15 @@ public class Climber extends SmartSubsystemBase {
     private static final Map<ClimberSide, Boolean> finishedStates = new EnumMap<ClimberSide, Boolean>(
             ClimberSide.class);
     private static boolean shouldReset = false;
+    private final SimpleWidget extendWidget;
+    private final SimpleWidget rotateWidget;
+    private final SimpleWidget pitchWidget;
+
+    private final SimpleWidget stepWidget;
+    private final SimpleWidget finishedWidget;
 
     public Climber(ClimberMap map, String name, ClimberSide side) {
+
         this.name = name;
         extendMotor = map.getExtendMotor();
         rotateMotor = map.getRotateMotor();
@@ -115,6 +141,21 @@ public class Climber extends SmartSubsystemBase {
         gyroPitch = map.getGyroPitch();
 
         climbStep = ClimbStep.PULL_ROBOT_UP;
+        ShuffleboardTab tab = Shuffleboard.getTab("Climber");
+
+        extendWidget = tab.add(name + "Extend Encoder", 0.0).withPosition(side.getOffset(),
+                0).withWidget(BuiltInWidgets.kNumberBar);
+        rotateWidget = tab.add(name + "Rotate Encoder", 0.0)
+                .withPosition(1 + side.getOffset(), 0).withWidget(BuiltInWidgets.kDial);
+
+        stepWidget = tab.add(name + " Step", "").withPosition(side.getOffset(), 1);
+        finishedWidget = tab.add(name + " Finished?", false)
+                .withPosition(1 + side.getOffset(), 1);
+        pitchWidget = tab.add(name + " Robot Pitch", 0.0).withPosition(1 + side.getOffset(),
+                0).withWidget(BuiltInWidgets.kDial);
+
+        tab.add(name + " Extend", extendMotor).withPosition(side.getOffset(), 2);
+        tab.add(name + " Rotate", rotateMotor).withPosition(side.getOffset(), 3);
 
     }
 
@@ -309,13 +350,11 @@ public class Climber extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber(name + " Robot Pitch", Math.toDegrees(gyroPitch.getAsDouble()));
-        SmartDashboard.putNumber(name + " Climber Extend Encoder", extendMotor.getEncoder().getDistance());
-        SmartDashboard.putNumber(name + " Climber Rotate Encoder", rotateMotor.getEncoder().getDistance());
-        SmartDashboard.putData(name + " Extend", extendMotor);
-        SmartDashboard.putData(name + " Rotate", rotateMotor);
-        SmartDashboard.putString(name + " Step", climbStep.name());
 
-        SmartDashboard.putBoolean(name + " finished?", finishedStates.get(side));
+        pitchWidget.getEntry().setNumber(Math.toDegrees(gyroPitch.getAsDouble()));
+        extendWidget.getEntry().setNumber(extendMotor.getEncoder().getDistance());
+        rotateWidget.getEntry().setNumber(rotateMotor.getEncoder().getDistance());
+        stepWidget.getEntry().setString(climbStep.name());
+        finishedWidget.getEntry().setBoolean(finishedStates.get(side));
     }
 }
