@@ -130,6 +130,11 @@ public class Robot extends CommandRobot {
                 drive.autoInverted(AutoPaths.oneBallLeftOne));
     }
 
+    public CommandBase autoBackup() {
+        return sequence("Auto Backup", drive.resetAuto(AutoPaths.oneBallLeftOne),
+                drive.autoInverted(AutoPaths.oneBallLeftOne), drive.auto(AutoPaths.oneBallLeftOne));
+    }
+
     private CommandBase weekTwoAutoHigh() {
         return sequence("Week Two Auto High",
                 shootHigh(),
@@ -154,7 +159,6 @@ public class Robot extends CommandRobot {
     private CommandBase weekTwoAutoLow() {
         return sequence("Week Two Auto Low",
                 shootLow(),
-
                 parallel("Stop and drive",
                         sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
                         drive.driveDistance(2.8, 0, 0.5)),
@@ -181,6 +185,8 @@ public class Robot extends CommandRobot {
     public CommandBase onlyShoot = onlyShoot();
     @Autonomous(defaultAuto = true)
     public CommandBase delayedAuto = delayedAuto();
+    @Autonomous
+    public CommandBase autoBackup = autoBackup();
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {

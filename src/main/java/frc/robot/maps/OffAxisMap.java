@@ -16,7 +16,7 @@ import edu.wpi.first.math.util.Units;
 
 @RobotMapFor("00:80:2F:19:7B:A3")
 public class OffAxisMap extends RobotMap {
-    final PigeonGyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
+    final PigeonGyro pigeonGyro = new PigeonGyro(new PigeonIMU(5));
 
     @Override
     public SwerveDriveMap getSwerveDriveMap() {
