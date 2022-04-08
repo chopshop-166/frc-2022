@@ -249,10 +249,10 @@ public class Climber extends SmartSubsystemBase {
                 });
     }
 
-    public CommandBase rotateRobot(double encoderPosition) {
+    public CommandBase rotateDistance(double encoderPosition, double speed) {
         return cmd("Rotate Distance").onInitialize(() -> {
         }).onExecute(() -> {
-            rotateMotor.set(Math.signum(encoderPosition - rotateMotor.getEncoder().getDistance()) * ROTATE_ROBOT_SPEED);
+            rotateMotor.set(Math.signum(encoderPosition - rotateMotor.getEncoder().getDistance()) * speed);
         }).runsUntil(() -> Math.abs(rotateMotor.getEncoder().getDistance() - encoderPosition) < 2)
                 .onEnd((interrupted) -> {
                     rotateMotor.set(0.0);
@@ -276,7 +276,7 @@ public class Climber extends SmartSubsystemBase {
                 Map.entry(ClimbStep.PULL_ROBOT_UP, extendDistance(13)),
                 Map.entry(ClimbStep.MOVE_ROTATE_ARMS_ON, rotateDistance(4.9)),
                 Map.entry(ClimbStep.MOVE_ARMS_UP, extendDistance(146.33)),
-                Map.entry(ClimbStep.ROTATE_ROBOT, rotateRobot(14.9)),
+                Map.entry(ClimbStep.ROTATE_ROBOT, rotateDistance(14.9, ROTATE_ROBOT_SPEED)),
                 Map.entry(ClimbStep.EXTEND_TO_NEXT_BAR, extendDistance(400.0)),
                 Map.entry(ClimbStep.EXTEND_FULLY, extendStop()),
                 Map.entry(ClimbStep.ROTATE_TO_NEXT_BAR, rotateDistance(9.6)),
