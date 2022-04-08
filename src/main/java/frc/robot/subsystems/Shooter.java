@@ -51,19 +51,19 @@ public class Shooter extends SmartSubsystemBase {
 
     SendableChooser<HubSpeed> goalSelect = new SendableChooser<>();
 
-    ShuffleboardTab tab = Shuffleboard.getTab("Shooter");
-
+    
     SimpleWidget errorWidget;
     SimpleWidget targetWidget;
     SimpleWidget encoderWidget;
-
+    
     SimpleWidget variableSpeedWidget;
-
+    
     SimpleWidget pidWidget;
     SimpleWidget ffWidget;
     SimpleWidget pidffWidget;
-
+    
     public Shooter(ShooterMap map) {
+        ShuffleboardTab tab = Shuffleboard.getTab("Shooter");
         motor = map.getMotor();
         encoder = map.getEncoder();
         feedforward = map.getFeedforward();
