@@ -87,8 +87,9 @@ public class Robot extends CommandRobot {
     public CommandBase intakeOneBallAuto(double deploymentDelay) {
         return sequence("Intake One Ball", new WaitCommand(deploymentDelay),
                 parallel("Intake and Tansport", intake.extend(SpinDirection.COUNTERCLOCKWISE),
-                        race("Infinite Intake Stopper", new WaitCommand(2.5), ballTransport.loadCargoWithIntake())),
-                intake.retract());
+                        race("Infinite Intake Stopper", ballTransport.moveLowerToColor(), new WaitCommand(1.5))),
+                intake.retract(),
+                race("Infinite Intake Stopper", ballTransport.moveLowerToColor(), new WaitCommand(.25)));
     }
 
     public CommandBase stopShooter() {
@@ -122,9 +123,9 @@ public class Robot extends CommandRobot {
 
     public CommandBase twoLeftAuto() {
         return sequence("Two Ball Left Auto", drive.resetAuto(AutoPaths.twoBallLeftOne),
-                parallel("Intake and Drive", drive.auto(AutoPaths.twoBallLeftOne, 0.1555), intakeOneBallAuto(1)),
+                parallel("Intake and Drive", drive.auto(AutoPaths.twoBallLeftOne, 0.02), intakeOneBallAuto(1)),
                 drive.auto(AutoPaths.twoBallLeftTwo,
-                        0.32),
+                        0.23),
                 shootTwoBallsAuto(), stopShooter());
     }
 
@@ -287,6 +288,7 @@ public class Robot extends CommandRobot {
         SmartDashboard.putData("Reset Odometry", new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
         SmartDashboard.putData("Reset POSE for auto", drive.resetAuto(AutoPaths.twoBallLeftOne));
         SmartDashboard.putData("Update LEDS", led.serialPortSend());
+        SmartDashboard.putData("INtake One Ball", intakeOneBallAuto(0));
 
     }
 

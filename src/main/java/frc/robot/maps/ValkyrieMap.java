@@ -172,6 +172,7 @@ public class ValkyrieMap extends RobotMap {
         final PIDSparkMax bottomMotor = new PIDSparkMax(17, MotorType.kBrushless);
 
         topMotor.getMotorController().setIdleMode(IdleMode.kBrake);
+        bottomMotor.getMotorController().setIdleMode(IdleMode.kBrake);
         final REVColorSensor colorSensor = new REVColorSensor(Port.kMXP);
 
         final WDigitalInput laserSwitch = new WDigitalInput(0);
