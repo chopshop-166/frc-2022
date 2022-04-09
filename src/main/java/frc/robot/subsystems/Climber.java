@@ -149,9 +149,7 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase rotateSpeed(DoubleSupplier speed) {
-        return cmd("Rotate Speed").onInitialize(() -> {
-
-        }).onExecute(() -> {
+        return cmd("Rotate Speed").onExecute(() -> {
             rotateMotor.set(rotateLimit.applyAsDouble(speed.getAsDouble()));
         }).runsUntil(rotateMotor::errored).onEnd((interrupted) -> {
             rotateMotor.set(0.0);
@@ -160,8 +158,7 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase extendSpeed(DoubleSupplier speed) {
-        return cmd("Extend Speed").onInitialize(() -> {
-        }).onExecute(() -> {
+        return cmd("Extend Speed").onExecute(() -> {
             extendMotor.set(extendLimit.applyAsDouble(speed.getAsDouble()));
         }).runsUntil(extendMotor::errored).onEnd((interrupted) -> {
             extendMotor.set(0.0);
@@ -169,8 +166,7 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase rotate(SpinDirection direction, double speedFactor) {
-        return cmd("Rotate").onInitialize(() -> {
-        }).onExecute(() -> {
+        return cmd("Rotate").onExecute(() -> {
             rotateMotor.set(rotateLimit.applyAsDouble(direction.apply(ROTATE_SPEED)) * speedFactor);
         }).runsUntil(rotateMotor::errored).onEnd((interrupted) -> {
             rotateMotor.set(0.0);
@@ -190,8 +186,7 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase extendDistance(double encoderPosition) {
-        return cmd("Extend Distance").onInitialize(() -> {
-        }).onExecute(() -> {
+        return cmd("Extend Distance").onExecute(() -> {
             extendMotor.set(Math.signum(encoderPosition - extendMotor.getEncoder().getDistance()) * 1.0);
         }).runsUntil(() -> extendMotor.errored()
                 || Math.abs(extendMotor.getEncoder().getDistance() - encoderPosition) < 2)
@@ -201,8 +196,7 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase extendDistance(double encoderPosition, double speedFactor) {
-        return cmd("Extend Distance").onInitialize(() -> {
-        }).onExecute(() -> {
+        return cmd("Extend Distance").onExecute(() -> {
             extendMotor.set(Math.signum(encoderPosition - extendMotor.getEncoder().getDistance()) * speedFactor * 1.0);
         }).runsUntil(() -> extendMotor.errored()
                 || Math.abs(extendMotor.getEncoder().getDistance() - encoderPosition) < 2)
@@ -212,9 +206,7 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase extendDistanceIgnoreLimit(double encoderPosition) {
-        return cmd("Extend Distance").onInitialize(() -> {
-
-        }).onExecute(() -> {
+        return cmd("Extend Distance").onExecute(() -> {
             extendMotor.set(Math.signum(encoderPosition - extendMotor.getEncoder().getDistance()) * 1.0);
         }).runsUntil(() -> Math.abs(extendMotor.getEncoder().getDistance() - encoderPosition) < 2)
                 .onEnd((interrupted) -> {
@@ -227,8 +219,7 @@ public class Climber extends SmartSubsystemBase {
         // Checks if the encoder is no longer rotating instead of current limits
         PersistenceCheck p = new PersistenceCheck(5, () -> Math.abs(extendMotor.getEncoder().getRate()) < 0.2);
 
-        return cmd("Extend Distance").onInitialize(() -> {
-        }).onExecute(() -> {
+        return cmd("Extend Distance").onExecute(() -> {
             // Safely extend
             extendMotor.set(ExtendDirection.EXTEND.get() * 0.2);
         }).runsUntil(() -> extendMotor.errored() || p.getAsBoolean()).onEnd(() -> {
@@ -239,19 +230,11 @@ public class Climber extends SmartSubsystemBase {
     }
 
     public CommandBase rotateDistance(double encoderPosition) {
-        return cmd("Rotate Distance").onInitialize(() -> {
-        }).onExecute(() -> {
-            rotateMotor.set(Math.signum(encoderPosition - rotateMotor.getEncoder().getDistance()) * ROTATE_SPEED);
-        }).runsUntil(() -> Math.abs(rotateMotor.getEncoder().getDistance() - encoderPosition) < 2)
-                .onEnd((interrupted) -> {
-                    rotateMotor.set(0.0);
-
-                });
+        return rotateDistance(encoderPosition, ROTATE_SPEED);
     }
 
     public CommandBase rotateDistance(double encoderPosition, double speed) {
-        return cmd("Rotate Distance").onInitialize(() -> {
-        }).onExecute(() -> {
+        return cmd("Rotate Distance").onExecute(() -> {
             rotateMotor.set(Math.signum(encoderPosition - rotateMotor.getEncoder().getDistance()) * speed);
         }).runsUntil(() -> Math.abs(rotateMotor.getEncoder().getDistance() - encoderPosition) < 2)
                 .onEnd((interrupted) -> {
