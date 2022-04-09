@@ -11,10 +11,10 @@ import com.chopshop166.chopshoplib.sensors.IEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.subsystems.ShooterMap;
@@ -48,15 +48,15 @@ public class Shooter extends SmartSubsystemBase {
         }
     }
 
-    SimpleWidget errorWidget;
-    SimpleWidget targetWidget;
-    SimpleWidget encoderWidget;
+    NetworkTableEntry errorEntry;
+    NetworkTableEntry targetEntry;
+    NetworkTableEntry encoderEntry;
 
-    SimpleWidget variableSpeedWidget;
+    NetworkTableEntry variableSpeedEntry;
 
-    SimpleWidget pidWidget;
-    SimpleWidget ffWidget;
-    SimpleWidget pidffWidget;
+    NetworkTableEntry pidEntry;
+    NetworkTableEntry ffEntry;
+    NetworkTableEntry pidffEntry;
 
     public Shooter(ShooterMap map) {
         ShuffleboardTab tab = Shuffleboard.getTab("Shooter");
@@ -66,17 +66,18 @@ public class Shooter extends SmartSubsystemBase {
         shootSpeed = 0;
         pid = map.getPid();
 
-        errorWidget = tab.add("Error Amount (RPS)", 0.0).withSize(2, 1).withPosition(0, 2);
-        targetWidget = tab.add("Target Speed (RPS)", 0.0).withSize(2, 1).withPosition(0, 1);
-        encoderWidget = tab.add("Encoder Rate (RPS)", 0.0).withSize(2, 1).withPosition(2, 1);
-        variableSpeedWidget = tab.add("Variable Speed (RPS)", HubSpeed.HIGH.get()).withPosition(2, 2)
+        errorEntry = tab.add("Error Amount (RPS)", 0.0).withSize(2, 1).withPosition(0, 2).getEntry();
+        targetEntry = tab.add("Target Speed (RPS)", 0.0).withSize(2, 1).withPosition(0, 1).getEntry();
+        encoderEntry = tab.add("Encoder Rate (RPS)", 0.0).withSize(2, 1).withPosition(2, 1).getEntry();
+        variableSpeedEntry = tab.add("Variable Speed (RPS)", HubSpeed.HIGH.get()).withPosition(2, 2)
                 .withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.ofEntries(
                         Map.entry("Min", 1),
-                        Map.entry("Max", 200)));
+                        Map.entry("Max", 200)))
+                .getEntry();
 
-        pidWidget = tab.add("PID Calculation", 0.0).withPosition(1, 0);
-        ffWidget = tab.add("FF Calculation", 0.0).withPosition(0, 0);
-        pidffWidget = tab.add("PID + FF", 0.0).withPosition(2, 0);
+        pidEntry = tab.add("PID Calculation", 0.0).withPosition(1, 0).getEntry();
+        ffEntry = tab.add("FF Calculation", 0.0).withPosition(0, 0).getEntry();
+        pidffEntry = tab.add("PID + FF", 0.0).withPosition(2, 0).getEntry();
 
     }
 
@@ -85,9 +86,9 @@ public class Shooter extends SmartSubsystemBase {
 
         // We'll eventually need an acceleration
         double ffv = feedforward.calculate(speed, 0);
-        pidWidget.getEntry().setNumber(pidv);
-        ffWidget.getEntry().setNumber(ffv);
-        pidffWidget.getEntry().setNumber(pidv + ffv);
+        pidEntry.setNumber(pidv);
+        ffEntry.setNumber(ffv);
+        pidffEntry.setNumber(pidv + ffv);
         if (speed != 0) {
             motor.setSetpoint(pidv + ffv);
         }
@@ -139,11 +140,11 @@ public class Shooter extends SmartSubsystemBase {
     @Override
     public void periodic() {
 
-        errorWidget.getEntry().setNumber(Math.abs(shootSpeed - encoder.getRate()));
-        targetWidget.getEntry().setNumber(shootSpeed);
-        encoderWidget.getEntry().setNumber(encoder.getRate());
+        errorEntry.setNumber(Math.abs(shootSpeed - encoder.getRate()));
+        targetEntry.setNumber(shootSpeed);
+        encoderEntry.setNumber(encoder.getRate());
 
-        variableSpeed = variableSpeedWidget.getEntry().getDouble(HubSpeed.HIGH.get());
+        variableSpeed = variableSpeedEntry.getDouble(HubSpeed.HIGH.get());
         calculatePid(shootSpeed);
     }
 

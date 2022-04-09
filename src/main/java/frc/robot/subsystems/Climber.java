@@ -11,10 +11,10 @@ import com.chopshop166.chopshoplib.motors.ModifierGroup;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
@@ -41,6 +41,15 @@ public class Climber extends SmartSubsystemBase {
     private ClimbStep climbStep;
 
     private final ClimberSide side;
+    private static final Map<ClimberSide, Boolean> finishedStates = new EnumMap<ClimberSide, Boolean>(
+            ClimberSide.class);
+    private static boolean shouldReset = false;
+
+    private final NetworkTableEntry extendEntry;
+    private final NetworkTableEntry rotateEntry;
+    private final NetworkTableEntry pitchEntry;
+    private final NetworkTableEntry stepEntry;
+    private final NetworkTableEntry finishedEntry;
 
     public enum ClimberSide {
         LEFT(0), RIGHT(4);
@@ -110,16 +119,6 @@ public class Climber extends SmartSubsystemBase {
         }
     }
 
-    private static final Map<ClimberSide, Boolean> finishedStates = new EnumMap<ClimberSide, Boolean>(
-            ClimberSide.class);
-    private static boolean shouldReset = false;
-    private final SimpleWidget extendWidget;
-    private final SimpleWidget rotateWidget;
-    private final SimpleWidget pitchWidget;
-
-    private final SimpleWidget stepWidget;
-    private final SimpleWidget finishedWidget;
-
     public Climber(ClimberMap map, String name, ClimberSide side) {
 
         this.name = name;
@@ -137,16 +136,16 @@ public class Climber extends SmartSubsystemBase {
         climbStep = ClimbStep.PULL_ROBOT_UP;
         ShuffleboardTab tab = Shuffleboard.getTab("Climber");
 
-        extendWidget = tab.add(name + "Extend Encoder", 0.0).withPosition(side.getOffset(),
-                0).withWidget(BuiltInWidgets.kNumberBar);
-        rotateWidget = tab.add(name + "Rotate Encoder", 0.0)
-                .withPosition(1 + side.getOffset(), 0).withWidget(BuiltInWidgets.kDial);
+        extendEntry = tab.add(name + "Extend Encoder", 0.0).withPosition(side.getOffset(),
+                0).withWidget(BuiltInWidgets.kNumberBar).getEntry();
+        rotateEntry = tab.add(name + "Rotate Encoder", 0.0)
+                .withPosition(1 + side.getOffset(), 0).withWidget(BuiltInWidgets.kDial).getEntry();
 
-        stepWidget = tab.add(name + " Step", "").withPosition(side.getOffset(), 1);
-        finishedWidget = tab.add(name + " Finished?", false)
-                .withPosition(1 + side.getOffset(), 1);
-        pitchWidget = tab.add(name + " Robot Pitch", 0.0).withPosition(1 + side.getOffset(),
-                0).withWidget(BuiltInWidgets.kDial);
+        stepEntry = tab.add(name + " Step", "").withPosition(side.getOffset(), 1).getEntry();
+        finishedEntry = tab.add(name + " Finished?", false)
+                .withPosition(1 + side.getOffset(), 1).getEntry();
+        pitchEntry = tab.add(name + " Robot Pitch", 0.0).withPosition(1 + side.getOffset(),
+                0).withWidget(BuiltInWidgets.kDial).getEntry();
 
         tab.add(name + " Extend", extendMotor).withPosition(side.getOffset(), 2);
         tab.add(name + " Rotate", rotateMotor).withPosition(side.getOffset(), 3);
@@ -345,10 +344,10 @@ public class Climber extends SmartSubsystemBase {
     @Override
     public void periodic() {
 
-        pitchWidget.getEntry().setNumber(Math.toDegrees(gyroPitch.getAsDouble()));
-        extendWidget.getEntry().setNumber(extendMotor.getEncoder().getDistance());
-        rotateWidget.getEntry().setNumber(rotateMotor.getEncoder().getDistance());
-        stepWidget.getEntry().setString(climbStep.name());
-        finishedWidget.getEntry().setBoolean(finishedStates.get(side));
+        pitchEntry.setNumber(Math.toDegrees(gyroPitch.getAsDouble()));
+        extendEntry.setNumber(extendMotor.getEncoder().getDistance());
+        rotateEntry.setNumber(rotateMotor.getEncoder().getDistance());
+        stepEntry.setString(climbStep.name());
+        finishedEntry.setBoolean(finishedStates.get(side));
     }
 }
