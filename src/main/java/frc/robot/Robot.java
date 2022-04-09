@@ -124,7 +124,7 @@ public class Robot extends CommandRobot {
         return sequence("Two Ball Left Auto", drive.resetAuto(AutoPaths.twoBallLeftOne),
                 parallel("Intake and Drive", drive.auto(AutoPaths.twoBallLeftOne, 0.1555), intakeOneBallAuto(1)),
                 drive.auto(AutoPaths.twoBallLeftTwo,
-                        0.4),
+                        0.32),
                 shootTwoBallsAuto(), stopShooter());
     }
 
