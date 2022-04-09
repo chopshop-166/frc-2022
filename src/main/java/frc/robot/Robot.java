@@ -54,18 +54,6 @@ public class Robot extends CommandRobot {
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
-    private CommandBase shootHigh() {
-        return sequence("Shoot High", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
-                shooter.waitUntilSpeedUp(),
-                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new WaitCommand(0.15));
-    }
-
-    private CommandBase shootLow() {
-        return sequence("Shoot Low", shooter.setTargetAndStartShooter(HubSpeed.LOW_HIGH_HOOD),
-                shooter.waitUntilSpeedUp(),
-                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser());
-    }
-
     @Override
     public void teleopInit() {
         drive.setInverted(false);
@@ -74,7 +62,18 @@ public class Robot extends CommandRobot {
         leftClimber.resetSteps();
         rightClimber.resetSteps();
         SmartDashboard.putNumber("High Goal Speed", HubSpeed.LOW.get());
+    }
 
+    private CommandBase shootHigh() {
+        return sequence("Shoot High", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
+                shooter.waitUntilSpeedUp(),
+                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new WaitCommand(0.5));
+    }
+
+    private CommandBase shootLow() {
+        return sequence("Shoot Low", shooter.setTargetAndStartShooter(HubSpeed.LOW_HIGH_HOOD),
+                shooter.waitUntilSpeedUp(),
+                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser());
     }
 
     public CommandBase shootOneBallAuto() {
@@ -82,13 +81,13 @@ public class Robot extends CommandRobot {
     }
 
     public CommandBase shootTwoBallsAuto() {
-        return repeat("Shoot Two Balls Auto", 2, shootHigh());
+        return sequence("Shoot Balls", shootHigh(), shootHigh(), stopShooter());
     }
 
     public CommandBase intakeOneBallAuto(double deploymentDelay) {
         return sequence("Intake One Ball", new WaitCommand(deploymentDelay),
-                intake.extend(SpinDirection.COUNTERCLOCKWISE),
-                race("Infinite Intake Stopper", new WaitCommand(4), ballTransport.loadCargoWithIntake()),
+                parallel("Intake and Tansport", intake.extend(SpinDirection.COUNTERCLOCKWISE),
+                        race("Infinite Intake Stopper", new WaitCommand(2.5), ballTransport.loadCargoWithIntake())),
                 intake.retract());
     }
 
@@ -101,33 +100,38 @@ public class Robot extends CommandRobot {
     public CommandBase threeRightAuto() {
         return sequence("Three Ball Right Auto", shootOneBallAuto(),
                 parallel("Stop Shooter", stopShooter(), drive.autoInverted(
-                        AutoPaths.twoBallRightOne),
+                        AutoPaths.twoBallRightOne,
+                        0.1555),
                         intakeOneBallAuto(2)),
-                parallel("Pickup and Drive", drive.autoInverted(AutoPaths.twoBallRightTwo), intakeOneBallAuto(1)),
+                parallel("Pickup and Drive", drive.autoInverted(AutoPaths.twoBallRightTwo,
+                        0.1555), intakeOneBallAuto(1)),
                 shootTwoBallsAuto(), stopShooter());
     }
 
     public CommandBase twoRightAuto() {
         return sequence("Two Ball Right Auto", shootOneBallAuto(),
                 parallel("Stop Shooter", stopShooter(), drive.autoInverted(
-                        AutoPaths.twoBallRightOne),
+                        AutoPaths.twoBallRightOne,
+                        0.1555),
                         intakeOneBallAuto(2)),
                 drive.autoInverted(
-                        AutoPaths.twoBallRightTwo),
+                        AutoPaths.twoBallRightTwo,
+                        0.1555),
                 shootOneBallAuto(), stopShooter());
     }
 
     public CommandBase twoLeftAuto() {
         return sequence("Two Ball Left Auto", drive.resetAuto(AutoPaths.twoBallLeftOne),
-                parallel("Intake and Drive", drive.auto(AutoPaths.twoBallLeftOne), intakeOneBallAuto(2)),
-                drive.auto(AutoPaths.twoBallLeftTwo),
+                parallel("Intake and Drive", drive.auto(AutoPaths.twoBallLeftOne, 0.1555), intakeOneBallAuto(1)),
+                drive.auto(AutoPaths.twoBallLeftTwo,
+                        0.4),
                 shootTwoBallsAuto(), stopShooter());
     }
 
     // Shoot One ball and taxi
     public CommandBase oneBallAuto() {
-        return sequence("One Ball Auto", shootOneBallAuto(),
-                drive.autoInverted(AutoPaths.oneBallLeftOne));
+        return sequence("One Ball Auto", drive.resetAuto(AutoPaths.oneBallLeftOne),
+                drive.auto(AutoPaths.oneBallLeftOne, 0.1555));
     }
 
     private CommandBase weekTwoAutoHigh() {
@@ -275,9 +279,7 @@ public class Robot extends CommandRobot {
                                 deadbandAxis(0.15, () -> -copilotController.getRightY()),
                                 () -> 0)
 
-                )
-
-        );
+                ));
     }
 
     @Override

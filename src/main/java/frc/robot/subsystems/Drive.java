@@ -8,6 +8,7 @@ import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
 import com.chopshop166.chopshoplib.sensors.gyro.SmartGyro;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -175,8 +176,8 @@ public class Drive extends SmartSubsystemBase {
         odometry.resetPosition(pose, gyro.getRotation2d());
     }
 
-    public CommandBase auto(PathPlannerTrajectory path) {
-        ProfiledPIDController thetaController = new ProfiledPIDController(.1555, 0, 0,
+    public CommandBase auto(PathPlannerTrajectory path, double thetaP) {
+        ProfiledPIDController thetaController = new ProfiledPIDController(thetaP, 0, 0,
                 new TrapezoidProfile.Constraints(Math.PI, Math.PI));
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -189,29 +190,31 @@ public class Drive extends SmartSubsystemBase {
                 path,
                 this::getPose,
                 kinematics,
-                new PIDController(0.00, 0, 0),
+                new PIDController(0.003, 0, 0),
                 new PIDController(
-                        0.00, 0, 0),
+                        0.007, 0, 0),
                 thetaController,
                 this::setModuleStates,
-                this);
+                this).andThen(instant("Stop", this::safeState));
     }
 
-    public CommandBase autoInverted(PathPlannerTrajectory path) {
-        return sequence("Invert Auto", instant("Set Invert True", () -> setInverted(true)), auto(path),
+    public CommandBase autoInverted(PathPlannerTrajectory path, double thetaP) {
+        return sequence("Invert Auto", instant("Set Invert True", () -> setInverted(true)), auto(path, thetaP),
                 instant("Set Invert False", () -> setInverted(false)));
     }
 
     public CommandBase resetAuto(PathPlannerTrajectory initPath) {
         return instant("Reset Auto", () -> {
-            Pose2d startingPose = initPath.getInitialPose();
+            PathPlannerState startingState = initPath.getInitialState();
+            Pose2d startingPose = new Pose2d(startingState.poseMeters.getTranslation(),
+                    startingState.holonomicRotation);
             resetOdometry(startingPose);
         });
     }
 
     @Override
     public void periodic() {
-        odometry.update(Rotation2d.fromDegrees(gyro.getAngle() + 90), frontLeft.getState(), frontRight.getState(),
+        odometry.update(Rotation2d.fromDegrees(gyro.getAngle() - 180), frontLeft.getState(), frontRight.getState(),
                 rearLeft.getState(),
                 rearRight.getState());
 
