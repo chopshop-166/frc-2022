@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.maps.subsystems.ShooterMap;
@@ -49,19 +48,16 @@ public class Shooter extends SmartSubsystemBase {
         }
     }
 
-    SendableChooser<HubSpeed> goalSelect = new SendableChooser<>();
-
-    
     SimpleWidget errorWidget;
     SimpleWidget targetWidget;
     SimpleWidget encoderWidget;
-    
+
     SimpleWidget variableSpeedWidget;
-    
+
     SimpleWidget pidWidget;
     SimpleWidget ffWidget;
     SimpleWidget pidffWidget;
-    
+
     public Shooter(ShooterMap map) {
         ShuffleboardTab tab = Shuffleboard.getTab("Shooter");
         motor = map.getMotor();
@@ -80,7 +76,7 @@ public class Shooter extends SmartSubsystemBase {
 
         pidWidget = tab.add("PID Calculation", 0.0).withPosition(1, 0);
         ffWidget = tab.add("FF Calculation", 0.0).withPosition(0, 0);
-        pidffWidget = tab.add("PIF + FF", 0.0).withPosition(2, 0);
+        pidffWidget = tab.add("PID + FF", 0.0).withPosition(2, 0);
 
     }
 
