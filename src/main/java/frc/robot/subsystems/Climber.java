@@ -11,7 +11,10 @@ import com.chopshop166.chopshoplib.motors.ModifierGroup;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
@@ -39,9 +42,28 @@ public class Climber extends SmartSubsystemBase {
     private ClimbStep climbStep;
 
     private final ClimberSide side;
+    private static final Map<ClimberSide, Boolean> finishedStates = new EnumMap<ClimberSide, Boolean>(
+            ClimberSide.class);
+    private static boolean shouldReset = false;
+
+    private final NetworkTableEntry extendEntry;
+    private final NetworkTableEntry rotateEntry;
+    private final NetworkTableEntry pitchEntry;
+    private final NetworkTableEntry stepEntry;
+    private final NetworkTableEntry finishedEntry;
 
     public enum ClimberSide {
-        LEFT, RIGHT;
+        LEFT(0), RIGHT(4);
+
+        private final int offset;
+
+        private ClimberSide(int offset) {
+            this.offset = offset;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
     }
 
     public enum ExtendDirection {
@@ -98,11 +120,8 @@ public class Climber extends SmartSubsystemBase {
         }
     }
 
-    private static final Map<ClimberSide, Boolean> finishedStates = new EnumMap<ClimberSide, Boolean>(
-            ClimberSide.class);
-    private static boolean shouldReset = false;
-
     public Climber(ClimberMap map, String name, ClimberSide side) {
+
         this.name = name;
         extendMotor = map.getExtendMotor();
         rotateMotor = map.getRotateMotor();
@@ -116,6 +135,21 @@ public class Climber extends SmartSubsystemBase {
         gyroPitch = map.getGyroPitch();
 
         climbStep = ClimbStep.PULL_ROBOT_UP;
+        ShuffleboardTab tab = Shuffleboard.getTab("Climber");
+
+        extendEntry = tab.add(name + "Extend Encoder", 0.0).withPosition(side.getOffset(),
+                0).withWidget(BuiltInWidgets.kNumberBar).getEntry();
+        rotateEntry = tab.add(name + "Rotate Encoder", 0.0)
+                .withPosition(1 + side.getOffset(), 0).withWidget(BuiltInWidgets.kDial).getEntry();
+
+        stepEntry = tab.add(name + " Step", "").withPosition(side.getOffset(), 1).getEntry();
+        finishedEntry = tab.add(name + " Finished?", false)
+                .withPosition(1 + side.getOffset(), 1).getEntry();
+        pitchEntry = tab.add(name + " Robot Pitch", 0.0).withPosition(1 + side.getOffset(),
+                0).withWidget(BuiltInWidgets.kDial).getEntry();
+
+        tab.add(name + " Extend", extendMotor).withPosition(side.getOffset(), 2);
+        tab.add(name + " Rotate", rotateMotor).withPosition(side.getOffset(), 3);
 
     }
 
@@ -304,13 +338,11 @@ public class Climber extends SmartSubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber(name + " Robot Pitch", Math.toDegrees(gyroPitch.getAsDouble()));
-        SmartDashboard.putNumber(name + " Climber Extend Encoder", extendMotor.getEncoder().getDistance());
-        SmartDashboard.putNumber(name + " Climber Rotate Encoder", rotateMotor.getEncoder().getDistance());
-        SmartDashboard.putData(name + " Extend", extendMotor);
-        SmartDashboard.putData(name + " Rotate", rotateMotor);
-        SmartDashboard.putString(name + " Step", climbStep.name());
 
-        SmartDashboard.putBoolean(name + " finished?", finishedStates.get(side));
+        pitchEntry.setNumber(Math.toDegrees(gyroPitch.getAsDouble()));
+        extendEntry.setNumber(extendMotor.getEncoder().getDistance());
+        rotateEntry.setNumber(rotateMotor.getEncoder().getDistance());
+        stepEntry.setString(climbStep.name());
+        finishedEntry.setBoolean(finishedStates.get(side));
     }
 }

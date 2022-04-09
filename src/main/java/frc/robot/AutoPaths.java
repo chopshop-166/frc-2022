@@ -7,7 +7,10 @@ public final class AutoPaths {
     public static final double AUTO_SPEED = 1;
     public static final double AUTO_ACCEL = .5;
 
-    // Naming Scheme: Number of balls, Side of field, step number
+    // Naming Scheme:
+    // Number of balls,
+    // Side of field,
+    // step number
     public static final PathPlannerTrajectory threeBallRightOne = PathPlanner.loadPath("ThreeBallAutoRightOne",
             AUTO_SPEED,
             AUTO_ACCEL);

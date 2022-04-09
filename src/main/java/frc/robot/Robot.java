@@ -95,15 +95,21 @@ public class Robot extends CommandRobot {
         return sequence("Stop Shooter", new WaitCommand(1), shooter.stop());
     }
 
-    // Starting Against the right side of the hub, Shoot One Ball, Pickup 2 balls,
+    // Starting Against
+    // the right
+    // side of
+    // the hub, Shoot
+    // One Ball, Pickup 2 balls,
     // shoot them
+
     public CommandBase threeRightAuto() {
         return sequence("Three Ball Right Auto",
                 shootOneBallAuto(),
                 parallel("Stop Shooter", stopShooter(),
                         drive.auto(AutoPaths.threeBallRightOne)),
                 intakeOneBallAuto(), drive.auto(AutoPaths.threeBallRightTwo),
-                intakeOneBallAuto(), drive.auto(AutoPaths.threeBallRightThree), shootTwoBallsAuto(), stopShooter());
+                intakeOneBallAuto(), drive.auto(AutoPaths.threeBallRightThree),
+                shootTwoBallsAuto(), stopShooter());
     }
 
     public CommandBase twoRightAuto() {
@@ -114,11 +120,13 @@ public class Robot extends CommandRobot {
                 drive.auto(
                         AutoPaths.twoBallRightTwo),
                 shootOneBallAuto(),
-                parallel("Stop Shooter", stopShooter(), drive.auto(AutoPaths.twoBallRightOne)));
+                parallel("Stop Shooter", stopShooter(),
+                        drive.auto(AutoPaths.twoBallRightOne)));
     }
 
     public CommandBase twoLeftAuto() {
-        return sequence("Two Ball Left Auto", drive.resetAuto(AutoPaths.twoBallLeftOne),
+        return sequence("Two Ball Left Auto",
+                drive.resetAuto(AutoPaths.twoBallLeftOne),
                 parallel("Stop Shooter", stopShooter(), drive.auto(
                         AutoPaths.twoBallLeftOne)),
                 intakeOneBallAuto(), drive.auto(AutoPaths.twoBallLeftTwo),
@@ -284,7 +292,8 @@ public class Robot extends CommandRobot {
     @Override
     public void populateDashboard() {
         SmartDashboard.putData("Reset Odometry", new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
-        SmartDashboard.putData("Reset POSE for auto", drive.resetAuto(AutoPaths.twoBallLeftOne));
+        // SmartDashboard.putData("Reset POSE for auto",
+        // drive.resetAuto(AutoPaths.twoBallLeftOne));
         SmartDashboard.putData("Update LEDS", led.serialPortSend());
 
     }
