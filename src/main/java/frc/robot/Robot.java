@@ -40,17 +40,16 @@ public class Robot extends CommandRobot {
     private UsbCamera camera = CameraServer.startAutomaticCapture();
     private final RobotMap map = getRobotMap(RobotMap.class, "frc.robot.maps", new RobotMap());
 
-    private final Drive drive = new Drive(map.getSwerveDriveMap());
-
-    private final Intake intake = new Intake(map.getIntakeMap());
-
-    private final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
+    public final Drive drive = new Drive(map.getSwerveDriveMap());
+    public final Intake intake = new Intake(map.getIntakeMap());
+    public final BallTransport ballTransport = new BallTransport(map.getBallTransportMap());
+    public final Shooter shooter = new Shooter(map.getShooterMap());
+    public final Climber leftClimber = new Climber(map.getLeftClimberMap(), "Left", ClimberSide.LEFT);
+    public final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right", ClimberSide.RIGHT);
 
     private final Led led = new Led(map.getLedMap());
 
-    private final Shooter shooter = new Shooter(map.getShooterMap());
-    private final Climber leftClimber = new Climber(map.getLeftClimberMap(), "Left", ClimberSide.LEFT);
-    private final Climber rightClimber = new Climber(map.getRightClimberMap(), "Right", ClimberSide.RIGHT);
+    private Auto auto = new Auto(drive, intake, ballTransport, shooter, leftClimber, rightClimber);
 
     private final LightAnimation teamColors = new LightAnimation("rotate.json", "Team Colors");
 
@@ -64,6 +63,17 @@ public class Robot extends CommandRobot {
         SmartDashboard.putNumber("High Goal Speed", HubSpeed.LOW.get());
     }
 
+    @Autonomous(defaultAuto = true)
+    private CommandBase twoLeftAuto = auto.twoLeftAuto();
+    @Autonomous
+    private CommandBase weekTwoAutoLow = auto.weekTwoAutoLow();
+    @Autonomous
+    private CommandBase weekTwoAutoHigh = auto.weekTwoAutoHigh();
+    @Autonomous
+    private CommandBase onlyShoot = auto.onlyShoot();
+    @Autonomous
+    private CommandBase delayedAuto = auto.delayedAuto();
+
     private CommandBase shootHigh() {
         return sequence("Shoot High", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
                 shooter.waitUntilSpeedUp(),
@@ -75,117 +85,6 @@ public class Robot extends CommandRobot {
                 shooter.waitUntilSpeedUp(),
                 ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser());
     }
-
-    public CommandBase shootOneBallAuto() {
-        return shootHigh().withName("Shoot One Ball Auto");
-    }
-
-    public CommandBase shootTwoBallsAuto() {
-        return sequence("Shoot Balls", shootHigh(), shootHigh(), stopShooter());
-    }
-
-    public CommandBase intakeOneBallAuto(double deploymentDelay) {
-        return sequence("Intake One Ball", new WaitCommand(deploymentDelay),
-                parallel("Intake and Tansport", intake.extend(SpinDirection.COUNTERCLOCKWISE),
-                        race("Infinite Intake Stopper", ballTransport.moveLowerToColor(), new WaitCommand(1.5))),
-                intake.retract(),
-                race("Infinite Intake Stopper", ballTransport.moveLowerToColor(), new WaitCommand(.25)));
-    }
-
-    public CommandBase stopShooter() {
-        return sequence("Stop Shooter", new WaitCommand(1), shooter.stop());
-    }
-
-    // Starting Against the right side of the hub, Shoot One Ball, Pickup 2 balls,
-    // shoot them
-    public CommandBase threeRightAuto() {
-        return sequence("Three Ball Right Auto", shootOneBallAuto(),
-                parallel("Stop Shooter", stopShooter(), drive.autoInverted(
-                        AutoPaths.twoBallRightOne,
-                        0.1555),
-                        intakeOneBallAuto(2)),
-                parallel("Pickup and Drive", drive.autoInverted(AutoPaths.twoBallRightTwo,
-                        0.1555), intakeOneBallAuto(1)),
-                shootTwoBallsAuto(), stopShooter());
-    }
-
-    public CommandBase twoRightAuto() {
-        return sequence("Two Ball Right Auto", shootOneBallAuto(),
-                parallel("Stop Shooter", stopShooter(), drive.autoInverted(
-                        AutoPaths.twoBallRightOne,
-                        0.1555),
-                        intakeOneBallAuto(2)),
-                drive.autoInverted(
-                        AutoPaths.twoBallRightTwo,
-                        0.1555),
-                shootOneBallAuto(), stopShooter());
-    }
-
-    public CommandBase twoLeftAuto() {
-        return sequence("Two Ball Left Auto", drive.resetAuto(AutoPaths.twoBallLeftOne),
-                parallel("Intake and Drive", drive.auto(AutoPaths.twoBallLeftOne, 0.02), intakeOneBallAuto(1)),
-                drive.auto(AutoPaths.twoBallLeftTwo,
-                        0.23),
-                shootTwoBallsAuto(), stopShooter());
-    }
-
-    // Shoot One ball and taxi
-    public CommandBase oneBallAuto() {
-        return sequence("One Ball Auto", drive.resetAuto(AutoPaths.oneBallLeftOne),
-                drive.auto(AutoPaths.oneBallLeftOne, 0.1555));
-    }
-
-    private CommandBase weekTwoAutoHigh() {
-        return sequence("Week Two Auto High",
-                shootHigh(),
-
-                parallel("Stop and drive",
-                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                        drive.driveDistance(2.8, 0, 0.5)),
-                parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
-    }
-
-    private CommandBase delayedAuto() {
-        return sequence("Delayed Auto",
-                new WaitCommand(2),
-                shootHigh(),
-
-                parallel("Stop and drive",
-                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                        drive.driveDistance(2.8, 0, 0.5)),
-                parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
-    }
-
-    private CommandBase weekTwoAutoLow() {
-        return sequence("Week Two Auto Low",
-                shootLow(),
-
-                parallel("Stop and drive",
-                        sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
-                        drive.driveDistance(2.8, 0, 0.5)),
-                parallel("Reset Arms", leftClimber.resetArms(), rightClimber.resetArms()));
-    }
-
-    private CommandBase onlyShoot() {
-        return sequence("Only Shoot", shootHigh());
-    }
-
-    @Autonomous
-    public CommandBase threeRightAuto = threeRightAuto();
-    @Autonomous
-    public CommandBase twoRightAuto = twoRightAuto();
-    @Autonomous
-    public CommandBase twoLeftAuto = twoLeftAuto();
-    @Autonomous
-    public CommandBase oneBallAuto = oneBallAuto();
-    @Autonomous
-    public CommandBase weekTwoAutoLow = weekTwoAutoLow();
-    @Autonomous
-    public CommandBase weekTwoAutoHigh = weekTwoAutoHigh();
-    @Autonomous
-    public CommandBase onlyShoot = onlyShoot();
-    @Autonomous(defaultAuto = true)
-    public CommandBase delayedAuto = delayedAuto();
 
     public DoubleUnaryOperator scalingDeadband(double range) {
         return speed -> {
@@ -288,8 +187,6 @@ public class Robot extends CommandRobot {
         SmartDashboard.putData("Reset Odometry", new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
         SmartDashboard.putData("Reset POSE for auto", drive.resetAuto(AutoPaths.twoBallLeftOne));
         SmartDashboard.putData("Update LEDS", led.serialPortSend());
-        SmartDashboard.putData("INtake One Ball", intakeOneBallAuto(0));
-
     }
 
     @Override
