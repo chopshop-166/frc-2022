@@ -185,7 +185,8 @@ public class Robot extends CommandRobot {
     @Override
     public void populateDashboard() {
         SmartDashboard.putData("Reset Odometry", new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
-        SmartDashboard.putData("Reset POSE for auto", drive.resetAuto(AutoPaths.twoBallLeftOne));
+        // SmartDashboard.putData("Reset POSE for auto",
+        // drive.resetAuto(AutoPaths.twoBallLeftOne));
         SmartDashboard.putData("Update LEDS", led.serialPortSend());
     }
 
