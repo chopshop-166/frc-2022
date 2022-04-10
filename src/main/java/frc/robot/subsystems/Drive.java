@@ -6,6 +6,7 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.drive.SwerveModule;
 import com.chopshop166.chopshoplib.motors.Modifier;
+import com.chopshop166.chopshoplib.pneumatics.CtreDSolenoid;
 import com.chopshop166.chopshoplib.sensors.gyro.SmartGyro;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
@@ -32,6 +33,7 @@ public class Drive extends SmartSubsystemBase {
     private final SwerveModule rearLeft;
     private final SwerveModule rearRight;
     private final SwerveDriveOdometry odometry;
+    private final CtreDSolenoid intake;
 
     private final double maxDriveSpeedMetersPerSecond;
     private final double maxRotationRadiansPerSecond;
@@ -67,6 +69,8 @@ public class Drive extends SmartSubsystemBase {
         startingAngleChooser.addOption("Right Hub", 21.0);
         startingAngleChooser.addOption("Zero", 0.0);
         SmartDashboard.putData("Starting Angle", startingAngleChooser);
+
+        intake = new CtreDSolenoid(6, 7);
     }
 
     public CommandBase setRotationOffset() {
