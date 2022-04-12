@@ -74,16 +74,10 @@ public class Robot extends CommandRobot {
     @Autonomous
     private CommandBase delayedAuto = auto.delayedAuto();
 
-    private CommandBase shootHigh() {
-        return sequence("Shoot High", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
+    private CommandBase shoot(HubSpeed speed, double wait) {
+        return sequence("Shoot", shooter.setTargetAndStartShooter(speed),
                 shooter.waitUntilSpeedUp(),
-                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new WaitCommand(0.5));
-    }
-
-    private CommandBase shootLow() {
-        return sequence("Shoot Low", shooter.setTargetAndStartShooter(HubSpeed.LOW_HIGH_HOOD),
-                shooter.waitUntilSpeedUp(),
-                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser());
+                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new WaitCommand(wait));
     }
 
     public DoubleUnaryOperator scalingDeadband(double range) {
@@ -128,10 +122,10 @@ public class Robot extends CommandRobot {
         driveController.rbumper().whenPressed(drive.setSpeedCoef(0.2)).whenReleased(drive.setSpeedCoef(1.0));
 
         driveController.y()
-                .whileHeld(shootHigh())
+                .whileHeld(shoot(HubSpeed.HIGH, 0.5))
                 .whenReleased(shooter.stop());
         driveController.x()
-                .whileHeld(shootLow())
+                .whileHeld(shoot(HubSpeed.LOW_HIGH_HOOD, 0.0))
                 .whenReleased(shooter.stop());
         driveController.b()
                 .whileHeld(sequence("Shoot", shooter.setTargetVariable(),

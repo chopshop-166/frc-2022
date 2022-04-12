@@ -30,24 +30,18 @@ public class Auto implements Commandable {
         this.rightClimber = rightClimber;
     }
 
-    private CommandBase shootHigh() {
-        return sequence("Shoot High", shooter.setTargetAndStartShooter(HubSpeed.HIGH),
+    private CommandBase shoot(HubSpeed speed, double wait) {
+        return sequence("Shoot", shooter.setTargetAndStartShooter(speed),
                 shooter.waitUntilSpeedUp(),
-                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new WaitCommand(0.5));
-    }
-
-    private CommandBase shootLow() {
-        return sequence("Shoot Low", shooter.setTargetAndStartShooter(HubSpeed.LOW_HIGH_HOOD),
-                shooter.waitUntilSpeedUp(),
-                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser());
+                ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new WaitCommand(wait));
     }
 
     private CommandBase shootOneBallAuto() {
-        return shootHigh().withName("Shoot One Ball Auto");
+        return shoot(HubSpeed.HIGH, 0.5).withName("Shoot One Ball Auto");
     }
 
     private CommandBase shootTwoBallsAuto() {
-        return sequence("Shoot Balls", shootHigh(), shootHigh(), stopShooter());
+        return sequence("Shoot Balls", shoot(HubSpeed.HIGH, 0.5), shoot(HubSpeed.HIGH, 0.5), stopShooter());
     }
 
     private CommandBase intakeOneBallAuto(double deploymentDelay) {
@@ -75,7 +69,7 @@ public class Auto implements Commandable {
 
     public CommandBase weekTwoAutoHigh() {
         return sequence("Week Two Auto High",
-                shootHigh(),
+                shoot(HubSpeed.HIGH, 0.5),
 
                 parallel("Stop and drive",
                         sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
@@ -86,7 +80,7 @@ public class Auto implements Commandable {
     public CommandBase delayedAuto() {
         return sequence("Delayed Auto",
                 new WaitCommand(2),
-                shootHigh(),
+                shoot(HubSpeed.HIGH, 0.5),
 
                 parallel("Stop and drive",
                         sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
@@ -96,7 +90,7 @@ public class Auto implements Commandable {
 
     public CommandBase weekTwoAutoLow() {
         return sequence("Week Two Auto Low",
-                shootLow(),
+                shoot(HubSpeed.LOW_HIGH_HOOD, 0.0),
                 parallel("Stop and drive",
                         sequence("Stop shooter", new WaitCommand(2), shooter.stop()),
                         drive.driveDistance(2.8, 0, 0.5)),
@@ -104,6 +98,6 @@ public class Auto implements Commandable {
     }
 
     public CommandBase onlyShoot() {
-        return sequence("Only Shoot", shootHigh());
+        return sequence("Only Shoot", shoot(HubSpeed.HIGH, 0.5));
     }
 }
