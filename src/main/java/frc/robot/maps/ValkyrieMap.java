@@ -209,7 +209,7 @@ public class ValkyrieMap extends RobotMap {
         // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
         extendMotor.addValidator(
                 new CurrentValidator(CLIMBER_EXTEND_LIMIT, () -> extendMotor.getMotorController().getOutputCurrent(),
-                        5));
+                        4));
 
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
         rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
@@ -243,7 +243,7 @@ public class ValkyrieMap extends RobotMap {
         // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
         extendMotor.addValidator(
                 new CurrentValidator(CLIMBER_EXTEND_LIMIT, () -> extendMotor.getMotorController().getOutputCurrent(),
-                        5));
+                        4));
 
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
         rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
