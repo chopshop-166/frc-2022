@@ -247,7 +247,7 @@ public class BallTransport extends SmartSubsystemBase {
 
         seenBallEntry.setBoolean(seenBall);
         laserSwitchEntry.setBoolean(laserSwitch.getAsBoolean());
-        SmartDashboard.putNumber("Color Sensor", colorSensor.getProximity());
+        SmartDashboard.putNumber("Color Proximity Sensor", colorSensor.getProximity());
     }
 
     @Override
