@@ -21,6 +21,7 @@ public class Led extends SmartSubsystemBase {
     private final SerialPort serialPort;
     private final NetworkTableEntry laserSwitchEntry;
     private final NetworkTableEntry seenBallEntry;
+    private final NetworkTableEntry proximityEntry;
 
     private int timer = 0;
 
@@ -34,6 +35,7 @@ public class Led extends SmartSubsystemBase {
         var netTable = NetworkTableInstance.getDefault().getTable("Transporter");
         seenBallEntry = netTable.getEntry("Seen Ball");
         laserSwitchEntry = netTable.getEntry("Laser State");
+        proximityEntry = netTable.getEntry("Proximity Sensor");
     }
 
     public CommandBase animate(LightAnimation animation, double brightness) {
@@ -43,7 +45,12 @@ public class Led extends SmartSubsystemBase {
                 if (seenBallEntry.getBoolean(false)) {
                     stateColor = new Color(1, 1, 0);
                 } else if (laserSwitchEntry.getBoolean(false)) {
-                    stateColor = new Color(0, 1, 0);
+
+                    if (proximityEntry.getBoolean(false)) {
+                        stateColor = new Color(1, 0, 1);
+                    } else {
+                        stateColor = new Color(0, 1, 0);
+                    }
                 }
                 for (int i = 0; i < ledBuffer.getLength(); i++) {
                     ledBuffer.setLED(i, stateColor);

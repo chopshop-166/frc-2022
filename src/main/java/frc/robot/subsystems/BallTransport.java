@@ -8,6 +8,7 @@ import com.chopshop166.chopshoplib.commands.SmartSubsystemBase;
 import com.chopshop166.chopshoplib.motors.SmartMotorController;
 import com.chopshop166.chopshoplib.sensors.IColorSensor;
 
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,7 +24,7 @@ public class BallTransport extends SmartSubsystemBase {
     private final SmartMotorController topMotor;
     private final IColorSensor colorSensor;
     private final BooleanSupplier laserSwitch;
-    private final NetworkTableEntry seenBallEntry, laserSwitchEntry;
+    private final NetworkTableEntry seenBallEntry, laserSwitchEntry, proximityEntry;
 
     // "random values that get bigger when it's closer"
     static private final int BALL_DETECTION_LIMIT = 160;
@@ -48,9 +49,10 @@ public class BallTransport extends SmartSubsystemBase {
         this.colorSensor = map.getColorSensor();
         this.laserSwitch = map.getLaserSwitch();
 
-        var netTable = NetworkTableInstance.getDefault().getTable("Transporter");
+        NetworkTable netTable = NetworkTableInstance.getDefault().getTable("Transporter");
         seenBallEntry = netTable.getEntry("Seen Ball");
         laserSwitchEntry = netTable.getEntry("Laser State");
+        proximityEntry = netTable.getEntry("Proximity Sensor");
     }
 
     private boolean colorSensorBallLimit() {
@@ -245,6 +247,7 @@ public class BallTransport extends SmartSubsystemBase {
     public void periodic() {
 
         seenBallEntry.setBoolean(seenBall);
+        proximityEntry.setBoolean(colorSensorBallLimit());
         laserSwitchEntry.setBoolean(laserSwitch.getAsBoolean());
     }
 
