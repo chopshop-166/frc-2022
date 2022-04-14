@@ -65,8 +65,7 @@ public class Drive extends SmartSubsystemBase {
         odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d());
 
         // These angles need some tweaking
-        startingAngleChooser.addOption("Left Hub", 69.0);
-        startingAngleChooser.addOption("Right Hub", 21.0);
+        startingAngleChooser.addOption("Left Hub", -223.88);
         startingAngleChooser.addOption("Zero", 0.0);
         SmartDashboard.putData("Starting Angle", startingAngleChooser);
     }
@@ -80,9 +79,6 @@ public class Drive extends SmartSubsystemBase {
     // This sets an offset for the gyro when the robot is turned on. This offset can
     // be selected using the sendable chooser depending on where the robot is
     // positioned and facing in the beginning of the match
-    public void setStartingAngle() {
-        startingRotation = startingAngleChooser.getSelected();
-    }
 
     public CommandBase resetRotationOffset() {
         return instant("Reset Rotation Offset", () -> {
@@ -186,6 +182,7 @@ public class Drive extends SmartSubsystemBase {
         // from the PathPlannerTrajectory to control the robot's rotation.
         // See the WPILib SwerveControllerCommand for more info on what you need to pass
         // to the command
+        startingRotation = path.getInitialPose().getRotation().getDegrees();
         return new PPSwerveControllerCommand(
                 path,
                 this::getPose,
