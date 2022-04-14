@@ -216,6 +216,8 @@ public class Drive extends SmartSubsystemBase {
                 rearRight.getState());
 
         field.setRobotPose(getPose());
+        SmartDashboard.putNumber("Drive Gyro Angle", gyro.getAngle());
+        SmartDashboard.putNumber("Drive Starting Angle", startingRotation);
     }
 
     public CommandBase driveDistance(final double distanceMeters, final double direction, final double speed) {
