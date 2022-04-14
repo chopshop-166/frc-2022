@@ -3,6 +3,7 @@ package frc.robot;
 import com.chopshop166.chopshoplib.commands.Commandable;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.BallTransport;
@@ -34,6 +35,10 @@ public class Auto implements Commandable {
         return sequence("Shoot", shooter.setTargetAndStartShooter(speed),
                 shooter.waitUntilSpeedUp(),
                 ballTransport.loadShooter(), ballTransport.moveBothMotorsToLaser(), new WaitCommand(wait));
+    }
+
+    public CommandBase offsetAuto() {
+        return sequence("", drive.resetAuto(AutoPaths.offsetTest), drive.auto(AutoPaths.offsetTest, 0.1555));
     }
 
     private CommandBase shootOneBallAuto() {
