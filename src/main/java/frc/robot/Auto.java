@@ -38,7 +38,7 @@ public class Auto implements Commandable {
     }
 
     public CommandBase offsetAuto() {
-        return sequence("", drive.resetAuto(AutoPaths.offsetTest), drive.auto(AutoPaths.offsetTest, 0.1555));
+        return sequence("Offset Auto", drive.resetAuto(AutoPaths.offsetTest), drive.auto(AutoPaths.offsetTest, 0.1555));
     }
 
     private CommandBase shootOneBallAuto() {
