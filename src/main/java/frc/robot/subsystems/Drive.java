@@ -170,7 +170,7 @@ public class Drive extends SmartSubsystemBase {
     public void resetOdometry(Pose2d pose) {
         gyro.setAngle(pose.getRotation().getDegrees() + 90);
         odometry.resetPosition(pose, gyro.getRotation2d());
-        startingRotation = pose.getRotation().getDegrees();
+        startingRotation = pose.getRotation().getDegrees() + 90;
 
     }
 
