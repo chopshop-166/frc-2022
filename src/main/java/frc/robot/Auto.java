@@ -3,7 +3,6 @@ package frc.robot;
 import com.chopshop166.chopshoplib.commands.Commandable;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.BallTransport;
@@ -68,7 +67,8 @@ public class Auto implements Commandable {
         return sequence("Two Ball Left Auto", drive.resetAuto(AutoPaths.twoBallLeftOne),
                 parallel("Intake and Drive", drive.auto(AutoPaths.twoBallLeftOne, 0.02), intakeOneBallAuto(1)),
                 drive.auto(AutoPaths.twoBallLeftTwo,
-                        0.23),
+                        0.245),
+                drive.auto(AutoPaths.twoBallLeftThree, 0),
                 shootTwoBallsAuto(), stopShooter());
     }
 
