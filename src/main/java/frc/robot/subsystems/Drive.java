@@ -170,6 +170,8 @@ public class Drive extends SmartSubsystemBase {
     public void resetOdometry(Pose2d pose) {
         gyro.setAngle(pose.getRotation().getDegrees() + 90);
         odometry.resetPosition(pose, gyro.getRotation2d());
+        startingRotation = pose.getRotation().getDegrees();
+
     }
 
     public CommandBase auto(PathPlannerTrajectory path, double thetaP) {
@@ -182,7 +184,6 @@ public class Drive extends SmartSubsystemBase {
         // from the PathPlannerTrajectory to control the robot's rotation.
         // See the WPILib SwerveControllerCommand for more info on what you need to pass
         // to the command
-        startingRotation = path.getInitialPose().getRotation().getDegrees();
         return new PPSwerveControllerCommand(
                 path,
                 this::getPose,
