@@ -27,10 +27,14 @@ public class MockSwerveModule implements SwerveModule {
         return location;
     }
 
+    @Override
+    public void setInverted(boolean isInverted) {
+    }
+
     /**
      * Process the desired state and set the output values for the motor
      * controllers.
-     * 
+     *
      * @param desiredState The direction and speed.
      */
     @Override

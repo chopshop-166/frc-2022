@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -27,7 +28,7 @@ public class BallTransport extends SmartSubsystemBase {
     private final NetworkTableEntry seenBallEntry, laserSwitchEntry, proximityEntry;
 
     // "random values that get bigger when it's closer"
-    static private final int BALL_DETECTION_LIMIT = 160;
+    static private final int BALL_DETECTION_LIMIT = 170;
     static private final double REMOVE_SPEED = -0.25;
     static private final double TRANSPORT_SPEED = 1;
 
@@ -59,7 +60,7 @@ public class BallTransport extends SmartSubsystemBase {
         return colorSensor.getProximity() > BALL_DETECTION_LIMIT;
     }
 
-    private CommandBase moveLowerToColor() {
+    public CommandBase moveLowerToColor() {
         return cmd("Wait for Ball").onExecute(() -> {
             bottomMotor.set(TRANSPORT_SPEED);
         }).runsUntil(() -> {
@@ -249,6 +250,7 @@ public class BallTransport extends SmartSubsystemBase {
         seenBallEntry.setBoolean(seenBall);
         proximityEntry.setBoolean(colorSensorBallLimit());
         laserSwitchEntry.setBoolean(laserSwitch.getAsBoolean());
+        SmartDashboard.putNumber("Color Proximity Sensor", colorSensor.getProximity());
     }
 
     @Override
