@@ -3,6 +3,7 @@ package frc.robot;
 import com.chopshop166.chopshoplib.commands.Commandable;
 import com.chopshop166.chopshoplib.states.SpinDirection;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.BallTransport;
@@ -11,6 +12,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.HubSpeed;
+import frc.robot.util.FunctionalWaitCommand;
 
 public class Auto implements Commandable {
     Drive drive;
@@ -28,6 +30,7 @@ public class Auto implements Commandable {
         this.shooter = shooter;
         this.leftClimber = leftClimber;
         this.rightClimber = rightClimber;
+        SmartDashboard.putNumber("Auto Delay", 7.0);
     }
 
     private CommandBase shoot(HubSpeed speed, double wait) {
@@ -84,7 +87,7 @@ public class Auto implements Commandable {
 
     public CommandBase delayedAuto() {
         return sequence("Delayed Auto",
-                new WaitCommand(7),
+                new FunctionalWaitCommand(() -> SmartDashboard.getNumber("Auto Delay", 0.0)),
                 shoot(HubSpeed.HIGH, 0.5),
 
                 parallel("Stop and drive",
