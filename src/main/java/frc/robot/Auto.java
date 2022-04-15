@@ -84,7 +84,7 @@ public class Auto implements Commandable {
 
     public CommandBase delayedAuto() {
         return sequence("Delayed Auto",
-                new WaitCommand(2),
+                new WaitCommand(7),
                 shoot(HubSpeed.HIGH, 0.5),
 
                 parallel("Stop and drive",
