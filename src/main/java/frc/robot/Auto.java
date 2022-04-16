@@ -87,7 +87,7 @@ public class Auto implements Commandable {
 
     public CommandBase delayedAuto() {
         return sequence("Delayed Auto",
-                new FunctionalWaitCommand(() -> SmartDashboard.getNumber("Auto Delay", 0.0)),
+                new FunctionalWaitCommand(() -> SmartDashboard.getNumber("Auto Delay", 7.0)),
                 shoot(HubSpeed.HIGH, 0.5),
 
                 parallel("Stop and drive",
