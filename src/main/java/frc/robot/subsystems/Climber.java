@@ -297,7 +297,7 @@ public class Climber extends SmartSubsystemBase {
                 Map.entry(ClimbStep.EXTEND_TO_NEXT_BAR, extendDistance(400.0)),
                 Map.entry(ClimbStep.EXTEND_FULLY, extendStop()),
                 Map.entry(ClimbStep.ROTATE_TO_NEXT_BAR, rotateDistance(9.6, ROTATE_ROBOT_SPEED)),
-                Map.entry(ClimbStep.PULL_ROBOT_OFF, extendDistance(194, 0.75)),
+                Map.entry(ClimbStep.PULL_ROBOT_OFF, extendDistance(164, 0.75)),
                 Map.entry(ClimbStep.RESET_ROTATE_ARMS, rotateDistance(0)),
                 Map.entry(ClimbStep.PULL_ROBOT_UP_FULLY, extendDistance(10)),
                 Map.entry(ClimbStep.PUT_ROTATING_ON_NEXT_BAR, rotateDistance(5.28)),
