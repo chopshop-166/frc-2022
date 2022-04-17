@@ -185,6 +185,8 @@ public class Robot extends CommandRobot {
         // SmartDashboard.putData("Reset POSE for auto",
         // drive.resetAuto(AutoPaths.twoBallLeftOne));
         SmartDashboard.putData("Update LEDS", led.serialPortSend());
+        SmartDashboard.putNumber("Auto Delay", 7.0);
+
     }
 
     @Override
