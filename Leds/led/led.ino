@@ -24,7 +24,7 @@ void setup()
 void loop(){
     switch (animationSelection){
       case 0:
-        setAll(0,255,0);
+        Fire(55,120,30, 3);
         break;
       case 1:
         Fire(55,120,30, COLOR_BLUE);
@@ -82,7 +82,7 @@ void showStrip() {
    FastLED.show();
 }
 
-void Fire(int Cooling, int Sparking, int SpeedDelay, bool color) {
+void Fire(int Cooling, int Sparking, int SpeedDelay, int color) {
   static byte heat[NUM_LEDS];
   int cooldown;
  
@@ -135,13 +135,21 @@ void setPixelHeatColor (int Pixel, byte temperature, bool color) {
     } else {                               // coolest
       setPixel(Pixel, 0, 0, heatramp);
     }
-  } else {
+  } else if(color == COLOR_RED) {
     if( t192 > 0x80) {                     // hottest
       setPixel(Pixel, 255, 255, heatramp);
     } else if( t192 > 0x40 ) {             // middle
       setPixel(Pixel, 255, heatramp, 0);
     } else {                               // coolest
       setPixel(Pixel, heatramp, 0, 0);
+    }
+  } else {
+    if( t192 > 0x80) {                     // hottest
+      setPixel(Pixel, 255, 127+heatramp/2, 255);
+    } else if( t192 > 0x40 ) {             // middle
+      setPixel(Pixel, 255, 127+heatramp, 0);
+    } else {                               // coolest
+      setPixel(Pixel, heatramp, heatramp/2, 0);
     }
   }
 }

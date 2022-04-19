@@ -172,6 +172,7 @@ public class ValkyrieMap extends RobotMap {
         final PIDSparkMax bottomMotor = new PIDSparkMax(17, MotorType.kBrushless);
 
         topMotor.getMotorController().setIdleMode(IdleMode.kBrake);
+        bottomMotor.getMotorController().setIdleMode(IdleMode.kBrake);
         final REVColorSensor colorSensor = new REVColorSensor(Port.kMXP);
 
         final WDigitalInput laserSwitch = new WDigitalInput(0);
@@ -212,7 +213,7 @@ public class ValkyrieMap extends RobotMap {
                         4));
 
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
-        rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
+        rotateMotor.addValidator(new CurrentValidator(CLIMBER_ROTATE_LIMIT, rotateController::getOutputCurrent, 4));
         rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
         return new ClimberMap(extendMotor, rotateMotor, extendController::getOutputCurrent,
@@ -246,7 +247,7 @@ public class ValkyrieMap extends RobotMap {
                         4));
 
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
-        rotateMotor.validateCurrent(CLIMBER_ROTATE_LIMIT);
+        rotateMotor.addValidator(new CurrentValidator(CLIMBER_ROTATE_LIMIT, rotateController::getOutputCurrent, 4));
         rotateMotor.getMotorController().setSmartCurrentLimit(CLIMBER_ROTATE_LIMIT);
 
         return new ClimberMap(extendMotor, rotateMotor, extendController::getOutputCurrent,
