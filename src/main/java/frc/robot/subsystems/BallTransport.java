@@ -30,7 +30,7 @@ public class BallTransport extends SmartSubsystemBase {
     // "random values that get bigger when it's closer"
     static private final int BALL_DETECTION_LIMIT = 170;
     static private final double REMOVE_SPEED = -0.25;
-    static private final double TRANSPORT_SPEED = 1;
+    static private final double TRANSPORT_SPEED = 0.8;
 
     boolean seenBall = false;
 
