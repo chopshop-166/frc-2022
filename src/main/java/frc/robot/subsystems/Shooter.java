@@ -24,8 +24,8 @@ public class Shooter extends SmartSubsystemBase {
     private final SmartMotorController motor;
     private final IEncoder encoder;
 
-    private static final double MAX_RPM = 5300;
-    private static final double RPM_BUFFER = 20;
+    private static final double MAX_RPS = 5300;
+    private static final double RPS_BUFFER = 5;
 
     private double shootSpeed;
 
@@ -124,7 +124,7 @@ public class Shooter extends SmartSubsystemBase {
     // setTargetHub/setSpeed
 
     public CommandBase waitUntilSpeedUp() {
-        BooleanSupplier check = () -> Math.abs(encoder.getRate() - shootSpeed) < RPM_BUFFER;
+        BooleanSupplier check = () -> Math.abs(encoder.getRate() - shootSpeed) < RPS_BUFFER;
         PersistenceCheck p = new PersistenceCheck(20, check);
         return cmd("Wait Until Speed Up").until(p);
 
@@ -133,7 +133,7 @@ public class Shooter extends SmartSubsystemBase {
     public CommandBase setSpeed(DoubleSupplier speed) {
         return instant("Set Speed", () -> {
             double speeds = speed.getAsDouble();
-            pid.setSetpoint(speeds * speeds * MAX_RPM);
+            pid.setSetpoint(speeds * speeds * MAX_RPS);
         });
     }
 
