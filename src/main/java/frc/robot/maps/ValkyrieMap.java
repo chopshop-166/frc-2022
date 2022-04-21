@@ -98,7 +98,7 @@ public class ValkyrieMap extends RobotMap {
 
         final WEncoder encoder = new WEncoder(1, 2, true, EncodingType.k1X);
 
-        final PIDController pid = new PIDController(0.82212 / 4.0, 0, 0);
+        final PIDController pid = new PIDController(0.83 / 4.0, 0, 0);
 
         motor.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
         follower.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
