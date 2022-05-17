@@ -4,6 +4,7 @@ import com.chopshop166.chopshoplib.drive.SDSSwerveModule;
 import com.chopshop166.chopshoplib.drive.SwerveDriveMap;
 import com.chopshop166.chopshoplib.maps.RobotMapFor;
 import com.chopshop166.chopshoplib.motors.PIDSparkMax;
+import com.chopshop166.chopshoplib.pneumatics.CtreDSolenoid;
 import com.chopshop166.chopshoplib.sensors.gyro.PigeonGyro;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -17,6 +18,8 @@ import edu.wpi.first.math.util.Units;
 @RobotMapFor("00:80:2F:19:7B:A3")
 public class OffAxisMap extends RobotMap {
     final PigeonGyro pigeonGyro = new PigeonGyro(new PigeonIMU(5));
+
+    final CtreDSolenoid intake = new CtreDSolenoid(6, 7);
 
     @Override
     public SwerveDriveMap getSwerveDriveMap() {
