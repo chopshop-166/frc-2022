@@ -19,7 +19,7 @@ import edu.wpi.first.math.util.Units;
 public class OffAxisMap extends RobotMap {
     final PigeonGyro pigeonGyro = new PigeonGyro(new PigeonIMU(5));
 
-    // WPILIB runs the compressor
+    // creating the intake object allows WPILIB to control the compressor
     final CtreDSolenoid intake = new CtreDSolenoid(6, 7);
 
     @Override
