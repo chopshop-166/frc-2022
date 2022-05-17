@@ -219,6 +219,11 @@ public class Drive extends SmartSubsystemBase {
         field.setRobotPose(getPose());
         SmartDashboard.putNumber("Drive Gyro Angle", gyro.getAngle());
         SmartDashboard.putNumber("Drive Starting Angle", startingRotation);
+        SmartDashboard.putData("Front Right", frontRight);
+        SmartDashboard.putData("Front Left", frontLeft);
+        SmartDashboard.putData("Rear Right", rearRight);
+        SmartDashboard.putData("Rear Left", rearLeft);
+
     }
 
     public CommandBase driveDistance(final double distanceMeters, final double direction, final double speed) {

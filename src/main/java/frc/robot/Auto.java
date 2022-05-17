@@ -70,7 +70,7 @@ public class Auto implements Commandable {
         return sequence("Two Ball Left Auto", drive.resetAuto(AutoPaths.twoBallLeftOne),
                 parallel("Intake and Drive", drive.auto(AutoPaths.twoBallLeftOne, 0.02), intakeOneBallAuto(1)),
                 drive.auto(AutoPaths.twoBallLeftTwo,
-                        0.245),
+                        0.26),
                 drive.auto(AutoPaths.twoBallLeftThree, 0),
                 shootTwoBallsAuto(), stopShooter());
     }

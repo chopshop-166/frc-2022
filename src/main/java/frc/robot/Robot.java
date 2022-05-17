@@ -125,7 +125,7 @@ public class Robot extends CommandRobot {
         driveController.rbumper().whenPressed(drive.setSpeedCoef(0.2)).whenReleased(drive.setSpeedCoef(1.0));
 
         driveController.y()
-                .whileHeld(shoot(HubSpeed.HIGH, 0.5))
+                .whileHeld(shoot(HubSpeed.HIGH, 0.7))
                 .whenReleased(shooter.stop());
         driveController.x()
                 .whileHeld(shoot(HubSpeed.LOW_HIGH_HOOD, 0.0))

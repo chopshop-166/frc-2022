@@ -60,43 +60,34 @@ public class ValkyrieMap extends RobotMap {
         encoderFL.configMagnetOffset(-195.381);
         encoderFL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule frontLeft = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, MODULE_OFFSET_XY),
-                encoderFL, frontLeftSteer, new PIDSparkMax(1,
-                        MotorType.kBrushless),
-                SDSSwerveModule.MK4_V2);
+                encoderFL, frontLeftSteer, new PIDSparkMax(1, MotorType.kBrushless), SDSSwerveModule.MK4_V2);
 
         // Front Right Module
         final CANCoder encoderFR = new CANCoder(2);
         encoderFR.configMagnetOffset(-304.189 + 180);
         encoderFR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule frontRight = new SDSSwerveModule(new Translation2d(MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
-                encoderFR, frontRightSteer, new PIDSparkMax(3,
-                        MotorType.kBrushless),
-                SDSSwerveModule.MK4_V2);
+                encoderFR, frontRightSteer, new PIDSparkMax(3, MotorType.kBrushless), SDSSwerveModule.MK4_V2);
 
         // Rear Left Module
         final CANCoder encoderRL = new CANCoder(3);
         encoderRL.configMagnetOffset(-298.213);
         encoderRL.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule rearLeft = new SDSSwerveModule(new Translation2d(-MODULE_OFFSET_XY, MODULE_OFFSET_XY),
-                encoderRL, rearLeftSteer, new PIDSparkMax(5,
-                        MotorType.kBrushless),
-                SDSSwerveModule.MK4_V2);
+                encoderRL, rearLeftSteer, new PIDSparkMax(5, MotorType.kBrushless), SDSSwerveModule.MK4_V2);
 
         // Rear Right Module
         final CANCoder encoderRR = new CANCoder(4);
         encoderRR.configMagnetOffset(-168.223 + 180);
         encoderRR.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         final SDSSwerveModule rearRight = new SDSSwerveModule(new Translation2d(-MODULE_OFFSET_XY, -MODULE_OFFSET_XY),
-                encoderRR, rearRightSteer, new PIDSparkMax(7,
-                        MotorType.kBrushless),
-                SDSSwerveModule.MK4_V2);
+                encoderRR, rearRightSteer, new PIDSparkMax(7, MotorType.kBrushless), SDSSwerveModule.MK4_V2);
 
-        final double maxDriveSpeedMetersPerSecond = Units.feetToMeters(10);
+        final double maxDriveSpeedMetersPerSecond = Units.feetToMeters(12);
 
         final double maxRotationRadianPerSecond = Math.PI;
 
-        return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
-                maxDriveSpeedMetersPerSecond,
+        return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight, maxDriveSpeedMetersPerSecond,
                 maxRotationRadianPerSecond, pigeonGyro);
     }
 
@@ -113,8 +104,7 @@ public class ValkyrieMap extends RobotMap {
         follower.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
         follower.getMotorController().setPeriodicFramePeriod(PeriodicFrame.kStatus0, 1000);
 
-        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.17243, 0.49992 /
-                4.0, 0.6289);
+        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.17243, 0.49992 / 4.0, 0.6289);
 
         // Ks: -0.17243
         // Kv: 0.49992
@@ -136,10 +126,8 @@ public class ValkyrieMap extends RobotMap {
         // Current limit in amps
         final int CURRENT_LIMIT = 30;
 
-        final PIDSparkMax deploymentMotor = new PIDSparkMax(11,
-                MotorType.kBrushless);
-        final PIDSparkMax deploymentFollower = new PIDSparkMax(12,
-                MotorType.kBrushless);
+        final PIDSparkMax deploymentMotor = new PIDSparkMax(11, MotorType.kBrushless);
+        final PIDSparkMax deploymentFollower = new PIDSparkMax(12, MotorType.kBrushless);
         final PIDSparkMax rollerMotor = new PIDSparkMax(13, MotorType.kBrushless);
         final var rollerController = rollerMotor.getMotorController();
 
@@ -157,8 +145,7 @@ public class ValkyrieMap extends RobotMap {
         // deploymentMotor.validateCurrent(CURRENT_LIMIT);
         deploymentMotor.addValidator(
                 new CurrentValidator(CURRENT_LIMIT, () -> deploymentMotor.getMotorController().getOutputCurrent(), 4));
-        deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(),
-                true);
+        deploymentFollower.getMotorController().follow(deploymentMotor.getMotorController(), true);
         deploymentMotor.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
         deploymentFollower.getMotorController().setSmartCurrentLimit(CURRENT_LIMIT);
         rollerMotor.getMotorController().setInverted(true);
@@ -208,9 +195,8 @@ public class ValkyrieMap extends RobotMap {
         rotateMotor.getMotorController().setInverted(false);
         // Setting the current limits on both the validators and motor controllers
         // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
-        extendMotor.addValidator(
-                new CurrentValidator(CLIMBER_EXTEND_LIMIT, () -> extendMotor.getMotorController().getOutputCurrent(),
-                        4));
+        extendMotor.addValidator(new CurrentValidator(CLIMBER_EXTEND_LIMIT,
+                () -> extendMotor.getMotorController().getOutputCurrent(), 4));
 
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
         rotateMotor.addValidator(new CurrentValidator(CLIMBER_ROTATE_LIMIT, rotateController::getOutputCurrent, 4));
@@ -242,9 +228,8 @@ public class ValkyrieMap extends RobotMap {
 
         // Setting the current limits on both the validators and motor controllers
         // extendMotor.validateCurrent(CLIMBER_EXTEND_LIMIT);
-        extendMotor.addValidator(
-                new CurrentValidator(CLIMBER_EXTEND_LIMIT, () -> extendMotor.getMotorController().getOutputCurrent(),
-                        4));
+        extendMotor.addValidator(new CurrentValidator(CLIMBER_EXTEND_LIMIT,
+                () -> extendMotor.getMotorController().getOutputCurrent(), 4));
 
         extendMotor.getMotorController().setSmartCurrentLimit(CLIMBER_EXTEND_LIMIT);
         rotateMotor.addValidator(new CurrentValidator(CLIMBER_ROTATE_LIMIT, rotateController::getOutputCurrent, 4));
