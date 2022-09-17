@@ -38,8 +38,18 @@ public class ValkyrieMap extends RobotMap {
     final int CLIMBER_ROTATE_LIMIT = 50;
     final PigeonGyro pigeonGyro = new PigeonGyro(new PigeonIMU(0));
 
+    private final boolean swerveDriveOn = true;
+    private final boolean ballTransportOn = true;
+    private final boolean climberOn = true;
+    private final boolean intakeOn = true;
+    private final boolean ledOn = true;
+    private final boolean shooterOn = true;
+
     @Override
     public SwerveDriveMap getSwerveDriveMap() {
+
+        if (!swerveDriveOn)
+            return super.getSwerveDriveMap();
         // Value taken from CAD as offset from center of module base pulley to center
         // of the robot
         final double MODULE_OFFSET_XY = 0.314325;
@@ -89,10 +99,13 @@ public class ValkyrieMap extends RobotMap {
 
         return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight, maxDriveSpeedMetersPerSecond,
                 maxRotationRadianPerSecond, pigeonGyro);
+
     }
 
     @Override
     public ShooterMap getShooterMap() {
+        if (!shooterOn)
+            return super.getShooterMap();
         final PIDSparkMax motor = new PIDSparkMax(16, MotorType.kBrushless);
         final PIDSparkMax follower = new PIDSparkMax(15, MotorType.kBrushless);
 
@@ -123,6 +136,9 @@ public class ValkyrieMap extends RobotMap {
 
     @Override
     public IntakeMap getIntakeMap() {
+
+        if (!intakeOn)
+            return super.getIntakeMap();
         // Current limit in amps
         final int CURRENT_LIMIT = 30;
 
@@ -155,6 +171,8 @@ public class ValkyrieMap extends RobotMap {
 
     @Override
     public BallTransportMap getBallTransportMap() {
+        if (!ballTransportOn)
+            return super.getBallTransportMap();
         final PIDSparkMax topMotor = new PIDSparkMax(14, MotorType.kBrushless);
         final PIDSparkMax bottomMotor = new PIDSparkMax(17, MotorType.kBrushless);
 
@@ -177,6 +195,8 @@ public class ValkyrieMap extends RobotMap {
 
     @Override
     public ClimberMap getLeftClimberMap() {
+        if (!climberOn)
+            return super.getLeftClimberMap();
         // The current limit for the climber's motors in amps
 
         final PIDSparkMax extendMotor = new PIDSparkMax(9, MotorType.kBrushless);
@@ -208,6 +228,8 @@ public class ValkyrieMap extends RobotMap {
 
     @Override
     public ClimberMap getRightClimberMap() {
+        if (!climberOn)
+            return super.getRightClimberMap();
 
         // The current limit for the climber's motors in amps
 
@@ -241,6 +263,8 @@ public class ValkyrieMap extends RobotMap {
 
     @Override
     public LedMap getLedMap() {
+        if (!ledOn)
+            return super.getLedMap();
         AddressableLED led = new AddressableLED(0);
         // Best if this is a multiple of 10
         AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(30);

@@ -17,6 +17,7 @@ import edu.wpi.first.math.util.Units;
 
 @RobotMapFor("00:80:2F:19:7B:A3")
 public class OffAxisMap extends RobotMap {
+
     final PigeonGyro pigeonGyro = new PigeonGyro(new PigeonIMU(5));
 
     // creating the intake object allows WPILIB to control the compressor
@@ -78,7 +79,6 @@ public class OffAxisMap extends RobotMap {
         final double maxDriveSpeedMetersPerSecond = Units.feetToMeters(10);
 
         final double maxRotationRadianPerSecond = Math.PI;
-
         return new SwerveDriveMap(frontLeft, frontRight, rearLeft, rearRight,
                 maxDriveSpeedMetersPerSecond,
                 maxRotationRadianPerSecond, pigeonGyro);
