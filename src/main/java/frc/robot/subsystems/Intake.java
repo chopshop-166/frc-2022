@@ -14,7 +14,7 @@ public class Intake extends SmartSubsystemBase {
     private final SmartMotorController deploymentMotor;
     private final SmartMotorController rollerMotor;
 
-    private static final double ROLLER_SPEED = 0.75;
+    private static final double ROLLER_SPEED = 1.0;
     private static final double DEPLOY_EXTEND_SPEED = 0.5;
     private static final double DEPLOY_RETRACT_SPEED = -0.5;
 
